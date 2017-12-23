@@ -95,7 +95,7 @@ OR
 CHANGELOG
 ---------
 
-= 20171223 - 2017-04-25 =
+= 20171223 - 2017-12-23 =
 * Initial release.
 
 LICENSE DETAILS
