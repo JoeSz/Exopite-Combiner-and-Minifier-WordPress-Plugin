@@ -207,10 +207,14 @@ class Exopite_Combiner_Minifier_Public {
                 $script_last_modified = $file_last_modified_time;
             }
 
+
+            // $data = ${$type}->registered[$handle]->extra['data'];
+            $data = ( isset( ${$type}->registered[$handle]->extra['data'] ) ) ? $data : '';
+
             $result[] =  array(
                 'src'       => $src,
                 'handle'    => $handle,
-                'data'      => ${$type}->registered[$handle]->extra['data'],
+                'data'      => $data,
                 'path'      => $path,
             );
         }
@@ -275,6 +279,8 @@ class Exopite_Combiner_Minifier_Public {
     public function get_combined( $list, $get_data = true ) {
 
         $result = [];
+        $result['data'] = '';
+        $result['content'] = '';
 
         foreach ( $list as $item ) {
 
@@ -283,7 +289,7 @@ class Exopite_Combiner_Minifier_Public {
                 /*
                  * We can collect "data" only in scripts
                  */
-                if ( $get_data && null !== $item['data'] ) {
+                if ( $get_data && isset( $item['data'] ) ) {
                     $result['data'] .= $item['data'];
                 }
 
