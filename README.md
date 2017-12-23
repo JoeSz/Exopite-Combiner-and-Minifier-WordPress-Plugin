@@ -23,7 +23,7 @@ I think, plugin and theme developers use CDN (or other external soruce) for a re
 
 <b>jQuery and jQuery migrate will be also ignored.</b> <br />
 Some plugin and theme developers sometimes enqueue they JavaScript and CSS files in the footer
-and in this case, those scripts are enqueued very late, that can be catched it earlier. If jQuery
+and in this case, those scripts are enqueued very late, they can not be catched earlier. If jQuery
 has processed, could cause depency issues.
 
 <b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
