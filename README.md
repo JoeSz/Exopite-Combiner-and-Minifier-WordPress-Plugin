@@ -11,6 +11,10 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
 
 Combine and minify enqueued CSS and JavaScript files.
 
+I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
+Unfortunately non of them did that without JavaScript and/or CSS errors.
+This plugin stil in early phase, I will do more tests and probably make a few corrections as well.
+
 DESCRIPTION
 -----------
 
