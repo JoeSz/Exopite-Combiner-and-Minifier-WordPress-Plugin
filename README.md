@@ -19,7 +19,8 @@ I think, plugin and theme developers use CDN (or other external soruce) for a re
 
 <b>jQuery and jQuery migrate will be also ignored.</b> <br />
 Some plugin and theme developers sometimes enqueue they JavaScript and CSS files in the footer
-and in this case, those scripts are enqueued very late, that can be catched it earlier.
+and in this case, those scripts are enqueued very late, that can be catched it earlier. If jQuery
+has processed, could cause depency issues.
 
 <b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
 based on the last modified time.
@@ -34,6 +35,12 @@ and that would be more time, what we otherwise gain.
 Uses:
 CSS: CssMin http://code.google.com/p/cssmin/ <br />
 JavaScript: JShrink https://github.com/tedious/JShrink
+
+NOTE
+----
+The combined JavaScript file will be enqueued in the footer. This could cause depency issues, if some
+very late enqueued JavaScript file has an earlier JavaScript depency. I think, this is very rear, you could
+remove the file via exopite-combiner-minifier-skip-wp_scripts filter. (You could use as <code>array( 'jquery', ... )</code>)
 
 ACTION HOOKS
 ------------
