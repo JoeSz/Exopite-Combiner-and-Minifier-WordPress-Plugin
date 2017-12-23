@@ -268,9 +268,13 @@ class Exopite_Combiner_Minifier_Public {
         // dirty absolute URL
         $abs = $host . $path . "/" . $rel;
 
-        // replace '//' or  '/./' or '/foo/../' with '/'
-        $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
-        $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
+        // // replace '//' or  '/./' or '/foo/../' with '/'
+        // $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
+        // $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
+
+        /* replace '//' or '/./' or '/foo/../' with '/' */
+        $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
+        for($n=1; $n>0; $abs=preg_replace($re, '/', $abs, -1, $n)) {}
 
         // absolute URL is ready!
         return $scheme . '://' . $abs;
