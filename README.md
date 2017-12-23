@@ -40,7 +40,7 @@ NOTE
 ----
 The combined JavaScript file will be enqueued in the footer. This could cause depency issues, if some
 very late enqueued JavaScript file has an earlier JavaScript depency. I think, this is very rear, you could
-remove the file via exopite-combiner-minifier-skip-wp_scripts filter. (You could use as <code>array( 'jquery', ... )</code>)
+remove the file via <code>exopite-combiner-minifier-skip-wp_scripts</code> filter. (You could use as <code>array( 'jquery', ... )</code>)
 
 ACTION HOOKS
 ------------
