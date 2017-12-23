@@ -13,7 +13,7 @@ Combine and minify enqueued CSS and JavaScript files.
 
 I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
 Unfortunately non of them did that without JavaScript and/or CSS errors.
-This plugin stil in early phase, I will do more tests and probably make a few corrections as well.
+This plugin still in early phase, I will do more tests and probably make a few corrections as well.
 
 DESCRIPTION
 -----------
@@ -29,7 +29,7 @@ has processed, could cause depency issues.
 <b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
 based on the last modified time.
 
-Convert relavie url() src-s to absolute in css files.
+Convert relatvie url() src-s to absolute in css files.
 
 The plugin work with the enqueued list from WordPress, it can be also done, to process the source code
 after output buffering, but sometimes plugin and theme developers use a conditional to enqueue resources
