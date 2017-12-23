@@ -221,6 +221,57 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    /**
+     * Converting Relative URLs to Absolute URLs in PHP
+     * @param  [string] $rel  relative item in css
+     * @param  [string] $base the css file url
+     * @return [string]       absolute url
+     *
+     * @link http://www.gambit.ph/converting-relative-urls-to-absolute-urls-in-php/
+     *
+     * Usage
+     *
+     * rel2abs( '../images/image.jpg', 'http://gambit.ph/css/style.css' );
+     * Outputs http://gambit.ph/images/image.jpg
+     */
+    public function rel2abs( $rel, $base ) {
+
+        // parse base URL  and convert to local variables: $scheme, $host,  $path
+        extract( parse_url( $base ) );
+
+        if ( strpos( $rel,"//" ) === 0 ) {
+            return $scheme . ':' . $rel;
+        }
+
+        // return if already absolute URL
+        if ( parse_url( $rel, PHP_URL_SCHEME ) != '' ) {
+            return $rel;
+        }
+
+        // queries and anchors
+        if ( $rel[0] == '#' || $rel[0] == '?' ) {
+            return $base . $rel;
+        }
+
+        // remove non-directory element from path
+        $path = preg_replace( '#/[^/]*$#', '', $path );
+
+        // destroy path if relative url points to root
+        if ( $rel[0] ==  '/' ) {
+            $path = '';
+        }
+
+        // dirty absolute URL
+        $abs = $host . $path . "/" . $rel;
+
+        // replace '//' or  '/./' or '/foo/../' with '/'
+        $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
+        $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
+
+        // absolute URL is ready!
+        return $scheme . '://' . $abs;
+    }
+
     public function get_combined( $list, $get_data = true ) {
 
         $result = [];
@@ -236,7 +287,35 @@ class Exopite_Combiner_Minifier_Public {
                     $result['data'] .= $item['data'];
                 }
 
-                $result['content'] .= file_get_contents( $item['path'] );
+                // Process css files
+                if ( substr( $item['path'], strrpos( $item['path'], '.' ) + 1 ) == 'css' ) {
+
+                    /*
+                     * Replace all relative url() to absoulte
+                     * Need to do this, because our combined css has a different path.
+                     * Ignore already absoulte urls, start with "http" and "//",
+                     * also ignore "data".
+                     */
+                    $result['content'] .= preg_replace_callback(
+                        '/url\(\s*[\'"]?\/?(.+?)[\'"]?\s*\)/i',
+                        function ( $matches ) use( $item ) {
+
+                            if ( ! $this->starts_with( $matches[1], 'http' ) &&
+                                 ! $this->starts_with( $matches[1], '//' ) &&
+                                 ! $this->starts_with( $matches[1], 'data' ) ) {
+                            }
+                            return "url('" . $this->rel2abs( $matches[1], $item['src'] ) . "')";
+                        },
+                        file_get_contents( $item['path'] )
+                    );
+
+                } else {
+
+                    $result['content'] .= file_get_contents( $item['path'] );
+
+                }
+
+
 
             }
 
