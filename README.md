@@ -14,12 +14,17 @@ Combine and minify enqueued CSS and JavaScript files.
 DESCRIPTION
 -----------
 
-External CSS and JavaScript files will be ignored.
+<b>External CSS and JavaScript files will be ignored.</b> <br />
 I think, plugin and theme developers use CDN (or other external soruce) for a reason.
 
-jQuery and jQuery migrate will be also ignored.
+<b>jQuery and jQuery migrate will be also ignored.</b> <br />
 Some plugin and theme developers sometimes enqueue they JavaScript and CSS files in the footer
 and in this case, those scripts are enqueued very late, that can be catched it earlier.
+
+<b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
+based on the last modified time.
+
+Convert relavie url() src-s to absolute in css files.
 
 The plugin work with the enqueued list from WordPress, it can be also done, to process the source code
 after output buffering, but sometimes plugin and theme developers use a conditional to enqueue resources
