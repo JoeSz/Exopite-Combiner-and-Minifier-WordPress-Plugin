@@ -67,7 +67,7 @@ USAGE
 
 Install and activate.
 
-No additional settings required.
+No additional settings are required.
 
 INSTALLATION
 ------------
