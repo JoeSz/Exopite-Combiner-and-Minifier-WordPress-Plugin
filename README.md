@@ -26,36 +26,40 @@ after output buffering, but sometimes plugin and theme developers use a conditio
 only on some pages. In this case, the plugin will be run every time on the different page,
 and that would be more time, what we otherwise gain.
 
+Uses:
+CSS: CssMin http://code.google.com/p/cssmin/ <br />
+JavaScript: JShrink https://github.com/tedious/JShrink
+
 ACTION HOOKS
 ------------
 
-exopite-combiner-minifier-styles-before-process
-exopite-combiner-minifier-styles-after-process
-exopite-combiner-minifier-scripts-before-process
+exopite-combiner-minifier-styles-before-process <br />
+exopite-combiner-minifier-styles-after-process <br />
+exopite-combiner-minifier-scripts-before-process <br />
 exopite-combiner-minifier-scripts-after-process
 
 FILTER HOOKS
 ------------
 
-exopite-combiner-minifier-process-styles
-exopite-combiner-minifier-process-scripts
-exopite-combiner-minifier-skip-wp_scripts
-exopite-combiner-minifier-skip-wp_styles
-exopite-combiner-minifier-wp_scripts-process-wp_includes
-exopite-combiner-minifier-wp_styles-process-wp_includes
-exopite-combiner-minifier-wp_scripts-ignore-external
-exopite-combiner-minifier-wp_styles-ignore-external
-exopite-combiner-minifier-enqueued-scripts-list
-exopite-combiner-minifier-enqueued-styles-list
-exopite-combiner-minifier-enqueued-scripts-contents
-exopite-combiner-minifier-enqueued-styles-contents
-exopite-combiner-minifier-scripts-file-path
-exopite-combiner-minifier-styles-file-path
-exopite-combiner-minifier-force-generate-scripts
-exopite-combiner-minifier-force-generate-styles
-exopite-combiner-minifier-scripts-last-modified
-exopite-combiner-minifier-styles-last-modified
-exopite-combiner-minifier-styles-file-url
+exopite-combiner-minifier-process-styles <br />
+exopite-combiner-minifier-process-scripts <br />
+exopite-combiner-minifier-skip-wp_scripts <br />
+exopite-combiner-minifier-skip-wp_styles <br />
+exopite-combiner-minifier-wp_scripts-process-wp_includes <br />
+exopite-combiner-minifier-wp_styles-process-wp_includes <br />
+exopite-combiner-minifier-wp_scripts-ignore-external <br />
+exopite-combiner-minifier-wp_styles-ignore-external <br />
+exopite-combiner-minifier-enqueued-scripts-list <br />
+exopite-combiner-minifier-enqueued-styles-list <br />
+exopite-combiner-minifier-enqueued-scripts-contents <br />
+exopite-combiner-minifier-enqueued-styles-contents <br />
+exopite-combiner-minifier-scripts-file-path <br />
+exopite-combiner-minifier-styles-file-path <br />
+exopite-combiner-minifier-force-generate-scripts <br />
+exopite-combiner-minifier-force-generate-styles <br />
+exopite-combiner-minifier-scripts-last-modified <br />
+exopite-combiner-minifier-styles-last-modified <br />
+exopite-combiner-minifier-styles-file-url <br />
 exopite-combiner-minifier-scripts-file-url
 
 USAGE
