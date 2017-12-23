@@ -390,10 +390,7 @@ class Exopite_Combiner_Minifier_Public {
          */
         ${$wp_type}->all_deps( ${$wp_type}->queue );
         $list = $this->get_enqueued( ${$wp_type}->to_do, $wp_type );
-        $contents = $this->get_combined( $list, true );
-
         $list = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-list', $list );
-        $contents = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-contents', $contents );
 
         /*
          * Set minified and combined file name
@@ -414,6 +411,10 @@ class Exopite_Combiner_Minifier_Public {
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $fn = 'minify_' . $type;
+
+            $contents = $this->get_combined( $list, true );
+            $contents = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-contents', $contents );
+
             $this->{$fn}( $combined_mifinited_filename, $contents );
             $combined_last_modified_times = time();
 
