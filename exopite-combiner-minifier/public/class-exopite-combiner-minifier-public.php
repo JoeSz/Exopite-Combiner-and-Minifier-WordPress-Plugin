@@ -280,7 +280,7 @@ class Exopite_Combiner_Minifier_Public {
         return $scheme . '://' . $abs;
     }
 
-    public function get_combined( $list ) {
+    public function get_combined( $list, $data_only = false ) {
 
         $result = [];
         $result['data'] = '';
@@ -288,17 +288,10 @@ class Exopite_Combiner_Minifier_Public {
 
         foreach ( $list as $item ) {
 
-            if ( file_exists( $item['path'] ) ) {
+            // Process css files
+            if ( ! $data_only && substr( $item['path'], strrpos( $item['path'], '.' ) + 1 ) == 'css' ) {
 
-                /*
-                 * We can collect "data" only in scripts
-                 */
-                if ( isset( $item['data'] ) ) {
-                    $result['data'] .= $item['data'];
-                }
-
-                // Process css files
-                if ( substr( $item['path'], strrpos( $item['path'], '.' ) + 1 ) == 'css' ) {
+                if ( file_exists( $item['path'] ) ) {
 
                     /*
                      * Replace all relative url() to absoulte
@@ -319,13 +312,22 @@ class Exopite_Combiner_Minifier_Public {
                         file_get_contents( $item['path'] )
                     );
 
-                } else {
+                }
+
+            } else {
+
+                /*
+                 * We can collect "data" only in scripts
+                 */
+                if ( isset( $item['data'] ) ) {
+                    $result['data'] .= $item['data'];
+                }
+
+                if ( ! $data_only && file_exists( $item['path'] ) ) {
 
                     $result['content'] .= file_get_contents( $item['path'] );
 
                 }
-
-
 
             }
 
