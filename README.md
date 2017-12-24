@@ -99,6 +99,10 @@ OR
 CHANGELOG
 ---------
 
+= 20171224 - 2017-12-24 =
+* Fix scripts data collection.
+* Do not run in admin area.
+
 = 20171223 - 2017-12-23 =
 * Initial release.
 
