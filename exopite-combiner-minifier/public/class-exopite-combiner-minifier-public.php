@@ -209,7 +209,7 @@ class Exopite_Combiner_Minifier_Public {
 
 
             // $data = ${$type}->registered[$handle]->extra['data'];
-            $data = ( isset( ${$type}->registered[$handle]->extra['data'] ) ) ? $data : '';
+            $data = ( isset( ${$type}->registered[$handle]->extra['data'] ) ) ? ${$type}->registered[$handle]->extra['data'] : '';
 
             $result[] =  array(
                 'src'       => $src,
@@ -280,7 +280,7 @@ class Exopite_Combiner_Minifier_Public {
         return $scheme . '://' . $abs;
     }
 
-    public function get_combined( $list, $get_data = true ) {
+    public function get_combined( $list ) {
 
         $result = [];
         $result['data'] = '';
@@ -293,7 +293,7 @@ class Exopite_Combiner_Minifier_Public {
                 /*
                  * We can collect "data" only in scripts
                  */
-                if ( $get_data && isset( $item['data'] ) ) {
+                if ( isset( $item['data'] ) ) {
                     $result['data'] .= $item['data'];
                 }
 
@@ -400,6 +400,7 @@ class Exopite_Combiner_Minifier_Public {
          */
         ${$wp_type}->all_deps( ${$wp_type}->queue );
         $list = $this->get_enqueued( ${$wp_type}->to_do, $wp_type );
+
         $list = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-list', $list );
 
         /*
@@ -422,7 +423,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $fn = 'minify_' . $type;
 
-            $contents = $this->get_combined( $list, true );
+            $contents = $this->get_combined( $list );
             $contents = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-contents', $contents );
 
             $this->{$fn}( $combined_mifinited_filename, $contents );
