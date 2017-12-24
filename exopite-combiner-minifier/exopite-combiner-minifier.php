@@ -59,6 +59,11 @@ if ( ! defined( 'WPINC' ) ) {
  *   can be an dependency issue.
  * - if get footer scritps as well and some script is enqueued only on some pages, than too many "on the file"
  *   css/js file creation
+ *
+ * Async loading?
+ * https://webmasters.stackexchange.com/questions/60276/how-does-cloudflares-rocket-loader-actually-work-and-how-can-a-developer-ensur
+ * https://wordpress.org/support/topic/add-async-in-enqueue/
+ * https://matthewhorne.me/defer-async-wordpress-scripts/
  */
 
 define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
