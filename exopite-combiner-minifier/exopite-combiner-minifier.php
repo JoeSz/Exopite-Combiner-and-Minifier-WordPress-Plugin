@@ -31,6 +31,8 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /*
+ * ToDo
+ *
  * Combine and minify (c+m) enqueued css/js files.
  *  - Loop enqueued files,
  *  - 1.) ignore jQuery(s) and not same domain
@@ -47,17 +49,15 @@ if ( ! defined( 'WPINC' ) ) {
  *  1.) - auto, conbine and minify, check file date to comapre,
  *        if nothing changed, then do not do anything.
  *        Pros: - easy to the user (default)
- *        Cons: - if different pages have different css/js, always minify and combine on the fly
- *                is way _too_ slow
- *  2.) - "save" button to c+m, save css/js file list to settings
- *        denqueue only what on the list
- *      - still check file times and new files, display an info in admin panel (settings page or global)
- *      - work after next site load?
+ *        Cons: - may have dependency issues if/for scripts enqueued in footer
+ *  2.) - process HTML before sent to browser
+ *        Pros: - easy to the user, no dependency issues
+ *        Cons: - separate file for each page
  *
  * Problems:
  * - if some plugin enqueue someting in the footer, then this scripts is enqueued AFTER those,
  *   can be an dependency issue.
- * - if get footer scritps as well and some script is enqueued only on some pages, than too many "on the file"
+ * - if get footer scritps as well and some script is enqueued only on some pages, than too many "on the fly"
  *   css/js file creation
  *
  * Async loading?
