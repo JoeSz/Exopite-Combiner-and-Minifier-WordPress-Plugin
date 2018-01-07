@@ -135,8 +135,22 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'            => 'delete_cache',
+                    'type'          => 'button',
+                    'title'         => esc_html__( 'Delete Cache', 'exopite-combiner-minifier' ),
+                    'options'       => array(
+                        'value'         => esc_html__( 'Delete Cache', 'exopite-combiner-minifier' ),
+                    ),
+                    'class'         => 'exopite-cam-delete-cache-js',
+                    'attributes'    => array(
+                        'data-confirm'  => 'Are you sure, you want to delete cache?',
+                        'data-ajaxurl'  => site_url( 'wp-admin/admin-ajax.php' ),
+                    ),
+                ),
+
+                array(
                     'id'      => 'method',
-                    'type'    => 'botton_bar',
+                    'type'    => 'button_bar',
                     'title'   => esc_html__( 'Method', 'exopite-combiner-minifier' ),
                     'options' => array(
                         'method-1'   => 'Method 1',
