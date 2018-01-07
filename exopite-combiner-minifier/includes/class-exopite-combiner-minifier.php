@@ -134,7 +134,7 @@ class Exopite_Combiner_Minifier {
 
          * @link https://github.com/tedious/JShrink
          */
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'JShrink.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'JSMinPlus.php' ) );
 
         /*
          * What is CssMin?
@@ -149,6 +149,8 @@ class Exopite_Combiner_Minifier {
          * @link http://code.google.com/p/cssmin/
          */
         require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'CssMin.php' ) );
+
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'admin', 'exopite-simple-options','exopite-simple-options-framework-class.php' ) );
 
 	}
 
@@ -183,6 +185,9 @@ class Exopite_Combiner_Minifier {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+        // Save/Update our plugin options
+        $this->loader->add_action( 'init', $plugin_admin, 'create_menu' );
+
 	}
 
 	/**
@@ -198,9 +203,43 @@ class Exopite_Combiner_Minifier {
 
         if ( ! is_admin() ) {
 
+            $options = get_option($this->plugin_name);
+            $method = ( isset( $options['method'] ) ) ? $options['method'] : 'method-1';
 
-            $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 9999 );
-            $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 9999 );
+            switch ( $method ) {
+
+                case 'method-1':
+
+                    $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 9999 );
+                    $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 9999 );
+
+                    break;
+
+                case 'method-2':
+
+                    /*
+                     * Start buffering when wp_loaded hook called
+                     * end buffering when showdown hook called
+                     *
+                     * In this case we can process the whole HTML just before it is send it to the browser.
+                     * Need to be disabled in admin, doing JSON, REST, XMLRPC or AJAX request, also in this cases
+                     * LazyLoad in unnecessarily.
+                     *
+                     */
+                    if ( ! ( ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
+                             ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
+                             ( defined('XMLRPC_REQUEST') && XMLRPC_REQUEST ) ||
+                             ( defined('DOING_AJAX') && DOING_AJAX )
+                        ) ) {
+
+                        $this->loader->add_filter( 'wp_loaded', $plugin_public, 'buffer_start', 12 );
+                        $this->loader->add_filter( 'shutdown', $plugin_public, 'buffer_end', 12 );
+
+                    }
+
+                    break;
+
+            }
 
         }
 	}
