@@ -7,108 +7,117 @@ Tested up to: 3.4
 Stable tag: 4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Version: 20180107
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Combine and minify enqueued CSS and JavaScript files.
 
-== Description ==
+I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
+Unfortunately non of them did that without JavaScript and/or CSS errors.
+This plugin still in early phase, I will do more tests and probably make a few corrections as well.
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+DESCRIPTION
+-----------
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+<b>External CSS and JavaScript files will be ignored.</b> <br />
+I think, plugin and theme developers use CDN (or other external soruce) for a reason.
 
-A few notes about the sections above:
+<b>jQuery and jQuery migrate will be also ignored.</b> <br />
+Some plugin and theme developers sometimes enqueue they JavaScript and CSS files in the footer
+and in this case, those scripts are enqueued very late, they can not be catched earlier. If jQuery
+has processed, could cause depency issues.
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+<b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
+based on the last modified time.
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+Convert relatvie url() src-s to absolute in css files.
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+The plugin work with the enqueued list from WordPress, it can be also done, to process the source code
+after output buffering, but sometimes plugin and theme developers use a conditional to enqueue resources
+only on some pages. In this case, the plugin will be run every time on the different page,
+and that would be more time, what we otherwise gain.
 
-== Installation ==
+Uses:
+CSS: CssMin http://code.google.com/p/cssmin/ <br />
+JavaScript: JShrink https://github.com/tedious/JShrink
 
-This section describes how to install the plugin and get it working.
+NOTE
+----
+The combined JavaScript file will be enqueued in the footer. This could cause depency issues, if some
+very late enqueued JavaScript file has an earlier JavaScript depency. I think, this is very rear, you could
+remove the file via <code>exopite-combiner-minifier-skip-wp_scripts</code> filter. (You could use as <code>array( 'jquery', ... )</code>)
 
-e.g.
+ACTION HOOKS
+------------
 
-1. Upload `exopite-combiner-minifier.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+exopite-combiner-minifier-styles-before-process <br />
+exopite-combiner-minifier-styles-after-process <br />
+exopite-combiner-minifier-scripts-before-process <br />
+exopite-combiner-minifier-scripts-after-process
 
-== Frequently Asked Questions ==
+FILTER HOOKS
+------------
 
-= A question that someone might have =
+exopite-combiner-minifier-process-styles <br />
+exopite-combiner-minifier-process-scripts <br />
+exopite-combiner-minifier-skip-wp_scripts <br />
+exopite-combiner-minifier-skip-wp_styles <br />
+exopite-combiner-minifier-wp_scripts-process-wp_includes <br />
+exopite-combiner-minifier-wp_styles-process-wp_includes <br />
+exopite-combiner-minifier-wp_scripts-ignore-external <br />
+exopite-combiner-minifier-wp_styles-ignore-external <br />
+exopite-combiner-minifier-enqueued-scripts-list <br />
+exopite-combiner-minifier-enqueued-styles-list <br />
+exopite-combiner-minifier-enqueued-scripts-contents <br />
+exopite-combiner-minifier-enqueued-styles-contents <br />
+exopite-combiner-minifier-scripts-file-path <br />
+exopite-combiner-minifier-styles-file-path <br />
+exopite-combiner-minifier-force-generate-scripts <br />
+exopite-combiner-minifier-force-generate-styles <br />
+exopite-combiner-minifier-scripts-last-modified <br />
+exopite-combiner-minifier-styles-last-modified <br />
+exopite-combiner-minifier-styles-file-url <br />
+exopite-combiner-minifier-scripts-file-url
 
-An answer to that question.
+USAGE
+-----
 
-= What about foo bar? =
+Install and activate.
 
-Answer to foo bar dilemma.
+No additional settings are required.
 
-== Screenshots ==
+INSTALLATION
+------------
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. [x] Upload `exopite-combiner-minifier` to the `/wp-content/plugins/exopite-combiner-minifier/` directory
 
-== Changelog ==
+OR
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
+1. [ ] ~~Install plugin from WordPress repository (not yet)~~
 
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+2. [x] Activate the plugin through the 'Plugins' menu in WordPress
 
-== Upgrade Notice ==
+CHANGELOG
+---------
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+= 20180107 - 2018-01-07 =
+* Added: new options menu.
+* Added: method 2 to process the HTML source after WordPress render them and before sent to browser to prevent dependency issues if/for scripts enqueued in footer.
+* Changed: replace JShrink with JSMinPlus
 
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
+= 20171224 - 2017-12-24 =
+* Fix scripts data collection.
+* Do not run in admin area.
 
-== Arbitrary section ==
+= 20171223 - 2017-12-23 =
+* Initial release.
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+LICENSE DETAILS
+---------------
 
-== A brief Markdown Example ==
+The GPL license of Exopite Multifilter grants you the right to use, study, share (copy), modify and (re)distribute the software, as long as these license terms are retained.
 
-Ordered list:
+DISCLAMER
+---------
 
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+NO WARRANTY OF ANY KIND! USE THIS SOFTWARES AND INFORMATIONS AT YOUR OWN RISK! READ DISCLAMER.TXT! <br />
+License: GNU General Public License v3

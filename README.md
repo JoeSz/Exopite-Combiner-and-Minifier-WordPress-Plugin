@@ -8,6 +8,7 @@ Tested up to: 4.9.1 <br />
 Stable tag: 4.8.0 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
+Version: 20180107
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -98,6 +99,11 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180107 - 2018-01-07 =
+* Added: new options menu.
+* Added: method 2 to process the HTML source after WordPress render them and before sent to browser to prevent dependency issues if/for scripts enqueued in footer.
+* Changed: replace JShrink with JSMinPlus
 
 = 20171224 - 2017-12-24 =
 * Fix scripts data collection.
