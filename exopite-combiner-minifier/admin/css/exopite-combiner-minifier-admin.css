@@ -1,4 +1,15 @@
-/**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
- */
+.list-arguments li {
+    margin-left: 20px;
+    position: relative;
+    margin-bottom: 0;
+}
+.list-arguments li::before {
+    position: absolute;
+    left: -15px;
+}
+.list-arguments.pros li::before {
+    content: '+';
+}
+.list-arguments.cons li::before {
+    content: '-';
+}
