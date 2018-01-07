@@ -1,32 +1,46 @@
 (function( $ ) {
 	'use strict';
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+    $(function() {
+
+        $( '.exopite-cam-delete-cache-js' ).on('click', function(event) {
+            event.preventDefault();
+
+            var res = confirm( $( this ).data('confirm') );
+
+            if ( res == true ) {
+
+                var $that = $( this );
+
+                $that.addClass( 'loading' );
+
+                $.ajax({
+                    url: $( this ).data('ajaxurl'),
+                    type: 'POST',
+                    data: {
+                        action: 'exopite_cam_delete_cache',
+                    },
+                    success: function( response ) {
+                        $that.removeClass( 'loading' );
+                        $that.addClass( 'respond respond-success' );
+                        setTimeout( function() {
+                            $that.removeClass( 'respond respond-success' );
+                        }, 3000);
+                    },
+                    error: function( xhr, status, error ) {
+                        console.log( 'Status: ' + xhr.status );
+                        console.log( 'Error: ' + xhr.responseText );
+                        $that.removeClass( 'loading' );
+                        $that.addClass( 'respond respond-error' );
+                    }
+                });
+
+            }
+
+            return false;
+
+        });
+
+    });
 
 })( jQuery );
