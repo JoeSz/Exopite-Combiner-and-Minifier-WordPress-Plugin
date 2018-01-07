@@ -768,7 +768,7 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        $html->find( 'body', 0)->innertext .= '<script type="text/javascript" src="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '"></script>';
+        $html->find( 'body', 0)->innertext .= '<script type="text/javascript" src="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '" defer></script>';
 
         $content = $html->save();
 
