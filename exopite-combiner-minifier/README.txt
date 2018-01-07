@@ -101,6 +101,7 @@ CHANGELOG
 
 = 20180107 - 2018-01-07 =
 * Added: new options menu.
+* Added: remove cached files.
 * Added: method 2 to process the HTML source after WordPress render them and before sent to browser to prevent dependency issues if/for scripts enqueued in footer.
 * Changed: replace JShrink with JSMinPlus
 
