@@ -525,7 +525,7 @@ class Exopite_Combiner_Minifier_Public {
             case 'styles':
                 $allowed_media = array( 'all', 'screen' );
                 if ( ! in_array( $media, $allowed_media ) ) return true;
-                $to_skip = array( 'admin-bar.min' );
+                $to_skip = array( 'admin-bar.min', 'dashicons.min' );
                 break;
 
         }
@@ -683,6 +683,8 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( ! in_array( $item->media, $allowed_media ) ) continue;
 
+            if ( strpos( $item->innertext, 'margin-top: 32px !important;' ) ) continue;
+
             if ( $create_file ) $to_write .= $item->innertext;
 
             $item->outertext = '';
@@ -807,6 +809,30 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function delete_cache() {
+
+        if ( ! current_user_can( 'manage_options' ) ) return;
+
+        //The name of the folder.
+        $folder = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined';
+
+        //Get a list of all of the file names in the folder.
+        $files = glob( $folder . '/*' );
+
+        //Loop through the file list.
+        foreach( $files as $file ) {
+
+            //Make sure that this is a file and not a directory.
+            if( is_file( $file ) ) {
+
+                //Use the unlink function to delete the file.
+                unlink( $file );
+            }
+        }
+
+        die( 'done' );
+
+    }
 
 }
 
