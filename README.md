@@ -30,16 +30,20 @@ has processed, could cause depency issues.
 <b>Process JavaScript and CSS file automatically</b> if no exist or one of the resource file is modified
 based on the last modified time.
 
-Convert relatvie url() src-s to absolute in css files.
+Convert relatvie url('../..') src-s to absolute in css files.
 
-The plugin work with the enqueued list from WordPress, it can be also done, to process the source code
+<b>The plugin has two methods:</b>
+
+* First method work with the enqueued list from WordPress, it can be also done, to process the source code
 after output buffering, but sometimes plugin and theme developers use a conditional to enqueue resources
 only on some pages. In this case, the plugin will be run every time on the different page,
-and that would be more time, what we otherwise gain.
+and that would be more time, what we otherwise gain,
+
+* Second method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple HTML DOM Parser and Output Buffering.
 
 Uses:
 CSS: CssMin http://code.google.com/p/cssmin/ <br />
-JavaScript: JShrink https://github.com/tedious/JShrink
+JavaScript: JSMinPlus https://github.com/mattheu/MinQueue/blob/master/PHP-Minify-Lib/JSMinPlus.php
 
 NOTE
 ----
