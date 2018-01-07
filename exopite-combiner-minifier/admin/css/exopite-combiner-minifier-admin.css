@@ -13,3 +13,32 @@
 .list-arguments.cons li::before {
     content: '-';
 }
+.exopite-cam-delete-cache-js.loading::before {
+    content: '';
+    right: -26px;
+    background: url('/wp-admin/images/spinner.gif') no-repeat;
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 11px;
+}
+.exopite-cam-delete-cache-js.respond::after {
+    position: absolute;
+    right: -40px;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    line-height: 25px;
+    border-radius: 3px;
+    font-size: 16px;
+    top: 6px;
+}
+.exopite-cam-delete-cache-js.respond-success::after {
+    content: '\2714';
+    background: green;
+}
+.exopite-cam-delete-cache-js.respond-error::after {
+    content: '\2718';
+    background: red;
+}
