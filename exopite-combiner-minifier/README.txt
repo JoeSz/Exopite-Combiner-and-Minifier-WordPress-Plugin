@@ -100,7 +100,8 @@ CHANGELOG
 ---------
 
 = 20180113 - 2018-01-13 =
-* Added: if enqueued file list changed, regenerate (method-2)
+* Added: if enqueued file list changed, regenerate
+* Fixed: hooks for method-2
 
 = 20180107 - 2018-01-07 =
 * Added: new options menu.
