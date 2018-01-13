@@ -677,6 +677,10 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts_styles( $content ) {
 
+        $id = get_the_ID();
+
+        if ( empty( $id ) ) $content;
+
         $log = true;
 
         if ( $log ) $time_scripts = 'NaN ';
