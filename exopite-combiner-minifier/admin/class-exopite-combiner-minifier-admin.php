@@ -169,6 +169,7 @@ class Exopite_Combiner_Minifier_Admin {
                         '</ul></p><p><b>' .
                         esc_html__( 'Cons: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments cons">' .
                         '<li>' . esc_html__( 'may have dependency issues if/for scripts enqueued in footer', 'exopite-combiner-minifier' ) . '</li>' .
+                        '<li style="font-weight: bold;color: red;">' . esc_html__( 'if site has different styles and/or srcipts per page, will be regenerate every time if other page will displyed, in this case, please use method 2', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
                     'header'  => esc_html__( 'Method 1', 'exopite-combiner-minifier' ),
