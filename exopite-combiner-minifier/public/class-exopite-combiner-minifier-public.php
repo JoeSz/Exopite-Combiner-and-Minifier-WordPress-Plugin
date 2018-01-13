@@ -139,6 +139,78 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    /**
+     * Converting Relative URLs to Absolute URLs in PHP
+     * @param  [string] $rel  relative item in css
+     * @param  [string] $base the css file url
+     * @return [string]       absolute url
+     *
+     * @link http://www.gambit.ph/converting-relative-urls-to-absolute-urls-in-php/
+     *
+     * Usage
+     *
+     * rel2abs( '../images/image.jpg', 'http://gambit.ph/css/style.css' );
+     * Outputs http://gambit.ph/images/image.jpg
+     */
+    public function rel2abs( $rel, $base ) {
+
+        // parse base URL  and convert to local variables: $scheme, $host,  $path
+        extract( parse_url( $base ) );
+
+        if ( strpos( $rel,"//" ) === 0 ) {
+            return $scheme . ':' . $rel;
+        }
+
+        // return if already absolute URL
+        if ( parse_url( $rel, PHP_URL_SCHEME ) != '' ) {
+            return $rel;
+        }
+
+        // queries and anchors
+        if ( $rel[0] == '#' || $rel[0] == '?' ) {
+            return $base . $rel;
+        }
+
+        // remove non-directory element from path
+        $path = preg_replace( '#/[^/]*$#', '', $path );
+
+        // destroy path if relative url points to root
+        if ( $rel[0] ==  '/' ) {
+            $path = '';
+        }
+
+        // dirty absolute URL
+        $abs = $host . $path . "/" . $rel;
+
+        // // replace '//' or  '/./' or '/foo/../' with '/'
+        // $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
+        // $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
+
+        /* replace '//' or '/./' or '/foo/../' with '/' */
+        $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
+        for($n=1; $n>0; $abs=preg_replace($re, '/', $abs, -1, $n)) {}
+
+        // absolute URL is ready!
+        return $scheme . '://' . $abs;
+    }
+
+    public function check_last_modified_time( $filename, $timestamp ) {
+
+        $file_last_modified_time = $this->get_file_last_modified_time( $filename );
+
+        if ( ! $file_last_modified_time || $file_last_modified_time < $timestamp ) return true;
+
+        return false;
+
+    }
+
+    /*************************************************************\
+     *                                                           *
+     *                         METHOD 1                          *
+     *                                                           *
+    \*************************************************************/
+
+
     public function get_enqueued( $list, $type = 'wp_scripts' ) {
 
         global ${$type};
@@ -227,61 +299,6 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
-    /**
-     * Converting Relative URLs to Absolute URLs in PHP
-     * @param  [string] $rel  relative item in css
-     * @param  [string] $base the css file url
-     * @return [string]       absolute url
-     *
-     * @link http://www.gambit.ph/converting-relative-urls-to-absolute-urls-in-php/
-     *
-     * Usage
-     *
-     * rel2abs( '../images/image.jpg', 'http://gambit.ph/css/style.css' );
-     * Outputs http://gambit.ph/images/image.jpg
-     */
-    public function rel2abs( $rel, $base ) {
-
-        // parse base URL  and convert to local variables: $scheme, $host,  $path
-        extract( parse_url( $base ) );
-
-        if ( strpos( $rel,"//" ) === 0 ) {
-            return $scheme . ':' . $rel;
-        }
-
-        // return if already absolute URL
-        if ( parse_url( $rel, PHP_URL_SCHEME ) != '' ) {
-            return $rel;
-        }
-
-        // queries and anchors
-        if ( $rel[0] == '#' || $rel[0] == '?' ) {
-            return $base . $rel;
-        }
-
-        // remove non-directory element from path
-        $path = preg_replace( '#/[^/]*$#', '', $path );
-
-        // destroy path if relative url points to root
-        if ( $rel[0] ==  '/' ) {
-            $path = '';
-        }
-
-        // dirty absolute URL
-        $abs = $host . $path . "/" . $rel;
-
-        // // replace '//' or  '/./' or '/foo/../' with '/'
-        // $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
-        // $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
-
-        /* replace '//' or '/./' or '/foo/../' with '/' */
-        $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
-        for($n=1; $n>0; $abs=preg_replace($re, '/', $abs, -1, $n)) {}
-
-        // absolute URL is ready!
-        return $scheme . '://' . $abs;
-    }
-
     public function get_combined( $list, $data_only = false ) {
 
         $result = [];
@@ -363,16 +380,6 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
-    public function check_last_modified_time( $filename, $timestamp ) {
-
-        $file_last_modified_time = $this->get_file_last_modified_time( $filename );
-
-        if ( ! $file_last_modified_time || $file_last_modified_time < $timestamp ) return true;
-
-        return false;
-
-    }
-
     public function minify_styles( $combined_mifinited_filename, $contents ) {
 
         $startTime = microtime(true);
@@ -408,6 +415,28 @@ class Exopite_Combiner_Minifier_Public {
         $list = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-list', $list );
 
         /*
+         * Check if enqueued list
+         */
+        $src_list = array();
+        foreach ( $list as $value ) {
+            $src_list[] = $value['src'];
+        }
+
+        // Get saved list from plugin options
+        $plugin_options = get_option( $this->plugin_name );
+        $list_saved = $plugin_options['list-saved-' . $type];
+
+        $list_changed = ( $list_saved != $src_list );
+
+        if ( $list_changed ) {
+
+            // if list has been changed, update plugin options
+            $plugin_options['list-saved-' . $type] = $src_list;
+            update_option( $this->plugin_name, $plugin_options );
+
+        }
+
+        /*
          * Set minified and combined file name
          */
         $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
@@ -415,14 +444,19 @@ class Exopite_Combiner_Minifier_Public {
         $combined_last_modified_times = $list['last-modified'];
 
         /*
-         * Check last modified time
+         * Check if need to regenerate
          *
-         * if has a script with a newer modified time as combined file, then regenerate combined file,
-         * make sure it is up to date.
+         * - if enqueued has been changed or
+         * - if has a script with a newer modified time as combined file of
+         * - if user override with filter
+         *
+         * then regenerate combined file, make sure it is up to date.
+         *
          * With this, we do not have to generate the file every time, only if some changes occurred,
          * it is more convenient for the user, because it is automatic.
          */
-        if ( $this->check_last_modified_time( $combined_mifinited_filename, $list['last-modified'] ) ||
+        if ( $list_changed ||
+             $this->check_last_modified_time( $combined_mifinited_filename, $list['last-modified'] ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $fn = 'minify_' . $type;
@@ -448,6 +482,8 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
+            $startTime = microtime(true);
+
             do_action( 'exopite-combiner-minifier-styles-before-process' );
 
             $combined_file_name = 'styles-combined.css';
@@ -462,6 +498,10 @@ class Exopite_Combiner_Minifier_Public {
 
             do_action( 'exopite-combiner-minifier-styles-after-process' );
 
+            $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
+
+            echo '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_styles . 's. -->' . PHP_EOL;
+
         }
 
     }
@@ -469,6 +509,8 @@ class Exopite_Combiner_Minifier_Public {
     public function scripts_handler() {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
+
+            $startTime = microtime(true);
 
             do_action( 'exopite-combiner-minifier-scripts-before-process' );
 
@@ -487,6 +529,10 @@ class Exopite_Combiner_Minifier_Public {
             });
 
             do_action( 'exopite-combiner-minifier-scripts-after-process' );
+
+            $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
+
+            echo '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL;
 
         }
 
@@ -867,13 +913,34 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        $startTime = microtime(true);
-        $content = $this->process_scripts( $content );
-        $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
+        if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
-        $startTime = microtime(true);
-        $content = $this->process_styles( $content );
-        $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
+            $startTime = microtime(true);
+
+            do_action( 'exopite-combiner-minifier-scripts-before-process' );
+
+            $content = $this->process_scripts( $content );
+
+            do_action( 'exopite-combiner-minifier-scripts-after-process' );
+
+            $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
+
+        }
+
+        if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
+
+            $startTime = microtime(true);
+
+            do_action( 'exopite-combiner-minifier-styles-before-process' );
+
+            $content = $this->process_styles( $content );
+
+            do_action( 'exopite-combiner-minifier-styles-after-process' );
+
+            $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
+
+        }
+
 
         // $content = $this->sanitize_output( $content );
 
