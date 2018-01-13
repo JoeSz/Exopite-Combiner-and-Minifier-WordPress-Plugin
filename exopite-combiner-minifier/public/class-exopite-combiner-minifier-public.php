@@ -703,7 +703,7 @@ class Exopite_Combiner_Minifier_Public {
              *                          Scripts                        *
             \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            if ( $process_scripts == 'yes' ) {
+            if ( $process_scripts == 'yes' && apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
                 if ( $log ) $start_time = microtime(true);
 
@@ -791,7 +791,7 @@ class Exopite_Combiner_Minifier_Public {
              *                          Styles                         *
             \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            if ( $process_styles == 'yes' ) {
+            if ( $process_styles == 'yes' && apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
                 if ( $log ) $start_time = microtime(true);
 
@@ -967,7 +967,7 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
+        if ( apply_filters( 'exopite-combiner-minifier-process-scripts-styles', true ) ) {
 
             $startTime = microtime(true);
 
