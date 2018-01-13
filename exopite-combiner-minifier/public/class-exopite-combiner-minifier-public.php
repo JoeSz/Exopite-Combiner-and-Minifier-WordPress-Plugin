@@ -604,8 +604,57 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function check_list( $items, $type ) {
+
+        $list_saved = get_post_meta( get_the_ID(), $this->plugin_name . '-' . $type, true );
+
+        $list = array();
+
+        foreach( $items as $item ) {
+
+            switch ( $type ) {
+
+                case 'scripts':
+                    $src = $item->src;
+                    break;
+
+                case 'styles':
+                    $src = $item->href;
+                    break;
+
+            }
+
+            if ( isset( $src ) && $src ) {
+
+                /*
+                 * Get path from src
+                 */
+                $path = $this->get_path( $src );
+
+                if ( $this->to_skip( $src, $path, $type, $item->media ) ) continue;
+
+                $list[] = strtok( $src, '?' );
+
+            }
+
+        }
+
+        if ( $list_saved != $list ) {
+
+            update_post_meta( get_the_ID(), $this->plugin_name . '-' . $type, $list );
+            return true;
+
+        }
+
+        return false;
+
+    }
+
     public function process_styles( $content ) {
 
+        /*
+         * Set file names
+         */
         $combined_file_name = 'styles-combined-' . get_the_ID() . '.css';
         $combined_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_file_name;
         $combined_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_mifinited_file_url );
@@ -620,28 +669,36 @@ class Exopite_Combiner_Minifier_Public {
         // Load HTML from a string/variable
         $html->load( $content, $lowercase = true, $stripRN = false, $defaultBRText = DEFAULT_BR_TEXT );
 
+        // Get all styles
         $items = $html->find( 'link[rel=stylesheet]' );
 
+        // Get last "last modified time" from enqueued items
         $last_modified = $this->get_last_modified( $items, 'styles' );
 
         $create_file = false;
 
-        if ( $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
+        // If combined and minified files are different then the enqueued files or
+        // the last modified time is different or
+        // override it via filter
+        // then need to regenerate file.
+        if ( $this->check_list( $items, 'styles' ) || $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $create_file = true;
 
         }
 
+        // Loop items
         foreach( $items as $item ) {
 
-            $media .= $item->media . PHP_EOL;
-
+            // Get item url and remove attributes.
             $src = $item->href;
             $src = strtok( $src, '?' );
 
+            // Get path from url
             $path = $this->get_path( $src );
 
+            // Skip admin styles
             if ( $this->to_skip( $src, $path, 'styles', $item->media ) )  continue;
 
             if ( $create_file ) {
@@ -671,41 +728,52 @@ class Exopite_Combiner_Minifier_Public {
 
             }
 
+            // Remove processed element from DOM
             $item->outertext = '';
 
         }
 
+        // Find inline styles
         $items = $html->find( 'style' );
 
+        // Process only styles assigend for all media or screens
         $allowed_media = array( 'all', 'screen' );
 
         foreach( $items as $item ) {
 
             if ( ! in_array( $item->media, $allowed_media ) ) continue;
 
+            // Skip admin inline style
             if ( strpos( $item->innertext, 'margin-top: 32px !important;' ) ) continue;
 
+            // Add to processing if need to generate file
             if ( $create_file ) $to_write .= $item->innertext;
 
+            // Remove them
             $item->outertext = '';
 
         }
 
+        /*
+         * Minify combined css
+         * Write it out
+         */
         if ( $create_file ) {
 
             file_put_contents( $combined_mifinited_filename, CssMin::minify( $to_write ) );
 
         }
 
+        // Insert generated the end of the head tag
         $html->find( 'head', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '" type="text/css" media="all" />';
 
+        // Save content
         $content = $html->save();
 
         $html->clear();
         unset($html);
 
         return $content;
-
     }
 
     public function process_scripts( $content ) {
@@ -730,7 +798,7 @@ class Exopite_Combiner_Minifier_Public {
 
         $create_file = false;
 
-        if ( $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
+        if ( $this->check_list( $items, 'scripts' ) || $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $create_file = true;
@@ -739,14 +807,16 @@ class Exopite_Combiner_Minifier_Public {
 
         foreach( $items as $item ) {
 
+            /*
+             * If item has scr then get file content
+             * if not, get inline scripts
+             */
             if ( isset( $item->src ) ) {
 
                 $src = $item->src;
                 $src = strtok( $src, '?' );
 
                 $path = $this->get_path( $src );
-
-                $pathinfo = pathinfo( $path );
 
                 if ( $this->to_skip( $src, $path, 'scripts' ) )  continue;
 
@@ -768,6 +838,9 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
+        /*
+         * Add generated file to the end of the body
+         */
         $html->find( 'body', 0)->innertext .= '<script type="text/javascript" src="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '" defer></script>';
 
         $content = $html->save();
@@ -780,6 +853,8 @@ class Exopite_Combiner_Minifier_Public {
     }
 
     public function process_html( $content ) {
+
+        if ( is_admin() ) return $content;
 
         $this->site_url = get_site_url();
 
