@@ -149,6 +149,28 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'      => 'process_scripts',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'process_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'process_html',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
                     'id'      => 'method',
                     'type'    => 'button_bar',
                     'title'   => esc_html__( 'Method', 'exopite-combiner-minifier' ),
@@ -165,6 +187,7 @@ class Exopite_Combiner_Minifier_Admin {
                         esc_html__( 'This method go through all WordPress registered scripts and combine and minify them.', 'exopite-combiner-minifier' ) .'</p><p><b>' .
                         esc_html__( 'Pros: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments pros">' .
                         '<li>' . esc_html__( 'easy to the user', 'exopite-combiner-minifier' ) . '</li>' .
+                        '<li>' . esc_html__( 'checking much faster (~0.005s)', 'exopite-combiner-minifier' ) . '</li>' .
                         '<li>' . esc_html__( 'generate only one file per type (Css/JS)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul></p><p><b>' .
                         esc_html__( 'Cons: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments cons">' .
@@ -186,6 +209,7 @@ class Exopite_Combiner_Minifier_Admin {
                         '</ul></p><p><b>' .
                         esc_html__( 'Cons: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments cons">' .
                         '<li>' . esc_html__( 'create a separate Css/JS file for each page', 'exopite-combiner-minifier' ) . '</li>' .
+                        '<li>' . esc_html__( 'checking is slower (~0.1s)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
                     'header'  => esc_html__( 'Method 2', 'exopite-combiner-minifier' ),
