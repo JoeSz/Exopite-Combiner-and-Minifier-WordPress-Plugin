@@ -678,7 +678,6 @@ class Exopite_Combiner_Minifier_Public {
     public function process_scripts_styles( $content ) {
 
         $log = true;
-        $to_write = '';
 
         if ( $log ) $time_scripts = 'NaN ';
         if ( $log ) $time_styles = 'NaN ';
@@ -705,6 +704,8 @@ class Exopite_Combiner_Minifier_Public {
                 if ( $log ) $start_time = microtime(true);
 
                 do_action( 'exopite-combiner-minifier-scripts-before-process' );
+
+                $to_write = '';
 
                 /*
                  * Set script file name
@@ -788,10 +789,11 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( $process_styles == 'yes' ) {
 
-
                 if ( $log ) $start_time = microtime(true);
 
                 do_action( 'exopite-combiner-minifier-styles-before-process' );
+
+                $to_write = '';
 
                 /*
                  * Set styles file name
