@@ -7,7 +7,7 @@ Tested up to: 3.4
 Stable tag: 4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20180107
+Version: 20180113
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -98,6 +98,9 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180113 - 2018-01-13 =
+* Added: if enqueued file list changed, regenerate (method-2)
 
 = 20180107 - 2018-01-07 =
 * Added: new options menu.
