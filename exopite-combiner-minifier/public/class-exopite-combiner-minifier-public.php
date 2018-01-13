@@ -679,7 +679,7 @@ class Exopite_Combiner_Minifier_Public {
 
         $id = get_the_ID();
 
-        if ( empty( $id ) ) $content;
+        if ( ! isset( $id ) || empty( $id ) ) return $content;
 
         $log = true;
 
