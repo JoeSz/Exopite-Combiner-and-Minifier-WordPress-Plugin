@@ -733,7 +733,7 @@ class Exopite_Combiner_Minifier_Public {
                 // then need to regenerate file.
                 if ( $this->check_list( $items, 'scripts' ) ||
                      $this->check_last_modified_time( $combined_scripts_mifinited_filename, $last_modified ) ||
-                     apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
+                     apply_filters( 'exopite-combiner-minifier-force-generate-scripts', false ) ) {
 
                     $create_file = true;
 
@@ -823,7 +823,7 @@ class Exopite_Combiner_Minifier_Public {
                 // then need to regenerate file.
                 if ( $this->check_list( $items, 'styles' ) ||
                      $this->check_last_modified_time( $combined_styles_mifinited_filename, $last_modified ) ||
-                     apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
+                     apply_filters( 'exopite-combiner-minifier-force-generate-styles', false ) ) {
 
                     $create_file = true;
 
