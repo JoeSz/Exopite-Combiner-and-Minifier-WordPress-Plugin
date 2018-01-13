@@ -210,8 +210,11 @@ class Exopite_Combiner_Minifier {
 
                 case 'method-1':
 
-                    $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 9999 );
-                    $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 9999 );
+                    $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
+                    $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
+
+                    if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 9999 );
+                    if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 9999 );
 
                     break;
 
@@ -242,6 +245,11 @@ class Exopite_Combiner_Minifier {
             }
 
         }
+
+        // The wp_ajax_ is telling wordpress to use ajax and the prefix_ajax_first is the hook name to use in JavaScript.
+        // The ajax_first is the callback function.
+        $this->loader->add_action('wp_ajax_exopite_cam_delete_cache', $plugin_public, 'delete_cache');
+
 	}
 
 	/**
