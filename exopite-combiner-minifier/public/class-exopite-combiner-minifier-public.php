@@ -210,7 +210,6 @@ class Exopite_Combiner_Minifier_Public {
      *                                                           *
     \*************************************************************/
 
-
     public function get_enqueued( $list, $type = 'wp_scripts' ) {
 
         global ${$type};
@@ -583,26 +582,6 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
-    public function sanitize_output( $content ) {
-
-        $search = array(
-            '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
-            '/[^\S ]+\</s',     // strip whitespaces before tags, except space
-            '/(\s)+/s',         // shorten multiple whitespace sequences
-            '/<!--(.|\s)*?-->/' // Remove HTML comments
-        );
-
-        $replace = array(
-            '>',
-            '<',
-            '\\1',
-            ''
-        );
-
-        return preg_replace( $search, $replace, $content );
-
-    }
-
     public function get_last_modified( $items, $type ) {
 
         $file_last_modified_time = '';
@@ -696,17 +675,9 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
-    public function process_styles( $content ) {
+    public function process_scripts_styles( $content ) {
 
-        /*
-         * Set file names
-         */
-        $combined_file_name = 'styles-combined-' . get_the_ID() . '.css';
-        $combined_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_file_name;
-        $combined_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_mifinited_file_url );
-
-        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
-        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_mifinited_filename );
+        $log = true;
 
         $to_write = '';
 
@@ -714,6 +685,106 @@ class Exopite_Combiner_Minifier_Public {
 
         // Load HTML from a string/variable
         $html->load( $content, $lowercase = true, $stripRN = false, $defaultBRText = DEFAULT_BR_TEXT );
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+         *                          Scripts                        *
+        \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        if ( $log ) $start_time = microtime(true);
+
+        do_action( 'exopite-combiner-minifier-scripts-before-process' );
+
+        /*
+         * Set script file name
+         */
+        $combined_scripts_file_name = 'scripts-combined-' . get_the_ID() . '.js';
+        $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
+        $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
+
+        $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
+        $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
+
+        $items = $html->find( 'script' );
+
+        $last_modified = $this->get_last_modified( $items, 'scripts' );
+
+        $create_file = false;
+
+        // If combined and minified files are different then the enqueued files or
+        // the last modified time is different or
+        // override it via filter
+        // then need to regenerate file.
+        if ( $this->check_list( $items, 'scripts' ) ||
+             $this->check_last_modified_time( $combined_scripts_mifinited_filename, $last_modified ) ||
+             apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
+
+            $create_file = true;
+
+        }
+
+        foreach( $items as $item ) {
+
+            /*
+             * If item has scr then get file content
+             * if not, get inline scripts
+             */
+            if ( isset( $item->src ) ) {
+
+                // Get item url and remove attributes.
+                $src = $item->src;
+                $src = strtok( $src, '?' );
+
+                // Get path from url
+                $path = $this->get_path( $src );
+
+                // Skip admin scripts, jQuery, ...
+                if ( $this->to_skip( $src, $path, 'scripts' ) )  continue;
+
+                if ( $create_file ) $to_write .= file_get_contents( $path );
+
+            } else {
+
+                if ( $create_file ) $to_write .= $item->innertext;
+
+            }
+
+            // Remove processed
+            $item->outertext = '';
+
+        }
+
+        if ( $create_file ) {
+
+            file_put_contents( $combined_scripts_mifinited_filename, JSMinPlus::minify( $to_write ) );
+
+        }
+
+        /*
+         * Add generated file to the end of the body
+         */
+        $html->find( 'body', 0)->innertext .= '<script type="text/javascript" src="' . $combined_scripts_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_scripts_mifinited_filename ) . '" defer></script>';
+
+        do_action( 'exopite-combiner-minifier-scripts-after-process' );
+
+        if ( $log ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
+
+        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+         *                          Styles                         *
+        \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+        if ( $log ) $start_time = microtime(true);
+
+        do_action( 'exopite-combiner-minifier-styles-before-process' );
+
+        /*
+         * Set styles file name
+         */
+        $combined_styles_file_name = 'styles-combined-' . get_the_ID() . '.css';
+        $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
+        $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_styles_mifinited_file_url );
+
+        $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
+        $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
 
         // Get all styles
         $items = $html->find( 'link[rel=stylesheet]' );
@@ -727,7 +798,8 @@ class Exopite_Combiner_Minifier_Public {
         // the last modified time is different or
         // override it via filter
         // then need to regenerate file.
-        if ( $this->check_list( $items, 'styles' ) || $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
+        if ( $this->check_list( $items, 'styles' ) ||
+             $this->check_last_modified_time( $combined_styles_mifinited_filename, $last_modified ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $create_file = true;
@@ -787,7 +859,18 @@ class Exopite_Combiner_Minifier_Public {
 
         foreach( $items as $item ) {
 
-            if ( ! in_array( $item->media, $allowed_media ) ) continue;
+            if ( ! in_array( $item->media, $allowed_media ) ) {
+
+                // Minify inline style element
+                $item->innertext = CSSMin::minify( $item->innertext );
+
+                // Remove empty
+                if ( empty( $item->innertext ) ) {
+                    $item->outertext = '';
+                }
+
+                continue;
+            }
 
             // Skip admin inline style
             if ( strpos( $item->innertext, 'margin-top: 32px !important;' ) ) continue;
@@ -806,95 +889,28 @@ class Exopite_Combiner_Minifier_Public {
          */
         if ( $create_file ) {
 
-            file_put_contents( $combined_mifinited_filename, CssMin::minify( $to_write ) );
+            file_put_contents( $combined_styles_mifinited_filename, CssMin::minify( $to_write ) );
 
         }
 
         // Insert generated the end of the head tag
-        $html->find( 'head', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '" type="text/css" media="all" />';
+        $html->find( 'head', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) . '" type="text/css" media="all" />';
 
-        // Save content
-        $content = $html->save();
+        do_action( 'exopite-combiner-minifier-styles-after-process' );
 
-        $html->clear();
-        unset($html);
-
-        return $content;
-    }
-
-    public function process_scripts( $content ) {
-
-        $combined_file_name = 'scripts-combined-' . get_the_ID() . '.js';
-        $combined_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_file_name;
-        $combined_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_mifinited_file_url );
-
-        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
-        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_mifinited_filename );
-
-        $to_write = '';
-
-        $html = new simple_html_dom();
-
-        // Load HTML from a string/variable
-        $html->load( $content, $lowercase = true, $stripRN = false, $defaultBRText = DEFAULT_BR_TEXT );
-
-        $items = $html->find( 'script' );
-
-        $last_modified = $this->get_last_modified( $items, 'scripts' );
-
-        $create_file = false;
-
-        if ( $this->check_list( $items, 'scripts' ) || $this->check_last_modified_time( $combined_mifinited_filename, $last_modified ) ||
-             apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
-
-            $create_file = true;
-
-        }
-
-        foreach( $items as $item ) {
-
-            /*
-             * If item has scr then get file content
-             * if not, get inline scripts
-             */
-            if ( isset( $item->src ) ) {
-
-                $src = $item->src;
-                $src = strtok( $src, '?' );
-
-                $path = $this->get_path( $src );
-
-                if ( $this->to_skip( $src, $path, 'scripts' ) )  continue;
-
-                if ( $create_file ) $to_write .= file_get_contents( $path );
-
-            } else {
-
-                if ( $create_file ) $to_write .= $item->innertext;
-
-            }
-
-            $item->outertext = '';
-
-        }
-
-        if ( $create_file ) {
-
-            file_put_contents( $combined_mifinited_filename, JSMinPlus::minify( $to_write ) );
-
-        }
-
-        /*
-         * Add generated file to the end of the body
-         */
-        $html->find( 'body', 0)->innertext .= '<script type="text/javascript" src="' . $combined_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_mifinited_filename ) . '" defer></script>';
+        if ( $log ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
         $content = $html->save();
 
         $html->clear();
         unset($html);
 
-        return $content;
+        $times = ( ! $log ) ? '' : PHP_EOL
+            . '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL
+            . '<!-- Exopite Combiner Minifier - CssMin: '. $time_styles . 's. -->' . PHP_EOL
+            ;
+
+        return $content . $times;
 
     }
 
@@ -913,44 +929,25 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
-
-            $startTime = microtime(true);
-
-            do_action( 'exopite-combiner-minifier-scripts-before-process' );
-
-            $content = $this->process_scripts( $content );
-
-            do_action( 'exopite-combiner-minifier-scripts-after-process' );
-
-            $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
-
-        }
-
         if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
             $startTime = microtime(true);
 
-            do_action( 'exopite-combiner-minifier-styles-before-process' );
+            $content = $this->process_scripts_styles( $content );
 
-            $content = $this->process_styles( $content );
-
-            do_action( 'exopite-combiner-minifier-styles-after-process' );
-
-            $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
+            $time_scripts_styles = number_format( ( microtime(true) - $startTime ), 4 );
 
         }
 
-
-        // $content = $this->sanitize_output( $content );
-
-        return $content . PHP_EOL
-            . '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL
-            . '<!-- Exopite Combiner Minifier - CssMin: '. $time_styles . 's. -->' . PHP_EOL
+        return $content
+            . '<!-- Exopite Combiner Minifier - TOTAL: '. $time_scripts_styles . 's. -->' . PHP_EOL
             ;
 
     }
 
+    /*
+     * Delete cache folder via AJAX
+     */
     public function delete_cache() {
 
         if ( ! current_user_can( 'manage_options' ) ) return;
