@@ -905,9 +905,16 @@ class Exopite_Combiner_Minifier_Public {
         $html->clear();
         unset($html);
 
+        if ( $log ) $startTime = microtime(true);
+
+        $content = $this->fn_minify_html( $content );
+
+        if ( $log ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
+
         $times = ( ! $log ) ? '' : PHP_EOL
             . '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL
             . '<!-- Exopite Combiner Minifier - CssMin: '. $time_styles . 's. -->' . PHP_EOL
+            . '<!-- Exopite Combiner Minifier - HTML: '. $time_html . 's. -->' . PHP_EOL
             ;
 
         return $content . $times;
@@ -944,6 +951,113 @@ class Exopite_Combiner_Minifier_Public {
             ;
 
     }
+
+    /*************************************************************\
+     *                                                           *
+     *                       Minify HTML                         *
+     *                                                           *
+    \*************************************************************/
+    /**
+     * tovic/php-html-css-js-minifier.php
+     * @link https://gist.github.com/tovic/d7b310dea3b33e4732c0
+     */
+    // escape character
+    // define('X', "\x1A");
+    // normalize line–break(s)
+    public function n($s) {
+        return str_replace(["\r\n", "\r"], "\n", $s);
+    }
+
+    // trim once
+    public function t($a, $b) {
+        if ($a && strpos($a, $b) === 0 && substr($a, -strlen($b)) === $b) {
+            return substr(substr($a, strlen($b)), 0, -strlen($b));
+        }
+        return $a;
+    }
+
+    public function fn_minify($pattern, $input) {
+        return preg_split('#(' . implode('|', $pattern) . ')#', $input, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+    }
+
+    public function fn_minify_html($input, $comment = 2, $quote = 1) {
+        if (!is_string($input) || !$input = $this->n(trim($input))) return $input;
+        $output = $prev = "";
+        // define('MINIFY_COMMENT_CSS', '/\*[\s\S]*?\*/');
+        define('MINIFY_STRING', '"(?:[^"\\\]|\\\.)*"|\'(?:[^\'\\\]|\\\.)*\'');
+        define('MINIFY_COMMENT_HTML', '<!\-{2}[\s\S]*?\-{2}>');
+        define('MINIFY_HTML', '<[!/]?[a-zA-Z\d:.-]+[\s\S]*?>');
+        define('MINIFY_HTML_ENT', '&(?:[a-zA-Z\d]+|\#\d+|\#x[a-fA-F\d]+);');
+        define('MINIFY_HTML_KEEP', '<pre(?:\s[^<>]*?)?>[\s\S]*?</pre>|<code(?:\s[^<>]*?)?>[\s\S]*?</code>|<script(?:\s[^<>]*?)?>[\s\S]*?</script>|<style(?:\s[^<>]*?)?>[\s\S]*?</style>|<textarea(?:\s[^<>]*?)?>[\s\S]*?</textarea>');
+
+        foreach ($this->fn_minify([MINIFY_COMMENT_HTML, MINIFY_HTML_KEEP, MINIFY_HTML, MINIFY_HTML_ENT], $input) as $part) {
+            if ($part === "\n") continue;
+            if ($part !== ' ' && trim($part) === "" || $comment !== 1 && strpos($part, '<!--') === 0) {
+                // Detect IE conditional comment(s) by its closing tag …
+                if ($comment === 2 && substr($part, -12) === '<![endif]-->') {
+                    $output .= $part;
+                }
+                continue;
+            }
+            if ($part[0] === '<' && substr($part, -1) === '>') {
+                $output .= $this->fn_minify_html_union($part, $quote);
+            } else if ($part[0] === '&' && substr($part, -1) === ';' && $part !== '&lt;' && $part !== '&gt;' && $part !== '&amp;') {
+                $output .= html_entity_decode($part); // Evaluate HTML entit(y|ies)
+            } else {
+                $output .= preg_replace('#\s+#', ' ', $part);
+            }
+            $prev = $part;
+        }
+        $output = str_replace(' </', '</', $output);
+        // Force space with `&#x0020;` and line–break with `&#x000A;`
+        $output = str_ireplace(['&#x0020;', '&#x20;', '&#x000A;', '&#xA;'], [' ', ' ', "\n", "\n"], trim($output));
+        // return str_ireplace(['&#x0020;', '&#x20;', '&#x000A;', '&#xA;'], [' ', ' ', "\n", "\n"], trim($output));
+
+        return $output;
+    }
+
+    public function fn_minify_html_union($input, $quote) {
+        if (
+            strpos($input, ' ') === false &&
+            strpos($input, "\n") === false &&
+            strpos($input, "\t") === false
+        ) return $input;
+        global $url;
+        return preg_replace_callback('#<\s*([^\/\s]+)\s*(?:>|(\s[^<>]+?)\s*>)#', function($m) use($quote, $url) {
+            if (isset($m[2])) {
+                $a = 'a(sync|uto(focus|play))|c(hecked|ontrols)|d(efer|isabled)|hidden|ismap|loop|multiple|open|re(adonly|quired)|s((cop|elect)ed|pellcheck)';
+                $a = '<' . $m[1] . preg_replace([
+                    // From `a="a"`, `a='a'`, `a="true"`, `a='true'`, `a=""` and `a=''` to `a` [^1]
+                    '#\s(' . $a . ')(?:=([\'"]?)(?:true|\1)?\2)#i',
+                    // Remove extra white–space(s) between HTML attribute(s) [^2]
+                    '#\s*([^\s=]+?)(=(?:\S+|([\'"]?).*?\3)|$)#',
+                    // From `<img />` to `<img/>` [^3]
+                    '#\s+\/$#'
+                ], [
+                    // [^1]
+                    ' $1',
+                    // [^2]
+                    ' $1$2',
+                    // [^3]
+                    '/'
+                ], str_replace("\n", ' ', $m[2])) . '>';
+                return $quote !== 1 ? $this->fn_minify_html_union_attr($a) : $a;
+            }
+            return '<' . $m[1] . '>';
+        }, $input);
+    }
+
+    public function fn_minify_html_union_attr($input) {
+        if (strpos($input, '=') === false) return $input;
+        return preg_replace_callback('#=(' . MINIFY_STRING . ')#', function($m) {
+            $q = $m[1][0];
+            if (strpos($m[1], ' ') === false && preg_match('#^' . $q . '[a-zA-Z_][\w-]*?' . $q . '$#', $m[1])) {
+                return '=' . t($m[1], $q);
+            }
+            return $m[0];
+        }, $input);
+    }
+
 
     /*
      * Delete cache folder via AJAX
