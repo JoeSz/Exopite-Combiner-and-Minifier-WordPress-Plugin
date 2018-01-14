@@ -952,9 +952,16 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    //https://stackoverflow.com/questions/5266945/wordpress-how-detect-if-current-page-is-the-login-page/5892694#5892694
+    public function is_login_page() {
+
+        return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
+
+    }
+
     public function process_html( $content ) {
 
-        if ( is_admin() ) return $content;
+        if ( is_admin() || $this->is_login_page() ) return $content;
 
         $this->site_url = get_site_url();
 
