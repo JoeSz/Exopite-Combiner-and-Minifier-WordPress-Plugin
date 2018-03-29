@@ -68,6 +68,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME', 'exopite-combiner-minifier' );
 
 /**
  * Currently pligin version.
@@ -96,6 +97,37 @@ function deactivate_exopite_combiner_minifier() {
 
 register_activation_hook( __FILE__, 'activate_exopite_combiner_minifier' );
 register_deactivation_hook( __FILE__, 'deactivate_exopite_combiner_minifier' );
+
+/*
+ * Update
+ */
+if ( is_admin() ) {
+
+    /**
+     * A custom update checker for WordPress plugins.
+     *
+     * Useful if you don't want to host your project
+     * in the official WP repository, but would still like it to support automatic updates.
+     * Despite the name, it also works with themes.
+     *
+     * @link http://w-shadow.com/blog/2011/06/02/automatic-updates-for-commercial-themes/
+     * @link https://github.com/YahnisElsts/plugin-update-checker
+     * @link https://github.com/YahnisElsts/wp-update-server
+     */
+    if( ! class_exists( 'Puc_v4_Factory' ) ) {
+
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_SEO_PATH, 'vendor', 'plugin-update-checker', 'plugin-update-checker.php' ) );
+
+    }
+
+    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+        'https://update.szalai.org/?action=get_metadata&slug=' . EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME, //Metadata URL.
+        __FILE__, //Full path to the main plugin file.
+        EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME //Plugin slug. Usually it's the same as the name of the directory.
+    );
+
+}
+// End Update
 
 /**
  * The core plugin class that is used to define internationalization,
