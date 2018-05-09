@@ -156,10 +156,24 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'      => 'combine_only_scripts',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Combine only (scripts)', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                ),
+
+                array(
                     'id'      => 'process_styles',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'combine_only_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Combine only (styles)', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
                 ),
 
                 array(
