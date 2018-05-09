@@ -2,12 +2,12 @@
 Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+Requires at least: 4.7
+Tested up to: 4.9.5
+Stable tag: 4.9.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20180113
+Version: 20180509
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -98,6 +98,10 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180509 - 2018-05-09 =
+* Added: Option to combine only
+* Improvement: Add semicolon to JavaScript file end if not exist
 
 = 20180113 - 2018-01-13 =
 * Added: if enqueued file list changed, regenerate

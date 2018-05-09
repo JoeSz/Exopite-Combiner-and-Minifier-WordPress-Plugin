@@ -4,11 +4,11 @@
 Author link: http://joe.szalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8.0 <br />
-Tested up to: 4.9.1 <br />
-Stable tag: 4.8.0 <br />
+Tested up to: 4.9.5 <br />
+Stable tag: 4.9.5 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20180113
+Version: 20180509
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -103,6 +103,10 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180509 - 2018-05-09 =
+* Added: Option to combine only
+* Improvement: Add semicolon to JavaScript file end if not exist
 
 = 20180113 - 2018-01-13 =
 * Added: if enqueued file list changed, regenerate
