@@ -338,12 +338,17 @@ class Exopite_Combiner_Minifier_Public {
                  * We can collect "data" only in scripts
                  */
                 if ( isset( $item['data'] ) ) {
+                    if ( mb_substr( $item['data'], -1 ) != ';' ) $item['data'] .= ';';
                     $result['data'] .= $item['data'];
                 }
 
                 if ( ! $data_only && file_exists( $item['path'] ) ) {
+                    $file_content = file_get_contents( $item['path'] );
+                    if ( mb_substr( $file_content, -1 ) != ';' ) {
+                        $file_content .= ';';
+                    }
 
-                    $result['content'] .= file_get_contents( $item['path'] );
+                    $result['content'] .= $file_content;
 
                 }
 
@@ -382,16 +387,44 @@ class Exopite_Combiner_Minifier_Public {
     public function minify_styles( $combined_mifinited_filename, $contents ) {
 
         $startTime = microtime(true);
-        file_put_contents( $combined_mifinited_filename, CssMin::minify( $contents['content'] ) );
-        echo "<!-- Exopite Combiner and Minifier - minify and write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+
+        $options = get_option( $this->plugin_name );
+
+        if ( ! isset( $options['combine_only_styles'] ) || $options['combine_only_styles'] == 'no' ) {
+            $contents['content'] = CssMin::minify( $contents['content'] );
+            echo "<!-- Exopite Combiner and Minifier - minify and write CSS (CssMin):  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+        } else {
+            echo "<!-- Exopite Combiner and Minifier - write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+        }
+
+        // echo '<pre>';
+        // var_export( $options );
+        // echo '</pre>';
+
+        // $contents['content'] .= '<pre>' . var_export( $options, true )  .'</pre>';
+
+        file_put_contents( $combined_mifinited_filename, $contents['content'] );
+
 
     }
 
     public function minify_scripts( $combined_mifinited_filename, $contents ) {
 
         $startTime = microtime(true);
-        file_put_contents( $combined_mifinited_filename, $contents['data'] . JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) ) );
-        echo "<!-- Exopite Combiner and Minifier - minify and write JS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+
+        $options = get_option( $this->plugin_name );
+
+        if ( ! isset( $options['combine_only_scripts'] ) || $options['combine_only_scripts'] == 'no' ) {
+            $contents['content'] = JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) );
+            echo "<!-- Exopite Combiner and Minifier - minify and write JavaScript (JSMinPlus):  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+        } else {
+            echo "<!-- Exopite Combiner and Minifier - write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+        }
+
+        // $contents['content'] .= '<pre>' . var_export( $options, true )  .'</pre>';
+
+        file_put_contents( $combined_mifinited_filename, $contents['data'] . $contents['content'] );
+
 
     }
 
@@ -499,7 +532,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
 
-            echo '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_styles . 's. -->' . PHP_EOL;
+            echo '<!-- Exopite Combiner Minifier - Styles total time: '. $time_styles . 's. -->' . PHP_EOL;
 
         }
 
@@ -531,7 +564,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
 
-            echo '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL;
+            echo '<!-- Exopite Combiner Minifier - Scripts total time: '. $time_scripts . 's. -->' . PHP_EOL;
 
         }
 
@@ -690,6 +723,8 @@ class Exopite_Combiner_Minifier_Public {
         $options = get_option( $this->plugin_name );
         $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
         $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
+        $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
+        $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
         $process_html = ( isset( $options['process_html'] ) ) ? $options['process_html'] : 'yes';
 
         if ( $process_scripts == 'yes' || $process_styles == 'yes' ) {
@@ -772,7 +807,11 @@ class Exopite_Combiner_Minifier_Public {
 
                 if ( $create_file ) {
 
-                    file_put_contents( $combined_scripts_mifinited_filename, JSMinPlus::minify( $to_write ) );
+                    if ( $combine_only_scripts == 'no' ) {
+                        JSMinPlus::minify( $to_write );
+                    }
+
+                    file_put_contents( $combined_scripts_mifinited_filename, $to_write );
 
                 }
 
@@ -884,8 +923,10 @@ class Exopite_Combiner_Minifier_Public {
 
                     if ( ! in_array( $item->media, $allowed_media ) ) {
 
-                        // Minify inline style element
-                        $item->innertext = CSSMin::minify( $item->innertext );
+                        if ( $combine_only_styles == 'no' ) {
+                            // Minify inline style element
+                            $item->innertext = CSSMin::minify( $item->innertext );
+                        }
 
                         // Remove empty
                         if ( empty( $item->innertext ) ) {
@@ -912,7 +953,11 @@ class Exopite_Combiner_Minifier_Public {
                  */
                 if ( $create_file ) {
 
-                    file_put_contents( $combined_styles_mifinited_filename, CssMin::minify( $to_write ) );
+                    if ( $combine_only_styles == 'no' ) {
+                        CssMin::minify( $to_write );
+                    }
+
+                    file_put_contents( $combined_styles_mifinited_filename, $to_write );
 
                 }
 
@@ -942,11 +987,23 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        $times = ( ! $log ) ? '' : PHP_EOL
-            . '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' . PHP_EOL
-            . '<!-- Exopite Combiner Minifier - CssMin: '. $time_styles . 's. -->' . PHP_EOL
-            . '<!-- Exopite Combiner Minifier - HTML: '. $time_html . 's. -->' . PHP_EOL
-            ;
+        $times = '';
+
+        if ( $log && ( $process_scripts == 'yes' || $process_styles == 'yes' || $process_html == 'yes' ) ) {
+            $times .= PHP_EOL;
+            if ( $process_scripts == 'yes' ) {
+                $times .= ( $process_scripts == 'yes' && $combine_only_scripts == 'no' ) ?  '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine JavaScript: '. $time_scripts . 's. -->';
+                $times .= PHP_EOL;
+            }
+            if ( $process_styles == 'yes' ) {
+                $times .= ( $process_styles == 'yes' && $combine_only_styles == 'no' ) ?  '<!-- Exopite Combiner Minifier - CssMin: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine styles: '. $time_scripts . 's. -->';
+                $times .= PHP_EOL;
+            }
+            if ( $process_html == 'yes' ) {
+                $times .= '<!-- Exopite Combiner Minifier - Minify inline HTML: '. $time_html . 's. -->' . PHP_EOL;
+            }
+
+        }
 
         return $content . $times;
 
