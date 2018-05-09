@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 11:39+0100\n"
+"POT-Creation-Date: 2018-05-09 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,61 +57,69 @@ msgid "Process scripts"
 msgstr ""
 
 #: admin/class-exopite-combiner-minifier-admin.php:161
-msgid "Process styles"
+msgid "Combine only (scripts)"
 msgstr ""
 
 #: admin/class-exopite-combiner-minifier-admin.php:168
+msgid "Process styles"
+msgstr ""
+
+#: admin/class-exopite-combiner-minifier-admin.php:175
+msgid "Combine only (styles)"
+msgstr ""
+
+#: admin/class-exopite-combiner-minifier-admin.php:182
 msgid "Minify HTML output"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:176
+#: admin/class-exopite-combiner-minifier-admin.php:190
 msgid "Method"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:187
+#: admin/class-exopite-combiner-minifier-admin.php:201
 msgid ""
 "This method go through all WordPress registered scripts and combine and "
 "minify them."
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:188
-#: admin/class-exopite-combiner-minifier-admin.php:206
+#: admin/class-exopite-combiner-minifier-admin.php:202
+#: admin/class-exopite-combiner-minifier-admin.php:220
 msgid "Pros: "
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:189
-#: admin/class-exopite-combiner-minifier-admin.php:207
+#: admin/class-exopite-combiner-minifier-admin.php:203
+#: admin/class-exopite-combiner-minifier-admin.php:221
 msgid "easy to the user"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:190
+#: admin/class-exopite-combiner-minifier-admin.php:204
 msgid "checking much faster (~0.005s)"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:191
+#: admin/class-exopite-combiner-minifier-admin.php:205
 msgid "generate only one file per type (Css/JS)"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:193
-#: admin/class-exopite-combiner-minifier-admin.php:210
+#: admin/class-exopite-combiner-minifier-admin.php:207
+#: admin/class-exopite-combiner-minifier-admin.php:224
 msgid "Cons: "
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:194
+#: admin/class-exopite-combiner-minifier-admin.php:208
 msgid "may have dependency issues if/for scripts enqueued in footer"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:195
+#: admin/class-exopite-combiner-minifier-admin.php:209
 msgid ""
 "if site has different styles and/or srcipts per page, will be regenerate "
 "every time if other page will displyed, in this case, please use method 2"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:198
+#: admin/class-exopite-combiner-minifier-admin.php:212
 msgid "Method 1"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:205
+#: admin/class-exopite-combiner-minifier-admin.php:219
 msgid ""
 "This method process the HTML source after WordPress render them and before "
 "sent to browser. It will create a separate Css/JS file for each page, make "
@@ -119,50 +127,82 @@ msgid ""
 "method uses PHP Simple HTML DOM Parser and Output Buffering."
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:208
+#: admin/class-exopite-combiner-minifier-admin.php:222
 msgid "no dependency issues"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:211
+#: admin/class-exopite-combiner-minifier-admin.php:225
 msgid "create a separate Css/JS file for each page"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:212
+#: admin/class-exopite-combiner-minifier-admin.php:226
 msgid "checking is slower (~0.1s)"
 msgstr ""
 
-#: admin/class-exopite-combiner-minifier-admin.php:215
+#: admin/class-exopite-combiner-minifier-admin.php:229
 msgid "Method 2"
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:205
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:293
 msgid "Settings"
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:593
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:821
 msgid "ERROR:"
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:594
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:822
 msgid "This field class is not available!"
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:617
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:845
 msgid "Saving..."
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:617
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:845
 msgid "Saved Successfully."
 msgstr ""
 
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:626
-#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:641
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:854
+#: admin/exopite-simple-options/exopite-simple-options-framework-class.php:869
 msgid "Save Settings"
 msgstr ""
 
 #: admin/exopite-simple-options/fields/attached.php:43
 #, php-format
 msgid "There is no attachment with type %s for this %s."
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:43
+msgid "copy-paste your backup string here"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:44
+msgid "Are you sure, you want to overwrite existing options?"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:44
+msgid "Import a Backup"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:48
+msgid "Download Backup"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:51
+msgid "Please be sure for reset all of framework options."
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:52
+msgid "Are you sure, you want to reset all options?"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/backup.php:52
+msgid "Reset All Options"
+msgstr ""
+
+#: admin/exopite-simple-options/fields/group.php:176
+msgid "Max items:"
 msgstr ""
 
 #: admin/exopite-simple-options/fields/image.php:74
@@ -224,4 +264,55 @@ msgstr ""
 
 #: admin/exopite-simple-options/fields/video.php:56
 msgid "Add Video"
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4/Plugin/UpdateChecker.php:358
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:395
+msgid "Check for updates"
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4/Plugin/UpdateChecker.php:404
+msgid "This plugin is up to date."
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4/Plugin/UpdateChecker.php:406
+msgid "A new version of this plugin is available."
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4/Plugin/UpdateChecker.php:408
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:558
+#, php-format
+msgid "Unknown update checker status \"%s\""
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4/Vcs/PluginUpdateChecker.php:83
+#: vendor/plugin-update-checker/Puc/v4p4/Vcs/PluginUpdateChecker.php:98
+msgid "There is no changelog available."
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:432
+msgid "View details"
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:455
+#, php-format
+msgid "More information about %s"
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:548
+#, php-format
+msgctxt "the plugin title"
+msgid "The %s plugin is up to date."
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:550
+#, php-format
+msgctxt "the plugin title"
+msgid "A new version of the %s plugin is available."
+msgstr ""
+
+#: vendor/plugin-update-checker/Puc/v4p4/Plugin/UpdateChecker.php:552
+#, php-format
+msgctxt "the plugin title"
+msgid "Could not determine if updates are available for %s."
 msgstr ""
