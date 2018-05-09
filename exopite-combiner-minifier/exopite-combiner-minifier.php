@@ -30,8 +30,15 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-/*
+/**
  * ToDo
+ *
+ * Options to:
+ * - combine
+ * - minify
+ *
+ * Sometimes JavaScripts are invalid or miss things, then after minifying will not work anymore.
+ * Maybe ';' missing in the end? Need check.
  *
  * Combine and minify (c+m) enqueued css/js files.
  *  - Loop enqueued files,
