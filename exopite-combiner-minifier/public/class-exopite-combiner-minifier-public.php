@@ -808,7 +808,7 @@ class Exopite_Combiner_Minifier_Public {
                 if ( $create_file ) {
 
                     if ( $combine_only_scripts == 'no' ) {
-                        JSMinPlus::minify( $to_write );
+                        $to_write = JSMinPlus::minify( $to_write );
                     }
 
                     file_put_contents( $combined_scripts_mifinited_filename, $to_write );
@@ -954,7 +954,7 @@ class Exopite_Combiner_Minifier_Public {
                 if ( $create_file ) {
 
                     if ( $combine_only_styles == 'no' ) {
-                        CssMin::minify( $to_write );
+                        $to_write = CssMin::minify( $to_write );
                     }
 
                     file_put_contents( $combined_styles_mifinited_filename, $to_write );
