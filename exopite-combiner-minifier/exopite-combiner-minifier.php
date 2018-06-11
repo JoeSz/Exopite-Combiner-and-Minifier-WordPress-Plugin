@@ -33,12 +33,8 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * ToDo
  *
- * Options to:
- * - combine
- * - minify
- *
  * Sometimes JavaScripts are invalid or miss things, then after minifying will not work anymore.
- * Maybe ';' missing in the end? Need check.
+ * - maybe remove all comments before combine?
  *
  * Combine and minify (c+m) enqueued css/js files.
  *  - Loop enqueued files,
