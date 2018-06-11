@@ -344,6 +344,11 @@ class Exopite_Combiner_Minifier_Public {
 
                 if ( ! $data_only && file_exists( $item['path'] ) ) {
                     $file_content = file_get_contents( $item['path'] );
+                    /**
+                     * Add semicolon to the end of the file if not exist,
+                     * some files/scripts missing this, after the combine,
+                     * can break things.
+                     */
                     if ( mb_substr( $file_content, -1 ) != ';' ) {
                         $file_content .= ';';
                     }
