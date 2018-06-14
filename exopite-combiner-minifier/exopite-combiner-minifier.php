@@ -35,6 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * Sometimes JavaScripts are invalid or miss things, then after minifying will not work anymore.
  * - maybe remove all comments before combine?
+ * - check if it is already minified
  *
  * Combine and minify (c+m) enqueued css/js files.
  *  - Loop enqueued files,
