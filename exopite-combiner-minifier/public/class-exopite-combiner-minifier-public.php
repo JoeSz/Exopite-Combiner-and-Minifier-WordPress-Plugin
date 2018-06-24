@@ -773,7 +773,8 @@ class Exopite_Combiner_Minifier_Public {
                 /*
                  * Set script file name
                  */
-                $combined_scripts_file_name = 'scripts-combined-' . get_the_ID() . '.js';
+                $id = ( is_archive() ) ? 'archives' : get_the_ID();
+                $combined_scripts_file_name = 'scripts-combined-' . $id . '.js';
                 $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
                 $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
 
