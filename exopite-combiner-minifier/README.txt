@@ -99,6 +99,12 @@ OR
 CHANGELOG
 ---------
 
+= 20180624 - 2018-06-24 =
+This is a realative big update.
+* Added: try catch for JavaScript to prevent broken script(s) break execution
+* Added: inlcude style added by wp_add_inline_style
+* Replaced: New minificator class from minifier.org. Better minify, less errors, faster and smaller file size
+
 = 20180509 - 2018-05-09 =
 * Added: Option to combine only
 * Improvement: Add semicolon to JavaScript file end if not exist

@@ -10,7 +10,7 @@ License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
 Version: 20180509
 
-Combine and minify enqueued CSS and JavaScript files.
+Combine and minify enqueued CSS and JavaScript files for SEO (site speed).
 
 I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
 Unfortunately non of them did that without JavaScript and/or CSS errors.
@@ -42,14 +42,16 @@ and that would be more time, what we otherwise gain,
 * Second method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple HTML DOM Parser and Output Buffering.
 
 Uses:
-CSS: CssMin http://code.google.com/p/cssmin/ <br />
-JavaScript: JSMinPlus https://github.com/mattheu/MinQueue/blob/master/PHP-Minify-Lib/JSMinPlus.php
+Matthias Mullie Minify from https://www.minifier.org.
+
 
 NOTE
 ----
-The combined JavaScript file will be enqueued in the footer. This could cause depency issues, if some
-very late enqueued JavaScript file has an earlier JavaScript depency. I think, this is very rear, you could
-remove the file via <code>exopite-combiner-minifier-skip-wp_scripts</code> filter. (You could use as <code>array( 'jquery', ... )</code>)
+
+Methode 1:
+    The combined JavaScript file will be enqueued in the footer. This could cause depency issues, if some
+    very late enqueued JavaScript file has an earlier JavaScript depency. I think, this is very rear, you could
+    remove the file via <code>exopite-combiner-minifier-skip-wp_scripts</code> filter. (You could use as <code>array( 'jquery', ... )</code>)
 
 ACTION HOOKS
 ------------
@@ -88,7 +90,7 @@ USAGE
 
 Install and activate.
 
-No additional settings are required.
+No additional settings are required but you can change them in plguin options.
 
 INSTALLATION
 ------------
@@ -103,6 +105,13 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180624 - 2018-06-24 =
+This is a realative big update.
+* Added: try catch for JavaScript to prevent broken script(s) break execution
+* Added: inlcude style added by wp_add_inline_style
+* Replaced: New minificator class from minifier.org. Better minify, less errors, faster and smaller file size
+* Fixed: url() replacement in css typo
 
 = 20180509 - 2018-05-09 =
 * Added: Option to combine only
