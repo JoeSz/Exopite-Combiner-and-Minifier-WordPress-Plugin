@@ -124,31 +124,27 @@ class Exopite_Combiner_Minifier {
 
 		$this->loader = new Exopite_Combiner_Minifier_Loader();
 
-        /*
-         * JShrink Build Status
+        /**
+         * Minify - minifier.org
+         * Minify JavaScript and CSS.
          *
-         * JShrink is a php class that minifies javascript so that it can be delivered to the client quicker.
-         * This code can be used by any product looking to minify their javascript on the fly
-         * (although caching the results is suggested for performance reasons).
-         * Unlike many other products this is not a port into php but a native application, resulting in better performance.
-
-         * @link https://github.com/tedious/JShrink
+         * Make your website smaller and faster to load by minifying the JS and CSS code.
+         * This minifier removes whitespace, strips comments, combines files, and optimizes/shortens a few common programming patterns.
+         *
+         * @link https://github.com/matthiasmullie/minify
+         * @link https://github.com/matthiasmullie/minify/issues/83
+         *
+         * Ps. I had to modify data path in JS.php
          */
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'JSMinPlus.php' ) );
-
-        /*
-         * What is CssMin?
-         *
-         * CssMin is a css parser and minfier. It minifies css by removing unneeded whitespace character,
-         * comments, empty blocks and empty declarations. In addition declaration values can get rewritten
-         * to shorter notation if available. The minification if configurable.
-         *
-         * CssMin has some benefits. It supports the rewrite of CSS Level 3 properties to their browser
-         * specific counterparts and is able to simulate CSS Variables.
-         *
-         * @link http://code.google.com/p/cssmin/
-         */
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'CssMin.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Minify.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'CSS.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'JS.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exception.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'BasicException.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'FileImportException.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'IOException.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'ConverterInterface.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'Converter.php' ) );
 
         require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'admin', 'exopite-simple-options','exopite-simple-options-framework-class.php' ) );
 
