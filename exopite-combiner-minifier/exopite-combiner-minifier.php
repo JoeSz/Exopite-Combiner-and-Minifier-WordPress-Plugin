@@ -16,7 +16,7 @@
  * Plugin Name:       Exopite Combiner and Minifier
  * Plugin URI:        https://joe.szalai.org/exopite/exopite-combiner-minifier
  * Description:       Minify and Combine Javascripts and CSS resources for better SEO and page speed. jQuery and external resources will be ignored.
- * Version:           20180509
+ * Version:           20180624
  * Author:            Joe Szalai
  * Author URI:        https://joe.szalai.org
  * License:           GPL-2.0+
@@ -31,21 +31,33 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * ToDo
+ * ToDos:
+ *
+ * Async loading?
+ * https://webmasters.stackexchange.com/questions/60276/how-does-cloudflares-rocket-loader-actually-work-and-how-can-a-developer-ensur
+ * https://wordpress.org/support/topic/add-async-in-enqueue/
+ * https://matthewhorne.me/defer-async-wordpress-scripts/
+ *
+ */
+
+/**
+ * Note
  *
  * Sometimes JavaScripts are invalid or miss things, then after minifying will not work anymore.
- * - maybe remove all comments before combine?
- * - check if it is already minified
+ * Fix this with "try catch", it will add some extra chars, but worth it :)
  *
  * Combine and minify (c+m) enqueued css/js files.
  *  - Loop enqueued files,
- *  - 1.) ignore jQuery(s) and not same domain
+ *  - 1.) ignore jQuery(s) and not same domain scripts
  *    2.) only file list in settings
  *  - c+m,
  *  - write in file,
  *  - 1.) denqueue all
  *    2.) only file list in settings
- *  - display js data before js
+ *  - display js data (added with wp_localize_script) top of the file before any js file content
+ *  - display css data (added with wp_add_inline_script) before css file content
+ *  - change relative paths "url(path)" in css,
+ *    make sure css is not break after file location changed (combined file isted of enqueued)
  *  - enqueue c+m files (css -> head after not same domains, js -> footer, after data)
  *
  *
@@ -59,15 +71,11 @@ if ( ! defined( 'WPINC' ) ) {
  *        Cons: - separate file for each page
  *
  * Problems:
- * - if some plugin enqueue someting in the footer, then this scripts is enqueued AFTER those,
+ * - (Methode 1) if some plugin enqueue someting in the footer, then this scripts is enqueued AFTER those,
  *   can be an dependency issue.
- * - if get footer scritps as well and some script is enqueued only on some pages, than too many "on the fly"
+ * - (Methode 1) if get footer scritps as well and some script is enqueued only on some pages, than too many "on the fly"
  *   css/js file creation
  *
- * Async loading?
- * https://webmasters.stackexchange.com/questions/60276/how-does-cloudflares-rocket-loader-actually-work-and-how-can-a-developer-ensur
- * https://wordpress.org/support/topic/add-async-in-enqueue/
- * https://matthewhorne.me/defer-async-wordpress-scripts/
  */
 
 define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -79,7 +87,7 @@ define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME', 'exopite-combiner-minifier' );
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20171210' );
+define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20180624' );
 
 /**
  * The code that runs during plugin activation.
