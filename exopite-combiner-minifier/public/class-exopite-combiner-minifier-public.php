@@ -1041,11 +1041,11 @@ class Exopite_Combiner_Minifier_Public {
         if ( $log && ( $process_scripts == 'yes' || $process_styles == 'yes' || $process_html == 'yes' ) ) {
             $times .= PHP_EOL;
             if ( $process_scripts == 'yes' ) {
-                $times .= ( $process_scripts == 'yes' && $combine_only_scripts == 'no' ) ?  '<!-- Exopite Combiner Minifier - JSMinPlus: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine JavaScript: '. $time_scripts . 's. -->';
+                $times .= ( $process_scripts == 'yes' && $combine_only_scripts == 'no' ) ?  '<!-- Exopite Combiner Minifier: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine JavaScript: '. $time_scripts . 's. -->';
                 $times .= PHP_EOL;
             }
             if ( $process_styles == 'yes' ) {
-                $times .= ( $process_styles == 'yes' && $combine_only_styles == 'no' ) ?  '<!-- Exopite Combiner Minifier - CssMin: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine styles: '. $time_scripts . 's. -->';
+                $times .= ( $process_styles == 'yes' && $combine_only_styles == 'no' ) ?  '<!-- Exopite Combiner Minifier: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine styles: '. $time_scripts . 's. -->';
                 $times .= PHP_EOL;
             }
             if ( $process_html == 'yes' ) {
