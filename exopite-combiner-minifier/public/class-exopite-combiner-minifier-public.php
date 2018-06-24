@@ -1012,7 +1012,8 @@ class Exopite_Combiner_Minifier_Public {
                 }
 
                 // Insert generated the end of the head tag
-                $html->find( 'head', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) . '" type="text/css" media="all" />';
+                $html->find( 'body', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) . '" type="text/css" media="all" />';
+                // $html->find( 'head', 0)->innertext .= '<link rel="stylesheet" href="' . $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) . '" type="text/css" media="all" />';
 
                 do_action( 'exopite-combiner-minifier-styles-after-process' );
 
