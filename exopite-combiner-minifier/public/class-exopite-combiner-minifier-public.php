@@ -47,6 +47,7 @@ class Exopite_Combiner_Minifier_Public {
     private $site_url;
 
     public $debug;
+    public $showinfo;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -60,6 +61,7 @@ class Exopite_Combiner_Minifier_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->debug = false;
+        $this->showinfo = false;
 
 	}
 
@@ -621,7 +623,10 @@ class Exopite_Combiner_Minifier_Public {
         switch ( $type ) {
 
             case 'scripts':
-                $to_skip = array( 'jquery', 'jquery-migrate.min' );
+                $to_skip = array(
+                    'jquery',
+                    'jquery-migrate.min',
+                );
                 break;
 
             case 'styles':
@@ -738,7 +743,7 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( ! isset( $id ) || empty( $id ) ) return $content;
 
-        $log = true;
+        $log = $this->showinfo;
 
         if ( $log ) $time_scripts = 'NaN ';
         if ( $log ) $time_styles = 'NaN ';
@@ -813,6 +818,8 @@ class Exopite_Combiner_Minifier_Public {
                 // $startTime = microtime(true);
                 foreach( $items as $item ) {
 
+                    $process = true;
+
                     /*
                      * If item has scr then get file content
                      * if not, get inline scripts
@@ -845,7 +852,17 @@ class Exopite_Combiner_Minifier_Public {
 
                     } else {
 
-                        if ( $create_file && ( ! isset( $item->type ) || $item->type == 'text/javascript' ) ) {
+                        /**
+                         * Do not process inline JavaScript if contain "<![CDATA["
+                         * Process inline script without type or 'text/javascript' type
+                         */
+                        $process = (
+                            ( strpos( $item->innertext, "woocommerce" ) === false ) &&
+                            ( strpos( $item->innertext, "<![CDATA[" ) === false ) &&
+                            ( ! isset( $item->type ) || $item->type == 'text/javascript' )
+                        );
+
+                        if ( $create_file && $process ) {
 
                             if ( $combine_only_scripts == 'no' ) {
                                 $to_write .= $before . ( new Minify\JS( $item->innertext ) )->minify() . $after;
@@ -857,7 +874,7 @@ class Exopite_Combiner_Minifier_Public {
                     }
 
                     // Remove processed
-                    if ( ! isset( $item->type ) || $item->type == 'text/javascript' ) $item->outertext = '';
+                    if ( $process ) $item->outertext = '';
 
                 }
 
@@ -1056,7 +1073,9 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        return $content . $times;
+        if ( $this->showinfo ) $content .= $times;
+
+        return $content;
 
     }
 
@@ -1068,6 +1087,7 @@ class Exopite_Combiner_Minifier_Public {
     }
 
     public function process_html( $content ) {
+
 
         if ( is_admin() || $this->is_login_page() ) return $content;
 
@@ -1092,9 +1112,9 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        return $content
-            . '<!-- Exopite Combiner Minifier - TOTAL: '. $time_scripts_styles . 's. -->' . PHP_EOL
-            ;
+        if ( $this->showinfo ) $content .= '<!-- Exopite Combiner Minifier - TOTAL: '. $time_scripts_styles . 's. -->';
+
+        return $content;
 
     }
 
