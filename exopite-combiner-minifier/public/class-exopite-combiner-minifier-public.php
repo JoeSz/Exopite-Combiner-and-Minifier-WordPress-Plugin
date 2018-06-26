@@ -626,6 +626,7 @@ class Exopite_Combiner_Minifier_Public {
                 $to_skip = array(
                     'jquery',
                     'jquery-migrate.min',
+                    'admin-bar.min',
                 );
                 break;
 
