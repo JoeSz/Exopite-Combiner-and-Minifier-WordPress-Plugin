@@ -10,6 +10,18 @@ License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
 Version: 20180509
 
+# I stop working on this Plugin for indefinite period. I have no time for it.
+
+Also it has a problem, the combined JavaScript file stop working if any JavaScript resources has errors. And they has.
+Then the combined file will stop working in the point of error.
+
+I see no work arround of this. I added try-catch blocks for the files but then some required code are out of scope (like for WooCommerce).
+To check all JavaScript file before combine them would be too time consuming.
+
+## Suggestions and feedback are welcome
+
+---
+
 Combine and minify enqueued CSS and JavaScript files for SEO (site speed).
 
 I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
