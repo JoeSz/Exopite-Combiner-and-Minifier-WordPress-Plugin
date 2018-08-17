@@ -8,17 +8,17 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://joe.szalai.org
+ * @link              https://www.joeszalai.org
  * @since             1.0.0
  * @package           Exopite_Combiner_Minifier
  *
  * @wordpress-plugin
  * Plugin Name:       Exopite Combiner and Minifier
- * Plugin URI:        https://joe.szalai.org/exopite/exopite-combiner-minifier
+ * Plugin URI:        https://www.joeszalai.org/exopite/exopite-combiner-minifier
  * Description:       Minify and Combine Javascripts and CSS resources for better SEO and page speed. jQuery and external resources will be ignored.
- * Version:           20180624
+ * Version:           20180817
  * Author:            Joe Szalai
- * Author URI:        https://joe.szalai.org
+ * Author URI:        https://www.joeszalai.org
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       exopite-combiner-minifier
@@ -87,7 +87,7 @@ define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME', 'exopite-combiner-minifier' );
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20180624' );
+define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20180817' );
 
 /**
  * The code that runs during plugin activation.
@@ -133,7 +133,7 @@ if ( is_admin() ) {
     }
 
     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-        'https://update.szalai.org/?action=get_metadata&slug=' . EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME, //Metadata URL.
+        'https://update.joeszalai.org/?action=get_metadata&slug=' . EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME, //Metadata URL.
         __FILE__, //Full path to the main plugin file.
         EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME //Plugin slug. Usually it's the same as the name of the directory.
     );

@@ -4,11 +4,11 @@
 Author link: http://joe.szalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8.0 <br />
-Tested up to: 4.9.5 <br />
-Stable tag: 4.9.5 <br />
+Tested up to: 4.9.8 <br />
+Stable tag: 4.9.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20180509
+Version: 20180817
 
 # I stop working on this Plugin for indefinite period. I have no time for it.
 
@@ -117,6 +117,9 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180817 - 2018-08-17 =
+* Change: update url to new website
 
 = 20180624 - 2018-06-24 =
 This is a realative big update.

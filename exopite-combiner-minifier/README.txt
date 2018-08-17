@@ -3,20 +3,31 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.7
-Tested up to: 4.9.5
-Stable tag: 4.9.5
+Tested up to: 4.9.8
+Stable tag: 4.9.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20180509
+Version: 20180817
 
 Combine and minify enqueued CSS and JavaScript files.
+
+IMPORTANT
+---------
+
+I stop working on this Plugin for indefinite period. I have no time for it.
+
+Also it has a problem, the combined JavaScript file stop working if any JavaScript resources has errors. And they has. Then the combined file will stop working in the point of error.
+
+I see no work arround of this. I added try-catch blocks for the files but then some required code are out of scope (like for WooCommerce). To check all JavaScript file before combine them would be too time consuming.
+Suggestions and feedback are welcome
+
+DESCRIPTION
+-----------
 
 I wrote this plugin, because I tried several plugins promised to minify and combine my resources.
 Unfortunately non of them did that without JavaScript and/or CSS errors.
 This plugin still in early phase, I will do more tests and probably make a few corrections as well.
 
-DESCRIPTION
------------
 
 <b>External CSS and JavaScript files will be ignored.</b> <br />
 I think, plugin and theme developers use CDN (or other external soruce) for a reason.
@@ -98,6 +109,9 @@ OR
 
 CHANGELOG
 ---------
+
+= 20180817 - 2018-08-17 =
+* Change: update url to new website
 
 = 20180624 - 2018-06-24 =
 This is a realative big update.
