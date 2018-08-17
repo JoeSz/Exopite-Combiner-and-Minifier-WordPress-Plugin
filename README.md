@@ -1,7 +1,7 @@
 # Exopite Combiner and Minifier
 ## WordPress Plugin
 
-Author link: http://joe.szalai.org <br />
+Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8.0 <br />
 Tested up to: 4.9.8 <br />
