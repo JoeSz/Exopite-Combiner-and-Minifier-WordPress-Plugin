@@ -321,6 +321,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function get_combined( $list, $data_only = false ) {
 
+        $plugin_options = get_option( $this->plugin_name );
+        $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
         $result = [];
         $result['data'] = '';
         $result['content'] = '';
@@ -333,8 +335,12 @@ class Exopite_Combiner_Minifier_Public {
         $debug_variable = ( $this->debug ) ? '(error)' : '';
         $debug_function = ( $this->debug ) ? 'console.log(error)' : '';
 
-        $before = 'try{';
-        $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+        if ( $scripts_try_catch == 'yes' ) {
+            $before = 'try{';
+            $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+        } else {
+            $before = $after = '';
+        }
 
         foreach ( $list as $item ) {
 
@@ -756,6 +762,7 @@ class Exopite_Combiner_Minifier_Public {
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
         $process_html = ( isset( $options['process_html'] ) ) ? $options['process_html'] : 'yes';
+        $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
 
         if ( $process_scripts == 'yes' || $process_styles == 'yes' ) {
 
@@ -813,8 +820,13 @@ class Exopite_Combiner_Minifier_Public {
                 $debug_variable = ( $this->debug ) ? '(error)' : '';
                 $debug_function = ( $this->debug ) ? 'console.log(error)' : '';
 
-                $before = 'try{';
-                $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+                if ( $scripts_try_catch == 'yes' ) {
+                    $before = 'try{';
+                    $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+                } else {
+                    $before = $after = '';
+                }
+
 
                 // $startTime = microtime(true);
                 foreach( $items as $item ) {
