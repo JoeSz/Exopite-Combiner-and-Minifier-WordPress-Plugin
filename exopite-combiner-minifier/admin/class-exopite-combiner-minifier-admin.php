@@ -110,12 +110,13 @@ class Exopite_Combiner_Minifier_Admin {
 
             'type'              => 'menu',                          // Required, menu or metabox
             'id'                => $this->plugin_name,              // Required, meta box id, unique per page, to save: get_option( id )
-            'menu'              => 'plugins.php',                   // Required, sub page to your options page
+            'parent'            => 'plugins.php',                   // Required, sub page to your options page
             'submenu'           => true,                            // Required for submenu
             'title'             => 'Exopite Combiner Minifier',     // The name of this page
             'capability'        => 'manage_options',                // The capability needed to view the page
             'plugin_basename'   =>  plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' ),
             'tabbed'            => false,
+            'multilang'         => false,
 
         );
 
@@ -153,6 +154,14 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'scripts_try_catch',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                    'after'   => esc_html__( 'To avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
                 ),
 
                 array(
