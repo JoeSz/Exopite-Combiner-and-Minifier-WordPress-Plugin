@@ -8,7 +8,7 @@ Tested up to: 4.9.8 <br />
 Stable tag: 4.9.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20180817
+Version: 20181103
 
 # I stop working on this Plugin for indefinite period. I have no time for it.
 
@@ -117,6 +117,9 @@ OR
 
 CHANGELOG
 ---------
+= 20181103 - 2018-11-03 =
+* Update: Exopite Simple Options Framework
+* Add: option to turn "try catch" block for JavaScript on or off
 
 = 20180817 - 2018-08-17 =
 * Change: update url to new website

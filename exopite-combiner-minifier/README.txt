@@ -7,7 +7,7 @@ Tested up to: 4.9.8
 Stable tag: 4.9.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20180817
+Version: 20181103
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -109,6 +109,10 @@ OR
 
 CHANGELOG
 ---------
+
+= 20181103 - 2018-11-03 =
+* Update: Exopite Simple Options Framework
+* Add: option to turn "try catch" block for JavaScript on or off
 
 = 20180817 - 2018-08-17 =
 * Change: update url to new website
