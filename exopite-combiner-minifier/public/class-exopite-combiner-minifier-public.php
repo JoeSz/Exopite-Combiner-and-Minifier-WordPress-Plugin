@@ -332,7 +332,7 @@ class Exopite_Combiner_Minifier_Public {
          * Better to have a little extra code to prevent this then break JavaScripts.
          * Still small enough.
          */
-        $debug_variable = ( $this->debug ) ? '(error)' : '';
+        $debug_variable = '(e)';
         $debug_function = ( $this->debug ) ? 'console.log(error)' : '';
 
         if ( $scripts_try_catch == 'yes' ) {
@@ -817,7 +817,7 @@ class Exopite_Combiner_Minifier_Public {
                  * Better to have a little extra code to prevent this then break JavaScripts.
                  * Still small enough.
                  */
-                $debug_variable = ( $this->debug ) ? '(error)' : '';
+                $debug_variable = '(e)';
                 $debug_function = ( $this->debug ) ? 'console.log(error)' : '';
 
                 if ( $scripts_try_catch == 'yes' ) {
