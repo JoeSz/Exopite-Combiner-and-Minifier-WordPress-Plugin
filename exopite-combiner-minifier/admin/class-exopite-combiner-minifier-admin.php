@@ -157,6 +157,23 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'      => 'ignore_process_scripts',
+                    'type'    => 'textarea',
+                    'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
+                    'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
+                    'after'   => esc_html__( 'Only script name without extension. One per line.', 'exopite-combiner-minifier' ),
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
+                    'id'         => 'process_inline_scripts',
+                    'type'       => 'switcher',
+                    'title'      => esc_html__( 'Process inline scripts', 'exopite-combiner-minifier' ),
+                    'default'    => 'no',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
                     'id'      => 'scripts_try_catch',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
@@ -183,6 +200,14 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Combine only (styles)', 'exopite-combiner-minifier' ),
                     'default' => 'no',
+                ),
+
+                array(
+                    'id'         => 'generate_head_styles',
+                    'type'       => 'switcher',
+                    'title'      => esc_html__( 'Append styles to head', 'exopite-combiner-minifier' ),
+                    'default'    => 'no',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
                 array(

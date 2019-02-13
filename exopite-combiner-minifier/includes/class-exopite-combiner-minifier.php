@@ -136,15 +136,26 @@ class Exopite_Combiner_Minifier {
          *
          * Ps. I had to modify data path in JS.php
          */
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Minify.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'CSS.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'JS.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exception.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'BasicException.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'FileImportException.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'Exceptions', 'IOException.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Minify.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'CSS.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'JS.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exception.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'BasicException.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'FileImportException.php' ) );
+		require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'IOException.php' ) );
+
         require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'ConverterInterface.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'Converter.php' ) );
+		require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'Converter.php' ) );
+
+		/**
+		 * TEST
+		 * minify scripts from autoptimize plugin, check if it is besser.
+		 */
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'yui-php-cssmin-bundled', 'Colors.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'yui-php-cssmin-bundled', 'Utils.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'yui-php-cssmin-bundled', 'Minifier.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'jsmin.php' ) );
+        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minify-html.php' ) );
 
         require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'admin', 'exopite-simple-options','exopite-simple-options-framework-class.php' ) );
 
@@ -209,14 +220,14 @@ class Exopite_Combiner_Minifier {
                     $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
                     $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
 
-                    if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 9999 );
-                    if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 9999 );
+                    if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 999999 );
+                    if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 999999 );
 
                     break;
 
                 case 'method-2':
 
-                    /*
+                    /**
                      * Start buffering when wp_loaded hook called
                      * end buffering when showdown hook called
                      *

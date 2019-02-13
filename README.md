@@ -4,19 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8.0 <br />
-Tested up to: 4.9.8 <br />
-Stable tag: 4.9.8 <br />
+Tested up to: 5.0.3 <br />
+Stable tag: 5.0.3 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20181123
-
-# I stop working on this Plugin for indefinite period. I have no time for it.
-
-Also it has a problem, the combined JavaScript file stop working if any JavaScript resources has errors. And they has.
-Then the combined file will stop working in the point of error.
-
-I see no work arround of this. I added try-catch blocks for the files but then some required code are out of scope (like for WooCommerce).
-To check all JavaScript file before combine them would be too time consuming.
+Version: 20190213
 
 ## Suggestions and feedback are welcome
 
@@ -52,10 +44,6 @@ only on some pages. In this case, the plugin will be run every time on the diffe
 and that would be more time, what we otherwise gain,
 
 * Second method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple HTML DOM Parser and Output Buffering.
-
-Uses:
-Matthias Mullie Minify from https://www.minifier.org.
-
 
 NOTE
 ----
@@ -117,6 +105,14 @@ OR
 
 CHANGELOG
 ---------
+= 20190213 - 2019-02-13 =
+Major rewrite.
+* Replace PHP Simple HTML DOM Parser with DomDocument for performace gain.
+* Added: new HTML, CSS and JavaScript minifier.
+* Added: include first level @import to css.
+* Added: option to insert CSS to header insed of using a file. (slower)
+* Added: removing source map URLs in js files to avoid breaking.
+
 = 20181123 - 2018-11-23 =
 * Update: Update Exopite Simple Options Framework
 
