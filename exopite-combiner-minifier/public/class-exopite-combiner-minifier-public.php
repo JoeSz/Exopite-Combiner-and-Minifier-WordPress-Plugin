@@ -678,7 +678,7 @@ class Exopite_Combiner_Minifier_Public {
     public function fix_style_urls( $data, $src ) {
 
         return preg_replace_callback(
-            '/url\(\s*[\'"]?\/?(.+?)[\'"]?\s*\)/i',
+            '/url\(\s*[\'"]?(\/?.+?)[\'"]?\s*\)/i',
             function ( $matches ) use( $src ) {
                 if ( ! $this->starts_with( $matches[1], 'http' ) &&
                         ! $this->starts_with( $matches[1], '//' ) &&
