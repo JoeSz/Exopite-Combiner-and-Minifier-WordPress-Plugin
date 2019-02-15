@@ -203,9 +203,16 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'      => 'enqueue_head_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Enqueue style in header', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                ),
+
+                array(
                     'id'         => 'generate_head_styles',
                     'type'       => 'switcher',
-                    'title'      => esc_html__( 'Append styles to head', 'exopite-combiner-minifier' ),
+                    'title'      => esc_html__( 'Inject styles to head', 'exopite-combiner-minifier' ),
                     'default'    => 'no',
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
