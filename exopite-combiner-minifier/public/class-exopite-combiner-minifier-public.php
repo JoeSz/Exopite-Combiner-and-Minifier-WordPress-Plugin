@@ -954,22 +954,43 @@ class Exopite_Combiner_Minifier_Public {
                     $process = (
                         ( strpos( $item->textContent, "woocommerce" ) === false ) &&
                         ( strpos( $item->textContent, "<![CDATA[" ) === false ) &&
-                        ( ! isset( $type ) || $type == 'text/javascript' )
+                        ( ! isset( $type ) || empty( $type ) || $type == 'text/javascript' )
                     );
 
-                    if ( $create_file && $process ) {
+                    /**
+                     * In place minification.
+                     * This will leave script in place, only minify them.
+                     * Still dangerous!
+                     */
+                    if ( $process ) {
 
-                        if ( $combine_only_scripts == 'no' ) {
-                            $to_write .= $before . JSMin::minify( $item->textContent ) . $after;
-                            // $to_write .= $before . ( new Minify\JS( $item->textContent ) )->minify() . $after;
-                        } else {
-                            $to_write .= $before . $item->textContent . $after;
-                        }
+                        $item->nodeValue = JSMin::minify( $item->textContent );
+                        // $item->nodeValue = ( new Minify\JS( $item->textContent ) )->minify();
+
                     }
+
+                    /**
+                     * This will insert inline <script> element values to combined file and remove them.
+                     */
+                    // if ( $create_file && $process ) {
+
+                    //     if ( $combine_only_scripts == 'no' ) {
+                    //         $to_write .= $before . JSMin::minify( $item->textContent ) . $after;
+                    //         // $to_write .= $before . ( new Minify\JS( $item->textContent ) )->minify() . $after;
+                    //     } else {
+                    //         $to_write .= $before . $item->textContent . $after;
+                    //     }
+                    // }
+
+                    // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/scripts.log', PHP_EOL, FILE_APPEND );
 
                 }
 
-                if ( ! empty( $src ) || ( empty( $src ) && $process_inline_scripts == 'yes' ) ) {
+                if ( ! empty( $src ) ) {
+                /**
+                 *  this will remove inline <script> elements too.
+                 */
+                // if ( ! empty( $src ) || ( empty( $src ) && $process_inline_scripts == 'yes' ) ) {
 
                     // Remove processed
                     $item->parentNode->removeChild( $item );
@@ -979,6 +1000,19 @@ class Exopite_Combiner_Minifier_Public {
             }
 
             if ( $create_file ) file_put_contents( $combined_scripts_mifinited_filename, $to_write );
+
+            $head = $html->getElementsByTagName('head')->item(0);
+
+            /**
+             * Preload
+             *
+             * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
+             */
+            $preload = $html->createElement('link');
+            $preload->setAttribute( 'rel', 'preload' );
+            $preload->setAttribute( 'href', $combined_scripts_mifinited_file_url );
+            $preload->setAttribute( 'as', 'script' );
+            $head->appendChild( $preload );
 
             /**
              * Add generated file to the end of the body.
@@ -1010,6 +1044,7 @@ class Exopite_Combiner_Minifier_Public {
         $generate_head_styles = ( isset( $options['generate_head_styles'] ) ) ? $options['generate_head_styles'] : 'no';
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
         $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
+        $enqueue_head_styles = ( isset( $options['enqueue_head_styles'] ) ) ? $options['enqueue_head_styles'] : 'no';
 
         if ( $process_styles == 'yes' && apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
@@ -1026,7 +1061,7 @@ class Exopite_Combiner_Minifier_Public {
             $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
             $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
 
-             $items = $xpath->query("*/link[@rel='stylesheet']");
+            $items = $xpath->query("*/link[@rel='stylesheet']");
             // $items = $xpath->evaluate("*/link[@rel='stylesheet']");
 
             /**
@@ -1118,41 +1153,70 @@ class Exopite_Combiner_Minifier_Public {
 
             }
 
-            // Find inline styles
-            $items = $html->getElementsByTagName('style');
+            /**
+             * Process inline <styles> elements.
+             */
+            // $items = $html->getElementsByTagName('style');
+            $items = $xpath->query("*/style");
 
+            /**
+             * If remove and include in combined file.
+             */
             // Process only styles assigend for all media or screens
-            $allowed_media = array( '' ,'all', 'screen' );
+            // $allowed_media = array( 'all', 'screen' );
 
             foreach( $items as $item ) {
 
-                $media = $item->getAttribute("media");
-                if ( ! in_array( $media, $allowed_media ) ) {
+                /**
+                 * If remove and include in combined file.
+                 */
+                // $media = $item->getAttribute("media");
+                // if ( empty( $media ) || in_array( $media, $allowed_media ) ) {
 
-                    $inner_text = $item->textContent;
+                //     $inner_text = $item->textContent;
 
-                    if ( $combine_only_styles == 'no' ) {
-                        // Minify inline style element
-                        $item->textContent = $css_compressor->run( $item->textContent );
-                        // $item->innertext = ( new Minify\CSS( $item->textContent ) )->minify();
-                    }
+                //     if ( $combine_only_styles == 'no' ) {
+                //         // Minify inline style element
 
-                    // Remove empty
-                    if ( empty( $item->textContent ) ) {
-                        $item->parentNode->removeChild( $item );
-                    }
+                //         /**
+                //          * If remove and include in combined file.
+                //          */
+                //         $inner_text .= $css_compressor->run( $item->textContent );
+                //         // $inner_text .= ( new Minify\CSS( $item->textContent ) )->minify();
+                //     }
 
-                    continue;
+                //     // Remove empty
+                //     if ( empty( $item->textContent ) ) {
+                //         $item->parentNode->removeChild( $item );
+                //     }
+
+                //     continue;
+                // }
+
+                if ( $combine_only_styles == 'no' ) {
+                    // Minify inline style element
+                    $item->textContent = $css_compressor->run( $item->textContent );
+                    // $item->innertext = ( new Minify\CSS( $item->textContent ) )->minify();
                 }
 
+                // Remove empty
+                if ( empty( $item->textContent ) ) {
+                    $item->parentNode->removeChild( $item );
+                }
+
+                continue;
+
+                /**
+                 * If remove and include in combined file.
+                 */
                 // Skip admin inline style
-                if ( strpos( $item->textContent, 'margin-top: 32px !important;' ) ) continue;
+                // if ( strpos( $item->textContent, 'margin-top: 32px !important;' ) ) continue;
 
                 // Add to processing if need to generate file
-                if ( $create_file ) $to_write .= $item->textContent;
+                // if ( $create_file ) $to_write .= $inner_text;
 
                 // Remove them
-                $item->parentNode->removeChild( $item );
+                // $item->parentNode->removeChild( $item );
                 // $item->outertext = '';
 
             }
@@ -1187,8 +1251,10 @@ class Exopite_Combiner_Minifier_Public {
 
                 }
 
-                // $body = $html->getElementsByTagName('body');
-                $body = $html->getElementsByTagName('body')->item(0);
+                // $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename );
+
+                $head = $html->getElementsByTagName('head')->item(0);
+
                 $link = $html->createElement('link');
                 $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) );
                 // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
@@ -1196,7 +1262,24 @@ class Exopite_Combiner_Minifier_Public {
                 $link->setAttribute( 'type', 'text/css' );
                 $link->setAttribute( 'media', 'all' );
 
-                $body->appendChild( $link );
+                if ( $enqueue_head_styles === 'yes' ) {
+
+                    $head->appendChild( $link );
+
+                } else {
+
+                    $preload = $html->createElement('link');
+                    $preload->setAttribute( 'rel', 'preload' );
+                    $preload->setAttribute( 'href', $combined_styles_mifinited_file_url );
+                    $preload->setAttribute( 'as', 'style' );
+                    $head->appendChild( $preload );
+
+                    $body = $html->getElementsByTagName('body')->item(0);
+                    $body->appendChild( $link );
+
+                }
+
+
 
             }
 
@@ -1259,16 +1342,6 @@ class Exopite_Combiner_Minifier_Public {
             $xpath = new DOMXpath( $html );
 
             /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
-             *                          Scripts                        *
-            \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            if ( $log ) $start_time = microtime(true);
-
-            $content = $this->process_scripts( $content, $options, $html, $xpath );
-
-            if ( $log ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
              *                          Styles                         *
             \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -1277,6 +1350,16 @@ class Exopite_Combiner_Minifier_Public {
             $content = $this->process_styles( $content, $options, $html, $xpath );
 
             if ( $log ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+
+            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+             *                          Scripts                        *
+            \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+            if ( $log ) $start_time = microtime(true);
+
+            $content = $this->process_scripts( $content, $options, $html, $xpath );
+
+            if ( $log ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
