@@ -614,7 +614,14 @@ class Exopite_Combiner_Minifier_Public {
     public function buffer_start() {
 
         // Start output buffering with a callback function
-        ob_start( array( $this, 'process_html' ) );
+        add_filter( 'exopite_ob_status', 'on' );
+        ob_start( array( $this, 'process_buffer' ) );
+
+    }
+
+    public function process_buffer( $content ) {
+
+        return apply_filters( 'exopite_ob_content', $content );
 
     }
 

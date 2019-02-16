@@ -242,8 +242,14 @@ class Exopite_Combiner_Minifier {
                              ( defined('DOING_AJAX') && DOING_AJAX )
                         ) ) {
 
-                        $this->loader->add_filter( 'wp_loaded', $plugin_public, 'buffer_start', 12 );
-                        $this->loader->add_filter( 'shutdown', $plugin_public, 'buffer_end', 12 );
+						if ( apply_filters( 'exopite_ob_status', 'off' ) != 'on' ) {
+
+							$this->loader->add_filter( 'wp_loaded', $plugin_public, 'buffer_start', 12 );
+							$this->loader->add_filter( 'shutdown', $plugin_public, 'buffer_end', 12 );
+
+						}
+
+						$this->loader->add_filter( 'exopite_ob_content', $plugin_public, 'process_html', 12 );
 
                     }
 
