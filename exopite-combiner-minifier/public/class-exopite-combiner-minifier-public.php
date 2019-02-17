@@ -1010,6 +1010,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $head = $html->getElementsByTagName('head')->item(0);
 
+                $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_scripts_mifinited_filename );
             /**
              * Preload
              *
@@ -1017,7 +1018,7 @@ class Exopite_Combiner_Minifier_Public {
              */
             $preload = $html->createElement('link');
             $preload->setAttribute( 'rel', 'preload' );
-            $preload->setAttribute( 'href', $combined_scripts_mifinited_file_url );
+            $preload->setAttribute( 'href', $script_url );
             $preload->setAttribute( 'as', 'script' );
             $head->appendChild( $preload );
 
@@ -1030,7 +1031,7 @@ class Exopite_Combiner_Minifier_Public {
             $body = $html->getElementsByTagName('body')->item(0);
             $script = $html->createElement('script');
             $script->setAttribute( 'type', 'text/javascript' );
-            $script->setAttribute( 'src', $combined_scripts_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_scripts_mifinited_filename ) );
+            $script->setAttribute( 'src', $script_url );
             $script->setAttribute( 'defer', 'defer' );
             $body->appendChild( $script );
 
@@ -1258,12 +1259,12 @@ class Exopite_Combiner_Minifier_Public {
 
                 }
 
-                // $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename );
+                $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename );
 
                 $head = $html->getElementsByTagName('head')->item(0);
 
                 $link = $html->createElement('link');
-                $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) );
+                $link->setAttribute( 'href', $style_url );
                 // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
                 $link->setAttribute( 'rel', 'stylesheet' );
                 $link->setAttribute( 'type', 'text/css' );
@@ -1277,7 +1278,7 @@ class Exopite_Combiner_Minifier_Public {
 
                     $preload = $html->createElement('link');
                     $preload->setAttribute( 'rel', 'preload' );
-                    $preload->setAttribute( 'href', $combined_styles_mifinited_file_url );
+                    $preload->setAttribute( 'href', $style_url );
                     $preload->setAttribute( 'as', 'style' );
                     $head->appendChild( $preload );
 
