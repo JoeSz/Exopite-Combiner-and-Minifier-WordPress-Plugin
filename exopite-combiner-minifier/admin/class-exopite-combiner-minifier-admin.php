@@ -153,7 +153,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_scripts',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                 ),
 
                 array(
@@ -191,7 +191,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_styles',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                 ),
 
                 array(
@@ -220,7 +220,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_html',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
