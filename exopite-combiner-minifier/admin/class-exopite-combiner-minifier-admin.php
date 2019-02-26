@@ -160,8 +160,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'ignore_process_scripts',
                     'type'    => 'textarea',
                     'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
-                    'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
-                    'after'   => esc_html__( 'Only script name without extension. One per line.', 'exopite-combiner-minifier' ),
+                      'after'   => esc_html__( 'Only script name without extension. One per line, jquery.js, jquery-migrate.min.js and admin-bar.min.js will be ignored.', 'exopite-combiner-minifier' ),
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
