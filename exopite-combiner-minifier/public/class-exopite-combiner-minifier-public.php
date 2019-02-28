@@ -61,8 +61,8 @@ class Exopite_Combiner_Minifier_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->debug = false;
-        // $this->showinfo = false;
-        $this->showinfo = true;
+        $this->showinfo = false;
+        // $this->showinfo = true;
 
 	}
 
