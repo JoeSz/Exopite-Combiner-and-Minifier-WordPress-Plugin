@@ -208,6 +208,7 @@ class Exopite_Combiner_Minifier {
      * @returns boolean
      * @author matzeeable
 	 * @link https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist/317041#317041
+	 * @link https://gist.github.com/matzeeable/dfd82239f48c2fedef25141e48c8dc30
      */
     function is_rest() {
         $prefix = rest_get_url_prefix( );
