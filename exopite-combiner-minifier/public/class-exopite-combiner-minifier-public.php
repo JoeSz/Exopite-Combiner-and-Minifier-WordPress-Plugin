@@ -834,7 +834,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts( $content, $options, $html, $xpath ) {
 
-        $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
+        $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'no';
         $process_inline_scripts = ( isset( $options['process_inline_scripts'] ) ) ? $options['process_inline_scripts'] : 'no';
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
@@ -1055,10 +1055,9 @@ class Exopite_Combiner_Minifier_Public {
     public function process_styles( $content, $options, $html, $xpath ) {
 
         $options = get_option( $this->plugin_name );
-        $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
+        $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'no';
         $generate_head_styles = ( isset( $options['generate_head_styles'] ) ) ? $options['generate_head_styles'] : 'no';
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
-        $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
         $enqueue_head_styles = ( isset( $options['enqueue_head_styles'] ) ) ? $options['enqueue_head_styles'] : 'no';
         $create_separate_files = ( isset( $options['create_separate_files'] ) ) ? $options['create_separate_files'] : 'yes';
 
@@ -1331,11 +1330,11 @@ class Exopite_Combiner_Minifier_Public {
         if ( $log ) $time_html = 'NaN ';
 
         $options = get_option( $this->plugin_name );
-        $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
-        $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
+        $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'no';
+        $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'no';
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
-        $process_html = ( isset( $options['process_html'] ) ) ? $options['process_html'] : 'yes';
+        $process_html = ( isset( $options['process_html'] ) ) ? $options['process_html'] : 'no';
 
         if ( $process_scripts == 'yes' || $process_styles == 'yes' ) {
 
