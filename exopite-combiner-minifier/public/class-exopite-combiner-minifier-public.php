@@ -61,8 +61,8 @@ class Exopite_Combiner_Minifier_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->debug = false;
-        $this->showinfo = false;
-        // $this->showinfo = true;
+        // $this->showinfo = false;
+        $this->showinfo = true;
 
 	}
 
@@ -838,6 +838,7 @@ class Exopite_Combiner_Minifier_Public {
         $process_inline_scripts = ( isset( $options['process_inline_scripts'] ) ) ? $options['process_inline_scripts'] : 'no';
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
+        $create_separate_files = ( isset( $options['create_separate_files'] ) ) ? $options['create_separate_files'] : 'yes';
 
         if ( $process_scripts == 'yes' && apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
@@ -852,8 +853,13 @@ class Exopite_Combiner_Minifier_Public {
             /**
              * Set script file name
              */
-            $id = ( is_archive() ) ? 'archives' : get_the_ID();
-            $combined_scripts_file_name = 'scripts-combined-' . $id . '.js';
+            $id = '';
+            if ( $create_separate_files == 'yes' ) {
+                $id = ( is_archive() ) ? '-archives' : '-' . get_the_ID();
+            }
+
+            // $combined_scripts_file_name = 'scripts-combined.js';
+            $combined_scripts_file_name = 'scripts-combined' . $id . '.js';
             $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
             $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
 
@@ -1018,6 +1024,7 @@ class Exopite_Combiner_Minifier_Public {
              */
             $preload = $html->createElement('link');
             $preload->setAttribute( 'rel', 'preload' );
+            // $preload->setAttribute( 'crossorigin', 'anonymous' );
             $preload->setAttribute( 'href', $script_url );
             $preload->setAttribute( 'as', 'script' );
             $head->appendChild( $preload );
@@ -1053,6 +1060,7 @@ class Exopite_Combiner_Minifier_Public {
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
         $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
         $enqueue_head_styles = ( isset( $options['enqueue_head_styles'] ) ) ? $options['enqueue_head_styles'] : 'no';
+        $create_separate_files = ( isset( $options['create_separate_files'] ) ) ? $options['create_separate_files'] : 'yes';
 
         if ( $process_styles == 'yes' && apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
@@ -1063,7 +1071,13 @@ class Exopite_Combiner_Minifier_Public {
             /**
              * Set styles file name
              */
-            $combined_styles_file_name = 'styles-combined-' . get_the_ID() . '.css';
+            $id = '';
+            if ( $create_separate_files == 'yes' ) {
+                $id = ( is_archive() ) ? '-archives' : '-' . get_the_ID();
+            }
+
+            // $combined_styles_file_name = 'styles-combined.css';
+            $combined_styles_file_name = 'styles-combined' . $id . '.css';
             $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
             $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_styles_mifinited_file_url );
             $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
@@ -1278,6 +1292,7 @@ class Exopite_Combiner_Minifier_Public {
 
                     $preload = $html->createElement('link');
                     $preload->setAttribute( 'rel', 'preload' );
+                    // $preload->setAttribute( 'crossorigin', 'anonymous' );
                     $preload->setAttribute( 'href', $style_url );
                     $preload->setAttribute( 'as', 'style' );
                     $head->appendChild( $preload );
@@ -1412,7 +1427,7 @@ class Exopite_Combiner_Minifier_Public {
     //https://stackoverflow.com/questions/5266945/wordpress-how-detect-if-current-page-is-the-login-page/5892694#5892694
     public function is_login_page() {
 
-        return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
+        return in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) );
 
     }
 
@@ -1501,25 +1516,3 @@ class Exopite_Combiner_Minifier_Public {
  * exopite-combiner-minifier-scripts-after-process
  *
  */
-/*
-STANDARD
-<!-- Exopite Combiner Minifier - JavaScript: 0.2478s. -->
-<!-- Exopite Combiner Minifier - CSS: 0.3128s. -->
-<!-- Exopite Combiner Minifier - TOTAL: 0.5621s. -->
-OTHER CSS
-<!-- Exopite Combiner Minifier - JavaScript: 0.2476s. -->
-<!-- Exopite Combiner Minifier - CSS: 0.3425s. -->
-<!-- Exopite Combiner Minifier - TOTAL: 0.5913s. -->
-STANDARD CONTROL
-<!-- Exopite Combiner Minifier - JavaScript: 0.2493s. -->
-<!-- Exopite Combiner Minifier - CSS: 0.3036s. -->
-<!-- Exopite Combiner Minifier - TOTAL: 0.5543s. -->
-OTHER JS
-<!-- Exopite Combiner Minifier - JavaScript: 0.1229s. -->
-<!-- Exopite Combiner Minifier - CSS: 0.3037s. -->
-<!-- Exopite Combiner Minifier - TOTAL: 0.4281s. -->
-STANDARD CONTROL
-<!-- Exopite Combiner Minifier - JavaScript: 0.2471s. -->
-<!-- Exopite Combiner Minifier - CSS: 0.3024s. -->
-<!-- Exopite Combiner Minifier - TOTAL: 0.5511s. -->
-*/
