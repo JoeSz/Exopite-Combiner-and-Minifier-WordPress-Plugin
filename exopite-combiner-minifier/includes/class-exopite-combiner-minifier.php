@@ -212,10 +212,11 @@ class Exopite_Combiner_Minifier {
      */
     function is_rest() {
         $prefix = rest_get_url_prefix( );
-        if (defined('REST_REQUEST') && REST_REQUEST // (#1)
-            || isset($_GET['rest_route']) // (#2)
-                && strpos( trim( $_GET['rest_route'], '\\/' ), $prefix , 0 ) === 0)
-            return true;
+        if ( defined( 'REST_REQUEST' ) && REST_REQUEST // (#1)
+            || isset( $_GET['rest_route'] ) // (#2)
+            	&& strpos( trim( $_GET['rest_route'], '\\/' ), $prefix , 0 ) === 0) {
+				return true;
+			}
 
         // (#3)
         $rest_url = wp_parse_url( site_url( $prefix ) );
@@ -263,9 +264,8 @@ class Exopite_Combiner_Minifier {
                      *
                      */
                     if ( ! ( ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
-                             ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
-                             ( defined('XMLRPC_REQUEST') && XMLRPC_REQUEST ) ||
-                             ( defined('DOING_AJAX') && DOING_AJAX )
+                             ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
+                             ( defined( 'DOING_AJAX' ) && DOING_AJAX )
                         ) ) {
 
 						if ( apply_filters( 'exopite_ob_status', 'off' ) != 'on' ) {
