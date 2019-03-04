@@ -238,7 +238,7 @@ class Exopite_Combiner_Minifier {
         if ( ! is_admin() && ! $this->is_rest() ) {
 
             $options = get_option($this->plugin_name);
-            $method = ( isset( $options['method'] ) ) ? $options['method'] : 'method-1';
+            $method = ( isset( $options['method'] ) ) ? $options['method'] : 'method-2';
 
             switch ( $method ) {
 
