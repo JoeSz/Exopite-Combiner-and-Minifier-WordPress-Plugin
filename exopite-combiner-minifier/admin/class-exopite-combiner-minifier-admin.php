@@ -115,12 +115,14 @@ class Exopite_Combiner_Minifier_Admin {
             'title'             => 'Exopite Combiner Minifier',     // The name of this page
             'capability'        => 'manage_options',                // The capability needed to view the page
             'plugin_basename'   =>  plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' ),
-            'tabbed'            => false,
+            // 'tabbed'            => false,
             'multilang'         => false,
 
         );
 
         $fields[] = array(
+            'title'  => 'General',
+            'icon'   => 'dashicons-admin-settings',
             'name'   => $this->plugin_name,
             'fields' => array(
 
@@ -150,79 +152,20 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
-                    'id'      => 'process_scripts',
+                    'id'      => 'create_separate_files',
                     'type'    => 'switcher',
-                    'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                ),
-
-                array(
-                    'id'      => 'ignore_process_scripts',
-                    'type'    => 'textarea',
-                    'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
-                      'after'   => esc_html__( 'Only script name without extension. One per line, jquery.js, jquery-migrate.min.js and admin-bar.min.js will be ignored.', 'exopite-combiner-minifier' ),
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
-                ),
-
-                array(
-                    'id'         => 'process_inline_scripts',
-                    'type'       => 'switcher',
-                    'title'      => esc_html__( 'Process inline scripts', 'exopite-combiner-minifier' ),
-                    'default'    => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
-                ),
-
-                array(
-                    'id'      => 'scripts_try_catch',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
+                    'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
-                    'after'   => esc_html__( 'To avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
                 ),
 
-                array(
-                    'id'      => 'combine_only_scripts',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Combine only (scripts)', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                ),
+            ),
+        );
 
-                array(
-                    'id'      => 'process_styles',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                ),
-
-                array(
-                    'id'      => 'combine_only_styles',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Combine only (styles)', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                ),
-
-                array(
-                    'id'      => 'enqueue_head_styles',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Enqueue style in header', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                ),
-
-                array(
-                    'id'         => 'generate_head_styles',
-                    'type'       => 'switcher',
-                    'title'      => esc_html__( 'Inject styles to head', 'exopite-combiner-minifier' ),
-                    'default'    => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
-                ),
-
-                array(
-                    'id'      => 'process_html',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
-                ),
+        $fields[] = array(
+            'title'  => 'Methods',
+            'icon'   => 'dashicons-admin-generic',
+            'name'   => 'methods',
+            'fields' => array(
 
                 array(
                     'id'      => 'method',
@@ -267,6 +210,110 @@ class Exopite_Combiner_Minifier_Admin {
                         '</ul>' .
                         '</p>',
                     'header'  => esc_html__( 'Method 2', 'exopite-combiner-minifier' ),
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+            ),
+        );
+
+        $fields[] = array(
+            'title'  => esc_html__( 'Styles', 'exopite-combiner-minifier' ),
+            'icon'   => 'fa fa-css3',
+            'name'   => 'styles',
+            'fields' => array(
+
+                array(
+                    'id'      => 'process_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'combine_only_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Combine only (styles)', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                ),
+
+                array(
+                    'id'      => 'enqueue_head_styles',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Enqueue style in header', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                ),
+
+                array(
+                    'id'         => 'generate_head_styles',
+                    'type'       => 'switcher',
+                    'title'      => esc_html__( 'Inject styles as inline to head', 'exopite-combiner-minifier' ),
+                    'default'    => 'no',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+            ),
+        );
+
+        $fields[] = array(
+            'title'  => esc_html__( 'Scripts', 'exopite-combiner-minifier' ),
+            'icon'   => 'fa fa-code',
+            'name'   => 'scripts',
+            'fields' => array(
+
+                array(
+                    'id'      => 'process_scripts',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                ),
+
+                array(
+                    'id'      => 'ignore_process_scripts',
+                    'type'    => 'textarea',
+                    'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
+                    'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
+                    'after'   => esc_html__( 'Only script name without extension. One per line.', 'exopite-combiner-minifier' ),
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
+                    'id'         => 'process_inline_scripts',
+                    'type'       => 'switcher',
+                    'title'      => esc_html__( 'Process inline scripts', 'exopite-combiner-minifier' ),
+                    'default'    => 'no',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
+                    'id'      => 'scripts_try_catch',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                    'after'   => esc_html__( 'To avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
+                ),
+
+                array(
+                    'id'      => 'combine_only_scripts',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Combine only (scripts)', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                ),
+
+            ),
+        );
+
+        $fields[] = array(
+            'title'  => esc_html__( 'HTML', 'exopite-combiner-minifier' ),
+            'icon'   => 'fa fa-html5',
+            'name'   => 'html',
+            'dependency' => array( 'method_method-2', '==', 'true' ),
+            'fields' => array(
+
+                array(
+                    'id'      => 'process_html',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
