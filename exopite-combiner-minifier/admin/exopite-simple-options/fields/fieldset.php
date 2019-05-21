@@ -65,8 +65,9 @@ if ( ! class_exists( 'Exopite_Simple_Options_Framework_Field_fieldset' ) ) {
 					continue;
 				}
 
-				$self->include_field_class( array( 'type' => $field['type'] ) );
-				$self->enqueue_field_class( array( 'type' => $field['type'] ) );
+				if ( is_serialized( $this->value ) ) {
+					$this->value = unserialize( $this->value );
+				}
 
 				$field_value = '';
 				if ( isset( $this->value[ $field['id'] ] ) ) {
@@ -74,6 +75,8 @@ if ( ! class_exists( 'Exopite_Simple_Options_Framework_Field_fieldset' ) ) {
 				} elseif ( isset( $field['default'] ) ) {
 					$field_value = $field['default'];
 				}
+
+				$class = 'Exopite_Simple_Options_Framework_Field_' . $field['type'];
 
 				echo $self->add_field( $field, $field_value );
 
