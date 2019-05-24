@@ -105,6 +105,10 @@ OR
 
 CHANGELOG
 ---------
+
+= 20190521 - 2019-05-21 =
+* Update: Update Exopite Simple Options Framework
+
 = 20190213 - 2019-02-13 =
 Major rewrite.
 * Replace PHP Simple HTML DOM Parser with DomDocument for performace gain.

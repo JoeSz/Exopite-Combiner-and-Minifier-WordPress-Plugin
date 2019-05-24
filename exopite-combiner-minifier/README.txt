@@ -3,11 +3,11 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.7
-Tested up to: 4.9.8
-Stable tag: 4.9.8
+Tested up to: 5.2.1
+Stable tag: 4.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20181123
+Version: 20190521
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -109,6 +109,17 @@ OR
 
 CHANGELOG
 ---------
+
+= 20190521 - 2019-05-21 =
+* Update: Update Exopite Simple Options Framework
+
+= 20190213 - 2019-02-13 =
+Major rewrite.
+* Replace PHP Simple HTML DOM Parser with DomDocument for performace gain.
+* Added: new HTML, CSS and JavaScript minifier.
+* Added: include first level @import to css.
+* Added: option to insert CSS to header insed of using a file. (slower)
+* Added: removing source map URLs in js files to avoid breaking.
 
 = 20181123 - 2018-11-23 =
 * Update: Exopite Simple Options Framework
