@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8.0 <br />
-Tested up to: 5.0.3 <br />
-Stable tag: 5.0.3 <br />
+Tested up to: 5.2.1 <br />
+Stable tag: 5.2.1 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20190213
+Version: 20190528
 
 ## Suggestions and feedback are welcome
 
@@ -105,6 +105,9 @@ OR
 
 CHANGELOG
 ---------
+
+= 20190528 - 2019-05-28 =
+* Update: Update Exopite Simple Options Framework
 
 = 20190521 - 2019-05-21 =
 * Update: Update Exopite Simple Options Framework
