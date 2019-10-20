@@ -89,27 +89,6 @@ define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME', 'exopite-combiner-minifier' );
  */
 define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20190521' );
 
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-exopite-combiner-minifier-activator.php
- */
-function activate_exopite_combiner_minifier() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-exopite-combiner-minifier-activator.php';
-	Exopite_Combiner_Minifier_Activator::activate();
-}
-
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-exopite-combiner-minifier-deactivator.php
- */
-function deactivate_exopite_combiner_minifier() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-exopite-combiner-minifier-deactivator.php';
-	Exopite_Combiner_Minifier_Deactivator::deactivate();
-}
-
-register_activation_hook( __FILE__, 'activate_exopite_combiner_minifier' );
-register_deactivation_hook( __FILE__, 'deactivate_exopite_combiner_minifier' );
-
 /*
  * Update
  */
