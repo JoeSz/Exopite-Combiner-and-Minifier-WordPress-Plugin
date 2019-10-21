@@ -1039,7 +1039,7 @@ class Exopite_Combiner_Minifier_Public {
             $script = $html->createElement('script');
             $script->setAttribute( 'type', 'text/javascript' );
             $script->setAttribute( 'src', $script_url );
-            $script->setAttribute( 'defer', 'defer' );
+            // $script->setAttribute( 'defer', 'defer' );
             $body->appendChild( $script );
 
             $content = $html->saveHTML();
