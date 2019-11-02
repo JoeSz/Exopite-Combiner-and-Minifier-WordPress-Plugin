@@ -43,7 +43,7 @@ after output buffering, but sometimes plugin and theme developers use a conditio
 only on some pages. In this case, the plugin will be run every time on the different page,
 and that would be more time, what we otherwise gain,
 
-* Second method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple HTML DOM Parser and Output Buffering.
+* Second method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP DomDocument DOM Parser and Output Buffering.
 
 NOTE
 ----
