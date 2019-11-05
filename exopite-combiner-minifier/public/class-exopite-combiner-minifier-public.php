@@ -834,6 +834,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts( $content, $options, $html, $xpath ) {
 
+        $log = $this->debug;
         $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'no';
         $process_inline_scripts = ( isset( $options['process_inline_scripts'] ) ) ? $options['process_inline_scripts'] : 'no';
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
@@ -1054,6 +1055,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles( $content, $options, $html, $xpath ) {
 
+        $log = $this->debug;
         $options = get_option( $this->plugin_name );
         $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'no';
         $generate_head_styles = ( isset( $options['generate_head_styles'] ) ) ? $options['generate_head_styles'] : 'no';
@@ -1355,7 +1357,7 @@ class Exopite_Combiner_Minifier_Public {
                 $content = mb_convert_encoding( $content, 'HTML-ENTITIES', "UTF-8" );
             }
 
-            $html->loadHTML( $content );
+            @$html->loadHTML( $content );
             // $html->formatOutput = true;
             // $html->preserveWhiteSpace = false;
 
