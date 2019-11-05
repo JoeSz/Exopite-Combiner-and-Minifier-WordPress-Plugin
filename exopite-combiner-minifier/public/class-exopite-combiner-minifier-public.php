@@ -1353,7 +1353,7 @@ class Exopite_Combiner_Minifier_Public {
              *
              * @link https://stackoverflow.com/questions/2236889/why-does-dom-change-encoding/2238149#2238149
              */
-            if ( mb_detect_encoding($str, 'UTF-8') !== 'UTF-8' ) {
+            if ( mb_detect_encoding( $content, 'UTF-8' ) !== 'UTF-8' ) {
                 $content = mb_convert_encoding( $content, 'HTML-ENTITIES', "UTF-8" );
             }
 
