@@ -3,12 +3,12 @@
 
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
-Requires at least: 4.8.0 <br />
-Tested up to: 5.2.1 <br />
-Stable tag: 5.2.1 <br />
+Requires at least: 4.8 <br />
+Tested up to: 5.3 <br />
+Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20190528
+Version: 20191113
 
 ## Suggestions and feedback are welcome
 
@@ -97,14 +97,13 @@ INSTALLATION
 
 1. [x] Upload `exopite-combiner-minifier` to the `/wp-content/plugins/exopite-combiner-minifier/` directory
 
-OR
-
-1. [ ] ~~Install plugin from WordPress repository (not yet)~~
-
 2. [x] Activate the plugin through the 'Plugins' menu in WordPress
 
 CHANGELOG
 ---------
+
+= 20191113 - 2019-11-13 =
+* Update: Plugin Update Checker to 4.8
 
 = 20190528 - 2019-05-28 =
 * Update: Update Exopite Simple Options Framework
