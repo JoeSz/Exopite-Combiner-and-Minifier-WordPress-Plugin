@@ -856,7 +856,13 @@ class Exopite_Combiner_Minifier_Public {
              */
             $id = '';
             if ( $create_separate_files == 'yes' ) {
-                $id = ( is_archive() ) ? '-archives' : '-' . get_the_ID();
+
+                $id = $this->get_type_name();
+
+                if ( empty( $id ) ) {
+                    return $content;
+                }
+
             }
 
             // $combined_scripts_file_name = 'scripts-combined.js';
@@ -1053,6 +1059,31 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function get_type_name() {
+
+        if ( ! is_front_page() && is_home() ) {
+            return '-blog';
+        } elseif ( is_archive() ) {
+
+            $post_type_slug = get_queried_object()->name;
+
+            if ( ! empty( $post_type_slug ) ) {
+                $post_type_slug = '-' . $post_type_slug;
+                return $post_type_slug . '-archive';
+            } else {
+                return '-archives';
+            }
+
+        } elseif ( is_search() ) {
+            return '-search';
+        } elseif ( is_404() ) {
+            return '-e404';
+        } elseif ( is_singular() ) {
+            return '-' . get_the_ID();
+        }
+
+    }
+
     public function process_styles( $content, $options, $html, $xpath ) {
 
         $log = $this->debug;
@@ -1074,7 +1105,13 @@ class Exopite_Combiner_Minifier_Public {
              */
             $id = '';
             if ( $create_separate_files == 'yes' ) {
-                $id = ( is_archive() ) ? '-archives' : '-' . get_the_ID();
+
+                $id = $this->get_type_name();
+
+                if ( empty( $id ) ) {
+                    return $content;
+                }
+
             }
 
             // $combined_styles_file_name = 'styles-combined.css';
@@ -1321,9 +1358,9 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts_styles( $content ) {
 
-        $id = get_the_ID();
+        // $id = get_the_ID();
 
-        if ( ! isset( $id ) || empty( $id ) ) return $content;
+        // if ( ! isset( $id ) || empty( $id ) ) return $content;
 
         $log = $this->showinfo;
 
