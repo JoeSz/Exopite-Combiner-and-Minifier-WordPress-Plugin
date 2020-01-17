@@ -1089,7 +1089,7 @@ class Exopite_Combiner_Minifier_Public {
         } elseif ( is_search() ) {
             return '-search';
         } elseif ( is_404() ) {
-            return '-e404';
+            return '-404';
         } elseif ( is_singular() ) {
             return '-' . get_the_ID();
         }
