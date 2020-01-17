@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8 <br />
-Tested up to: 5.3 <br />
+Tested up to: 5.3.2 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20191113
+Version: 20200117
 
 ## Suggestions and feedback are welcome
 
@@ -101,6 +101,10 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20200117 - 2020-01-17 =
+* Fix: DomDocument sometimes remove some elements from <script type="text/template">
+       Remove all template content and add back after processing JSs and CSSs.
 
 = 20191113 - 2019-11-13 =
 * Update: Plugin Update Checker to 4.8

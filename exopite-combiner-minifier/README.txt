@@ -3,11 +3,11 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.8
-Tested up to: 5.3
+Tested up to: 5.3.2
 Stable tag: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20191113
+Version: 20200117
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -109,6 +109,10 @@ OR
 
 CHANGELOG
 ---------
+
+= 20200117 - 2020-01-17 =
+* Fix: DomDocument sometimes remove some elements from <script type="text/template">
+       Remove all template content and add back after processing JSs and CSSs.
 
 = 20191113 - 2019-11-13 =
 * Update: Plugin Update Checker to 4.8
