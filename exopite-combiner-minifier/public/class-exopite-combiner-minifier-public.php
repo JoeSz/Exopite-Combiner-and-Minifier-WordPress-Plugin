@@ -49,6 +49,18 @@ class Exopite_Combiner_Minifier_Public {
     public $debug;
     public $showinfo;
 
+    public $js_templates = array();
+
+    public $searched_script_types = array(
+        'type="text/template"',
+        "type=\'text/template\'",
+        'type="text/x-template"',
+        "type=\'text/x-template\'",
+    );
+
+    public $regex_js_template = '/<script(.*?)>([\s\S]*?)<\/script>/i';
+
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -1356,11 +1368,84 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function remove_script_templates( $content ) {
+
+        /**
+         * get script with type text/template and text/x-template with regex
+         * save tags content in an array
+         * remove tags content
+         *
+         * https://stackoverflow.com/questions/43495620/php-how-to-match-all-script-tags-except-with-specific-type
+         */
+
+        return preg_replace_callback(
+            $this->regex_js_template,
+            function ( $matches ) use ( &$index ) {
+
+                if ( $this->strpos_array( $matches[1], $this->searched_script_types ) ) {
+
+                    if ( isset( $matches[2] ) ) {
+                        $this->js_templates[] = $matches[2];
+                    }
+                    $script_item = '<script' . $matches[1] . '>TEMPLATE</script>';
+                    return $script_item;
+
+                } else {
+                    return $matches[0];
+                }
+
+            },
+            $content
+        );
+
+    }
+
+    public function add_script_templates_back( $content ) {
+
+        $index = 0;
+
+        return preg_replace_callback(
+            $this->regex_js_template,
+            function ( $matches ) use ( &$index ) {
+
+                if ( $this->strpos_array( $matches[1], $this->searched_script_types ) ) {
+
+                    $retval = '<script' . $matches[1] . '>' . $this->js_templates[$index] . '</script>';
+                    $index++;
+                    return $retval;
+
+                } else {
+                    return $matches[0];
+                }
+
+            },
+            $content
+        );
+
+    }
+
+    public function strpos_array( $haystack, $needle ) {
+        if ( ! is_array( $needle ) ) {
+            $needle = array( $needle );
+        }
+
+        foreach ( $needle as $what ) {
+            if ( ( $pos = strpos( $haystack, $what ) ) !== false ) {
+                return $pos;
+            }
+
+        }
+        return false;
+    }
+
+
     public function process_scripts_styles( $content ) {
 
-        // $id = get_the_ID();
-
-        // if ( ! isset( $id ) || empty( $id ) ) return $content;
+        /**
+         * DomDocument sometimes remove some elements from <script type="text/template">
+         * Remove all template content and add back after processing JSs and CSSs.
+         */
+        $content = $this->remove_script_templates( $content );
 
         $log = $this->showinfo;
 
@@ -1456,6 +1541,10 @@ class Exopite_Combiner_Minifier_Public {
             }
 
             $content .= $times;
+        }
+
+        if ( ! empty( $this->js_templates ) ) {
+            $content = $this->add_script_templates_back( $content );
         }
 
         return $content;
