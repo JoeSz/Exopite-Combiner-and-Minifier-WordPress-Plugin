@@ -1,0 +1,1 @@
+Prevent folder will not sync if empty
