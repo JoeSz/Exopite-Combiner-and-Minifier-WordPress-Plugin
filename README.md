@@ -101,6 +101,8 @@ INSTALLATION
 
 CHANGELOG
 ---------
+= 20200303 - 2020-03-03 =
+* Fix: process local urls start with "//".
 
 = 20200117 - 2020-01-17 =
 * Fix: DomDocument sometimes remove some elements from <script type="text/template">
