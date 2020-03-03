@@ -148,8 +148,14 @@ class Exopite_Combiner_Minifier_Public {
      */
     public function get_path( $url = '' ) {
 
+        // Compatibility for local urls start with //
+        $site_url = site_url();
+        if ( $this->starts_with( $url, '//' ) ) {
+            $site_url = strstr( $site_url, '//' );
+        }
+
         $path = str_replace(
-            site_url(),
+            $site_url,
             wp_normalize_path( untrailingslashit( ABSPATH ) ),
             $url
         );
@@ -649,7 +655,7 @@ class Exopite_Combiner_Minifier_Public {
      */
     public function to_skip( $src, $path, $type, $media = '' ) {
 
-        if ( ! $this->starts_with( $src, $this->site_url ) ) return true;
+        if ( ( $this->starts_with( $src, '//' ) && ! $this->starts_with( $src, strstr( $this->site_url, '//' ) ) ) && ! $this->starts_with( $src, $this->site_url ) ) return true;
 
         switch ( $type ) {
 
