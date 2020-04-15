@@ -905,19 +905,25 @@ class Exopite_Combiner_Minifier_Public {
 
             $last_modified = $this->get_last_modified( $items, 'scripts' );
 
-            $create_file = false;
+            $create_file = apply_filters( 'exopite-combiner-minifier-force-generate-scripts', false );
 
             // If combined and minified files are different then the enqueued files or
             // the last modified time is different or
             // override it via filter
             // then need to regenerate file.
-            if ( $this->check_list( $items, 'scripts' ) ||
-                    $this->check_last_modified_time( $combined_scripts_mifinited_filename, $last_modified ) ||
-                    apply_filters( 'exopite-combiner-minifier-force-generate-scripts', false ) ) {
+            $array_skip = array( '-blog', '-archive', '-search', '-404' );
+            if (
+                (
+                    $this->check_list( $items, 'scripts' ) ||
+                    $this->check_last_modified_time( $combined_scripts_mifinited_filename, $last_modified )
+                ) &&
+                ! in_array( $id, $array_skip )
+            ) {
 
                 $create_file = true;
 
             }
+
 
             /**
              * Some JavaScript files are broken and cause problems.
@@ -1164,11 +1170,17 @@ class Exopite_Combiner_Minifier_Public {
              */
             $last_modified = $this->get_last_modified( $items, 'styles' );
 
-            $create_file = false;
+            $create_file = apply_filters( 'exopite-combiner-minifier-force-generate-styles', false );
 
-            if ( $this->check_list( $items, 'styles' ) ||
-                    $this->check_last_modified_time( $combined_styles_mifinited_filename, $last_modified ) ||
-                    apply_filters( 'exopite-combiner-minifier-force-generate-styles', false ) ) {
+            $array_skip = array( '-blog', '-archive', '-search', '-404' );
+            if
+            (
+                (
+                    $this->check_list( $items, 'styles' ) ||
+                    $this->check_last_modified_time( $combined_styles_mifinited_filename, $last_modified )
+                ) &&
+                ! in_array( $id, $array_skip )
+            ) {
 
                 $create_file = true;
 
