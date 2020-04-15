@@ -8,7 +8,7 @@ Tested up to: 5.3.2 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20200117
+Version: 20200415
 
 ## Suggestions and feedback are welcome
 
@@ -83,7 +83,12 @@ exopite-combiner-minifier-force-generate-styles <br />
 exopite-combiner-minifier-scripts-last-modified <br />
 exopite-combiner-minifier-styles-last-modified <br />
 exopite-combiner-minifier-styles-file-url <br />
-exopite-combiner-minifier-scripts-file-url
+exopite-combiner-minifier-scripts-file-url<br />
+exopite_combiner_minifier_styles_before_write_to_file<br />
+exopite_combiner_minifier_scripts_before_write_to_file<br />
+exopite-combiner-minifier-process-scripts<br />
+exopite-combiner-minifier-process-inline-scripts<br />
+exopite-combiner-minifier-process-styles
 
 USAGE
 -----
@@ -101,6 +106,11 @@ INSTALLATION
 
 CHANGELOG
 ---------
+= 20200415 - 2020-04-15 =
+*  Added: Filter to override process sripts or styles, useful if you want to skip certain pages.
+*  Added: Filter to override processed contents.
+*  Added: Option to skip styles.
+
 = 20200303 - 2020-03-03 =
 * Fix: process local urls start with "//".
 
