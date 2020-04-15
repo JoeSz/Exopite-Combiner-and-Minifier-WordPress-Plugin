@@ -230,6 +230,15 @@ class Exopite_Combiner_Minifier_Admin {
                 ),
 
                 array(
+                    'id'      => 'ignore_process_styles',
+                    'type'    => 'textarea',
+                    'title'   => esc_html__( 'Ignore styles', 'exopite-combiner-minifier' ),
+                    'default' => 'dashicons.css' . PHP_EOL . 'admin-bar.css' . PHP_EOL . 'admin-menu.min.css',
+                    'after'   => esc_html__( 'Only style name with extension. One per line.', 'exopite-combiner-minifier' ),
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
+                array(
                     'id'      => 'combine_only_styles',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Combine only (styles)', 'exopite-combiner-minifier' ),
