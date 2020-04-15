@@ -458,7 +458,7 @@ class Exopite_Combiner_Minifier_Public {
             echo "<!-- Exopite Combiner and Minifier - write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         }
 
-        file_put_contents( $combined_mifinited_filename, $contents['content'] );
+        file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $contents['content'] ) );
 
     }
 
@@ -477,7 +477,7 @@ class Exopite_Combiner_Minifier_Public {
             echo "<!-- Exopite Combiner and Minifier - write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         }
 
-        file_put_contents( $combined_mifinited_filename, $contents['data'] . $contents['content'] );
+        file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $contents['data'] . $contents['content'] ) );
 
     }
 
@@ -683,6 +683,15 @@ class Exopite_Combiner_Minifier_Public {
                     'admin-bar.min.css',
                     'dashicons.min.css'
                 );
+
+                $plugin_options = get_option( $this->plugin_name );
+                if ( isset( $plugin_options['ignore_process_styles'] ) ) {
+                    $to_skip_user = preg_split( '/\r\n|[\r\n]/', $plugin_options['ignore_process_styles'] );
+                    $to_skip_user = array_map( 'esc_attr', $to_skip_user );
+                }
+
+                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) )  ;
+
                 break;
 
         }
@@ -858,6 +867,9 @@ class Exopite_Combiner_Minifier_Public {
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $options['scripts_try_catch'] ) ) ? $options['scripts_try_catch'] : 'yes';
         $create_separate_files = ( isset( $options['create_separate_files'] ) ) ? $options['create_separate_files'] : 'yes';
+
+        $process_scripts = apply_filters( 'exopite-combiner-minifier-process-scripts', $process_scripts );
+        $process_inline_scripts = apply_filters( 'exopite-combiner-minifier-process-inline-scripts', $process_inline_scripts );
 
         if ( $process_scripts == 'yes' && apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
@@ -1037,7 +1049,9 @@ class Exopite_Combiner_Minifier_Public {
 
             }
 
-            if ( $create_file ) file_put_contents( $combined_scripts_mifinited_filename, $to_write );
+            if ( $create_file ) {
+                file_put_contents( $combined_scripts_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $to_write ) );
+            }
 
             $head = $html->getElementsByTagName('head')->item(0);
 
@@ -1107,6 +1121,9 @@ class Exopite_Combiner_Minifier_Public {
         $log = $this->debug;
         $options = get_option( $this->plugin_name );
         $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'no';
+
+        $process_styles = apply_filters( 'exopite-combiner-minifier-process-styles', $process_styles );
+
         $generate_head_styles = ( isset( $options['generate_head_styles'] ) ) ? $options['generate_head_styles'] : 'no';
         $combine_only_styles = ( isset( $options['combine_only_styles'] ) ) ? $options['combine_only_styles'] : 'no';
         $enqueue_head_styles = ( isset( $options['enqueue_head_styles'] ) ) ? $options['enqueue_head_styles'] : 'no';
@@ -1325,7 +1342,7 @@ class Exopite_Combiner_Minifier_Public {
                 if ( $create_file ) {
 
                     // file_put_contents( $combined_styles_mifinited_filename, gzencode( $to_write, 9, FORCE_GZIP ) );
-                    file_put_contents( $combined_styles_mifinited_filename, $to_write );
+                    file_put_contents( $combined_styles_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $to_write ) );
 
                 }
 
