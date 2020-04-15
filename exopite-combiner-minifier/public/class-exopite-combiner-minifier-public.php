@@ -1152,7 +1152,7 @@ class Exopite_Combiner_Minifier_Public {
             // $combined_styles_file_name = 'styles-combined.css';
             $combined_styles_file_name = 'styles-combined' . $id . '.css';
             $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
-            $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_styles_mifinited_file_url );
+            $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-styles-file-url', $combined_styles_mifinited_file_url );
             $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
             $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
 
@@ -1657,6 +1657,11 @@ class Exopite_Combiner_Minifier_Public {
  * exopite-combiner-minifier-styles-last-modified
  * exopite-combiner-minifier-styles-file-url
  * exopite-combiner-minifier-scripts-file-url
+ * exopite_combiner_minifier_styles_before_write_to_file
+ * exopite_combiner_minifier_scripts_before_write_to_file
+ * exopite-combiner-minifier-process-scripts
+ * exopite-combiner-minifier-process-inline-scripts
+ * exopite-combiner-minifier-process-styles
  *
  * Actions:
  *
