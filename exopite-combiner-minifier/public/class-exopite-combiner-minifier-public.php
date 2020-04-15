@@ -911,7 +911,7 @@ class Exopite_Combiner_Minifier_Public {
             // the last modified time is different or
             // override it via filter
             // then need to regenerate file.
-            $array_skip = array( '-blog', '-archive', '-search', '-404' );
+            $array_skip = array( '-blog', '-archive', '-archives', '-search', '-404' );
             if (
                 (
                     $this->check_list( $items, 'scripts' ) ||
@@ -1172,7 +1172,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $create_file = apply_filters( 'exopite-combiner-minifier-force-generate-styles', false );
 
-            $array_skip = array( '-blog', '-archive', '-search', '-404' );
+            $array_skip = array( '-blog', '-archive', '-archives', '-search', '-404' );
             if
             (
                 (
