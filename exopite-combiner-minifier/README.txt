@@ -92,7 +92,11 @@ exopite_combiner_minifier_styles_before_write_to_file<br />
 exopite_combiner_minifier_scripts_before_write_to_file<br />
 exopite-combiner-minifier-process-scripts<br />
 exopite-combiner-minifier-process-inline-scripts<br />
-exopite-combiner-minifier-process-styles
+exopite-combiner-minifier-process-styles<br />
+exopite-combiner-minifier-styles-process-wp_includes<br />
+exopite-combiner-minifier-styles-ignore-external<br />
+exopite-combiner-minifier-scripts-process-wp_includes<br />
+exopite-combiner-minifier-scripts-ignore-external<br />
 
 USAGE
 -----
@@ -110,6 +114,8 @@ INSTALLATION
 
 CHANGELOG
 ---------
+=20200427 - 2020-04-24
+* Fixed: Ignore external scripts and styles
 
 = 20200415 - 2020-04-15 =
 *  Added: Filter to override process sripts or styles, useful if you want to skip certain pages.
