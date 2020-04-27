@@ -273,7 +273,6 @@ class Exopite_Combiner_Minifier_Public {
 
             }
 
-
             // Skip jQuery, this is an empty handle, jQuerys handle is jquery-core
             if ( in_array( $handle, $to_skip ) ) continue;
 
@@ -942,6 +941,9 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( is_null( $items ) ) return $content;
 
+            $site_url = get_site_url();
+            $wp_content_url = str_replace( $site_url, '', includes_url() );
+
             foreach( $items as $item ) {
 
                 $process = true;
@@ -957,6 +959,28 @@ class Exopite_Combiner_Minifier_Public {
 
                     // Remove src attributes.
                     $src = strtok( $src, '?' );
+
+                    // ignore externals
+                    /**
+                     * To "fix" styles, scripts start with /wp-includes, like jQuery
+                     * If you activate this, ALL not external will be processed.
+                     * This can produce error, because some styles, scripts are enqueued
+                     * very late that we won’t able to catch it earlier and they may have a depency.
+                     */
+                    if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
+                        if ( $this->starts_with( $src, $wp_content_url ) ) {
+                            $src = $site_url . $src;
+                        }
+                    }
+
+                    /**
+                     * Skip external resources, plugin and theme author use CDN for a reason.
+                     */
+                    if ( apply_filters( 'exopite-combiner-minifier-scripts-ignore-external', true ) ) {
+
+                        if ( ! $this->starts_with( $src, $site_url ) ) continue;
+
+                    }
 
                     // Get path from url
                     $path = $this->get_path( $src );
@@ -1191,12 +1215,37 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( is_null( $items ) ) return $content;
 
+            $site_url = get_site_url();
+            $wp_content_url = str_replace( $site_url, '', includes_url() );
+
             // Loop items
             foreach( $items as $item ) {
 
                 // Get item url and remove attributes.
                 $src = $item->getAttribute("href");
                 $src = strtok( $src, '?' );
+
+                // ignore externals
+                /**
+                 * To "fix" styles, scripts start with /wp-includes, like jQuery
+                 * If you activate this, ALL not external will be processed.
+                 * This can produce error, because some styles, scripts are enqueued
+                 * very late that we won’t able to catch it earlier and they may have a depency.
+                 */
+                if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
+                    if ( $this->starts_with( $src, $wp_content_url ) ) {
+                        $src = $site_url . $src;
+                    }
+                }
+
+                /**
+                 * Skip external resources, plugin and theme author use CDN for a reason.
+                 */
+                if ( apply_filters( 'exopite-combiner-minifier-styles-ignore-external', true ) ) {
+
+                    if ( ! $this->starts_with( $src, $site_url ) ) continue;
+
+                }
 
                 // Get path from url
                 $path = $this->get_path( $src );
