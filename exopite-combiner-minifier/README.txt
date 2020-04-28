@@ -96,6 +96,9 @@ exopite-combiner-minifier-styles-ignore-external<br />
 exopite-combiner-minifier-scripts-process-wp_includes<br />
 exopite-combiner-minifier-scripts-ignore-external<br />
 exopite-combiner-minifier-to-skip<br />
+exopite-combiner-minifier-process-styles<br />
+exopite-combiner-minifier-process-scripts<br />
+exopite-combiner-minifier-process-html
 
 USAGE
 -----

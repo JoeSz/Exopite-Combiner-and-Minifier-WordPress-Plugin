@@ -1581,7 +1581,12 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( $log ) $start_time = microtime(true);
 
-            $content = $this->process_styles( $content, $options, $html, $xpath );
+            /**
+             * Filter to disable process styles. Eg.: on certain pages.
+             */
+            if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
+                $content = $this->process_styles( $content, $options, $html, $xpath );
+            }
 
             if ( $log ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
@@ -1591,7 +1596,9 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( $log ) $start_time = microtime(true);
 
-            $content = $this->process_scripts( $content, $options, $html, $xpath );
+            if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
+                $content = $this->process_scripts( $content, $options, $html, $xpath );
+            }
 
             if ( $log ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
 
@@ -1601,10 +1608,14 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( $log ) $startTime = microtime(true);
 
-            // Preparing options for Minify_HTML.
-            $options = array();
-            // $options = array( 'keepComments' => true );
-            $content = Minify_HTML::minify( $content, $options );
+            if ( apply_filters( 'exopite-combiner-minifier-process-html', true ) ) {
+
+                // Preparing options for Minify_HTML.
+                $options = array();
+                // $options = array( 'keepComments' => true );
+                $content = Minify_HTML::minify( $content, $options );
+
+            }
 
             if ( $log ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
 
