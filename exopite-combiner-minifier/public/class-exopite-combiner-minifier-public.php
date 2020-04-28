@@ -21,8 +21,8 @@
  * @author     Joe Szalai <joe@szalai.org>
  */
 
-use MatthiasMullie\Minify;
-use MatthiasMullie\PathConverter\Converter;
+// use MatthiasMullie\Minify;
+// use MatthiasMullie\PathConverter\Converter;
 
 class Exopite_Combiner_Minifier_Public {
 

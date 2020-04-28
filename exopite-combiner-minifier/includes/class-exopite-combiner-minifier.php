@@ -136,16 +136,16 @@ class Exopite_Combiner_Minifier {
          *
          * Ps. I had to modify data path in JS.php
          */
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Minify.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'CSS.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'JS.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exception.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'BasicException.php' ) );
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'FileImportException.php' ) );
-		require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'IOException.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Minify.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'CSS.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'JS.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exception.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'BasicException.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'FileImportException.php' ) );
+		// require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'minify', 'minifier.org', 'Exceptions', 'IOException.php' ) );
 
-        require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'ConverterInterface.php' ) );
-		require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'Converter.php' ) );
+        // require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'ConverterInterface.php' ) );
+		// require_once join( DIRECTORY_SEPARATOR, array( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR, 'vendor', 'path-converter', 'Converter.php' ) );
 
 		/**
 		 * TEST
