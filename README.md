@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8 <br />
-Tested up to: 5.3.2 <br />
+Tested up to: 5.4 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20200415
+Version: 20200428
 
 ## Suggestions and feedback are welcome
 
@@ -112,13 +112,17 @@ INSTALLATION
 
 CHANGELOG
 ---------
+=20200428 - 2020-04-28
+* Added: Filters to manage skipped pages, scripts and styles.
+* Fixed: Display debug infos.
+
 =20200427 - 2020-04-24
 * Fixed: Ignore external scripts and styles
 
 = 20200415 - 2020-04-15 =
-*  Added: Filter to override process sripts or styles, useful if you want to skip certain pages.
-*  Added: Filter to override processed contents.
-*  Added: Option to skip styles.
+* Added: Filter to override process sripts or styles, useful if you want to skip certain pages.
+* Added: Filter to override processed contents.
+* Added: Option to skip styles.
 
 = 20200303 - 2020-03-03 =
 * Fix: process local urls start with "//".

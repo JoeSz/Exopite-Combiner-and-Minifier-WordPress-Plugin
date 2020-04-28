@@ -3,11 +3,11 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.8
-Tested up to: 5.3.2
+Tested up to: 5.4
 Stable tag: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20200415
+Version: 20200428
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -116,6 +116,10 @@ INSTALLATION
 
 CHANGELOG
 ---------
+=20200428 - 2020-04-28
+* Added: Filters to manage skipped pages, scripts and styles.
+* Fixed: Display debug infos.
+
 =20200427 - 2020-04-24
 * Fixed: Ignore external scripts and styles
 
