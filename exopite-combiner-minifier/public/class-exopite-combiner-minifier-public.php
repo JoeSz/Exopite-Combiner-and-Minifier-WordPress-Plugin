@@ -1604,18 +1604,14 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        if ( $process_html == 'yes' ) {
+        if ( apply_filters( 'exopite-combiner-minifier-process-html', $process_html ) == 'yes' ) {
 
             if ( $log ) $startTime = microtime(true);
 
-            if ( apply_filters( 'exopite-combiner-minifier-process-html', true ) ) {
-
-                // Preparing options for Minify_HTML.
-                $options = array();
-                // $options = array( 'keepComments' => true );
-                $content = Minify_HTML::minify( $content, $options );
-
-            }
+            // Preparing options for Minify_HTML.
+            $options = array();
+            // $options = array( 'keepComments' => true );
+            $content = Minify_HTML::minify( $content, $options );
 
             if ( $log ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
 
