@@ -175,7 +175,7 @@ class Exopite_Combiner_Minifier_Admin {
                         'method-1'   => 'Method 1',
                         'method-2'   => 'Method 2',
                     ),
-                    'default' => 'method-1',
+                    'default' => 'method-2',
                 ),
 
                 array(
@@ -226,7 +226,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_styles',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process styles', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                 ),
 
                 array(
@@ -249,7 +249,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'enqueue_head_styles',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Enqueue style in header', 'exopite-combiner-minifier' ),
-                    'default' => 'no',
+                    'default' => 'yes',
                 ),
 
                 array(
@@ -273,7 +273,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_scripts',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Process scripts', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                 ),
 
                 array(
@@ -322,7 +322,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'process_html',
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
+                    'default' => 'no',
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
