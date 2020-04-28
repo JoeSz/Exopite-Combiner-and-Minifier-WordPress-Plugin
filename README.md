@@ -115,6 +115,7 @@ CHANGELOG
 =20200428 - 2020-04-28
 * Added: Filters to manage skipped pages, scripts and styles.
 * Fixed: Display debug infos.
+* Move minify.org files to folder and remove them from include (for the time being)
 
 =20200427 - 2020-04-24
 * Fixed: Ignore external scripts and styles
