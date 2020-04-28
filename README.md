@@ -66,6 +66,7 @@ FILTER HOOKS
 
 exopite-combiner-minifier-process-styles <br />
 exopite-combiner-minifier-process-scripts <br />
+exopite-combiner-minifier-process-inline-scripts<br />
 exopite-combiner-minifier-skip-wp_scripts <br />
 exopite-combiner-minifier-skip-wp_styles <br />
 exopite-combiner-minifier-wp_scripts-process-wp_includes <br />
@@ -86,9 +87,6 @@ exopite-combiner-minifier-styles-file-url <br />
 exopite-combiner-minifier-scripts-file-url<br />
 exopite_combiner_minifier_styles_before_write_to_file<br />
 exopite_combiner_minifier_scripts_before_write_to_file<br />
-exopite-combiner-minifier-process-scripts<br />
-exopite-combiner-minifier-process-inline-scripts<br />
-exopite-combiner-minifier-process-styles<br />
 exopite-combiner-minifier-styles-process-wp_includes<br />
 exopite-combiner-minifier-styles-ignore-external<br />
 exopite-combiner-minifier-scripts-process-wp_includes<br />

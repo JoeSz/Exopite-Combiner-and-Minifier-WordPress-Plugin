@@ -1704,6 +1704,7 @@ class Exopite_Combiner_Minifier_Public {
  *
  * exopite-combiner-minifier-process-styles                         true
  * exopite-combiner-minifier-process-scripts                        true
+ * exopite-combiner-minifier-process-inline-scripts
  * exopite-combiner-minifier-skip-wp_scripts                        array( 'jquery' )
  * exopite-combiner-minifier-skip-wp_styles                         array()
  * exopite-combiner-minifier-wp_scripts-process-wp_includes         false
@@ -1724,9 +1725,6 @@ class Exopite_Combiner_Minifier_Public {
  * exopite-combiner-minifier-scripts-file-url
  * exopite_combiner_minifier_styles_before_write_to_file
  * exopite_combiner_minifier_scripts_before_write_to_file
- * exopite-combiner-minifier-process-scripts
- * exopite-combiner-minifier-process-inline-scripts
- * exopite-combiner-minifier-process-styles
  *
  * Actions:
  *
