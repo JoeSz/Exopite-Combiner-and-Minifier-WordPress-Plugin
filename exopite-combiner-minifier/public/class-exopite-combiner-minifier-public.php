@@ -73,8 +73,8 @@ class Exopite_Combiner_Minifier_Public {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
         $this->debug = false;
-        // $this->showinfo = false;
-        $this->showinfo = true;
+        $this->showinfo = false;
+        // $this->showinfo = true;
 
 	}
 
@@ -671,7 +671,7 @@ class Exopite_Combiner_Minifier_Public {
                     $to_skip_user = array_map( 'esc_attr', $to_skip_user );
                 }
 
-                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) )  ;
+                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
 
                 break;
 
@@ -689,7 +689,7 @@ class Exopite_Combiner_Minifier_Public {
                     $to_skip_user = array_map( 'esc_attr', $to_skip_user );
                 }
 
-                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) )  ;
+                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
 
                 break;
 
@@ -697,11 +697,15 @@ class Exopite_Combiner_Minifier_Public {
 
         $pathinfo = pathinfo( $path );
 
+        $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, array( 'jquery-core' ) );
+
+        $ret = false;
         if ( in_array( $pathinfo['basename'], $to_skip ) ) {
-            return true;
+            $ret = true;
+
         }
 
-        return false;
+        return apply_filters( 'exopite-combiner-minifier-to-skip', $ret, $to_skip, $src, $path, $type, $media );
 
     }
 
