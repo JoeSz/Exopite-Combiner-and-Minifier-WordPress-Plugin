@@ -697,7 +697,7 @@ class Exopite_Combiner_Minifier_Public {
 
         $pathinfo = pathinfo( $path );
 
-        $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, array( 'jquery-core' ) );
+        $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, $to_skip );
 
         $ret = false;
         if ( in_array( $pathinfo['basename'], $to_skip ) ) {
