@@ -58,6 +58,15 @@ class Exopite_Combiner_Minifier_Public {
         "type=\'text/x-template\'",
     );
 
+    // from autoptimize
+    public $dont_move = array(
+        'document.write','html5.js','show_ads.js','google_ad','histats.com/js','statcounter.com/counter/counter.js',
+        'ws.amazon.com/widgets','media.fastclick.net','/ads/','comment-form-quicktags/quicktags.php','edToolbar',
+        'intensedebate.com','scripts.chitika.net/','_gaq.push','jotform.com/','admin-bar.min.js','GoogleAnalyticsObject',
+        'plupload.full.min.js','syntaxhighlighter','adsbygoogle','gist.github.com','_stq','nonce','post_id','data-noptimize'
+        ,'logHuman','dontmove'
+    );
+
     public $regex_js_template = '/<script(.*?)>([\s\S]*?)<\/script>/i';
 
 	/**
@@ -609,6 +618,14 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( ( $this->starts_with( $src, '//' ) && ! $this->starts_with( $src, strstr( $this->site_url, '//' ) ) ) && ! $this->starts_with( $src, $this->site_url ) ) return true;
 
+        /**
+         * Ignore some scripts, which should not be moved.
+         *
+         * str_replace is considerably faster compare to strpos with an array.
+         * @link https://stackoverflow.com/questions/6284553/using-an-array-as-needles-in-strpos/42311760#42311760
+         */
+        if ( str_replace( $this->dont_move, '', $src ) != $src ) return true;
+
         switch ( $type ) {
 
             case 'scripts':
@@ -815,9 +832,31 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function check_create_file( $id, $type, $fn, $items, $last_modified ) {
+
+        // If combined and minified files are different then the enqueued files or
+        // the last modified time is different or
+        // override it via filter
+        // then need to regenerate file.
+        $array_to_skip = array( '-archives', '-search', '-404' );
+        if (
+            (
+                $this->check_list( $items, $type ) ||
+                $this->check_last_modified_time( $fn, $last_modified )
+            ) &&
+            ! in_array( $id, $array_to_skip )
+        ) {
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
     public function process_scripts( $content, $options, $html, $xpath ) {
 
-        $log = $this->debug;
         $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'no';
         $process_inline_scripts = ( isset( $options['process_inline_scripts'] ) ) ? $options['process_inline_scripts'] : 'no';
         $combine_only_scripts = ( isset( $options['combine_only_scripts'] ) ) ? $options['combine_only_scripts'] : 'no';
@@ -829,7 +868,7 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( $process_scripts == 'yes' && apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
-            if ( $log ) $start_time = microtime(true);
+            if ( $this->debug ) $start_time = microtime(true);
 
             $items = $xpath->query("*/script");
 
@@ -861,25 +900,10 @@ class Exopite_Combiner_Minifier_Public {
 
             $last_modified = $this->get_last_modified( $items, 'scripts' );
 
-            $create_file = apply_filters( 'exopite-combiner-minifier-force-generate-scripts', false );
-
-            // If combined and minified files are different then the enqueued files or
-            // the last modified time is different or
-            // override it via filter
-            // then need to regenerate file.
-            $array_skip = array( '-blog', '-archive', '-archives', '-search', '-404' );
-            if (
-                (
-                    $this->check_list( $items, 'scripts' ) ||
-                    $this->check_last_modified_time( $combined_scripts_mifinited_filename, $last_modified )
-                ) &&
-                ! in_array( $id, $array_skip )
-            ) {
-
-                $create_file = true;
-
-            }
-
+            $create_file = apply_filters(
+                'exopite-combiner-minifier-force-generate-scripts',
+                $this->check_create_file( $id, 'scripts', $combined_scripts_mifinited_filename, $items, $last_modified )
+            );
 
             /**
              * Some JavaScript files are broken and cause problems.
@@ -1080,7 +1104,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function get_type_name() {
 
-        if ( ! is_front_page() && is_home() ) {
+        if ( is_home() ) {
             return '-blog';
         } elseif ( is_archive() ) {
 
@@ -1105,7 +1129,6 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles( $content, $options, $html, $xpath ) {
 
-        $log = $this->debug;
         $options = get_option( $this->plugin_name );
         $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'no';
 
@@ -1151,26 +1174,15 @@ class Exopite_Combiner_Minifier_Public {
              */
             $last_modified = $this->get_last_modified( $items, 'styles' );
 
-            $create_file = apply_filters( 'exopite-combiner-minifier-force-generate-styles', false );
+            $create_file = apply_filters(
+                'exopite-combiner-minifier-force-generate-styles',
+                $this->check_create_file( $id, 'styles', $combined_styles_mifinited_filename, $items, $last_modified )
+            );
 
-            $array_skip = array( '-blog', '-archive', '-archives', '-search', '-404' );
-            if
-            (
-                (
-                    $this->check_list( $items, 'styles' ) ||
-                    $this->check_last_modified_time( $combined_styles_mifinited_filename, $last_modified )
-                ) &&
-                ! in_array( $id, $array_skip )
-            ) {
-
-                $create_file = true;
-
-            }
+            if ( is_null( $items ) ) return $content;
 
             $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
             $css_compressor->removeImportantComments();
-
-            if ( is_null( $items ) ) return $content;
 
             $site_url = get_site_url();
             $wp_content_url = str_replace( $site_url, '', includes_url() );
@@ -1401,7 +1413,7 @@ class Exopite_Combiner_Minifier_Public {
 
             do_action( 'exopite-combiner-minifier-styles-after-process' );
 
-            if ( $log ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+            if ( $this->debug ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
@@ -1488,11 +1500,9 @@ class Exopite_Combiner_Minifier_Public {
          */
         $content = $this->remove_script_templates( $content );
 
-        $log = $this->showinfo;
-
-        if ( $log ) $time_scripts = 'NaN ';
-        if ( $log ) $time_styles = 'NaN ';
-        if ( $log ) $time_html = 'NaN ';
+        if ( $this->showinfo ) $time_scripts = 'NaN ';
+        if ( $this->showinfo ) $time_styles = 'NaN ';
+        if ( $this->showinfo ) $time_html = 'NaN ';
 
         $options = get_option( $this->plugin_name );
         $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'no';
@@ -1532,7 +1542,7 @@ class Exopite_Combiner_Minifier_Public {
              *                          Styles                         *
             \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            if ( $log ) $start_time = microtime(true);
+            if ( $this->showinfo ) $start_time = microtime(true);
 
             /**
              * Filter to disable process styles. Eg.: on certain pages.
@@ -1541,36 +1551,36 @@ class Exopite_Combiner_Minifier_Public {
                 $content = $this->process_styles( $content, $options, $html, $xpath );
             }
 
-            if ( $log ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+            if ( $this->showinfo ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
             /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
              *                          Scripts                        *
             \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            if ( $log ) $start_time = microtime(true);
+            if ( $this->showinfo ) $start_time = microtime(true);
 
             if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
                 $content = $this->process_scripts( $content, $options, $html, $xpath );
             }
 
-            if ( $log ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
+            if ( $this->showinfo ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
         if ( apply_filters( 'exopite-combiner-minifier-process-html', $process_html ) == 'yes' ) {
 
-            if ( $log ) $startTime = microtime(true);
+            if ( $this->showinfo ) $startTime = microtime(true);
 
             // Preparing options for Minify_HTML.
             $options = array();
             // $options = array( 'keepComments' => true );
             $content = Minify_HTML::minify( $content, $options );
 
-            if ( $log ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
+            if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
 
         }
 
-        if ( $log && ( $process_scripts == 'yes' || $process_styles == 'yes' || $process_html == 'yes' ) ) {
+        if ( $this->showinfo && ( $process_scripts == 'yes' || $process_styles == 'yes' || $process_html == 'yes' ) ) {
 
             $times = PHP_EOL;
 
