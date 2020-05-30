@@ -1618,8 +1618,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_html( $content ) {
 
-
-        if ( is_admin() || $this->is_login_page() ) return $content;
+        if ( is_admin() || $this->is_login_page() || is_robots() ) return $content;
 
         $this->site_url = get_site_url();
 
