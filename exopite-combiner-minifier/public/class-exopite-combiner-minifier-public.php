@@ -1267,8 +1267,6 @@ class Exopite_Combiner_Minifier_Public {
             $site_url = get_site_url();
             $wp_content_url = str_replace( $site_url, '', includes_url() );
 
-            // $items = $xpath->evaluate("*/link[@rel='stylesheet']");
-
             /**
              * Preprocess, make sure check_create_file() has the list to work on.
              * If we do not do this, then some js/css files like "admin-bar.css", etc... make css/js always recreate.
@@ -1704,7 +1702,6 @@ class Exopite_Combiner_Minifier_Public {
 
             // Preparing options for Minify_HTML.
             $options = array();
-            // $options = array( 'keepComments' => true );
             $content = Minify_HTML::minify( $content, $options );
 
             if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
