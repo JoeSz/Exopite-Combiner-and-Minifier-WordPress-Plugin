@@ -151,13 +151,6 @@ class Exopite_Combiner_Minifier_Admin {
                     ),
                 ),
 
-                array(
-                    'id'      => 'create_separate_files',
-                    'type'    => 'switcher',
-                    'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
-                    'default' => 'yes',
-                ),
-
             ),
         );
 
@@ -185,11 +178,11 @@ class Exopite_Combiner_Minifier_Admin {
                         esc_html__( 'Pros: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments pros">' .
                         '<li>' . esc_html__( 'easy to the user', 'exopite-combiner-minifier' ) . '</li>' .
                         '<li>' . esc_html__( 'checking much faster (~0.005s)', 'exopite-combiner-minifier' ) . '</li>' .
-                        '<li>' . esc_html__( 'generate only one file per type (Css/JS)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul></p><p><b>' .
                         esc_html__( 'Cons: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments cons">' .
                         '<li>' . esc_html__( 'may have dependency issues if/for scripts enqueued in footer', 'exopite-combiner-minifier' ) . '</li>' .
                         '<li style="font-weight: bold;color: red;">' . esc_html__( 'if site has different styles and/or srcipts per page, will be regenerate every time if other page will displyed, in this case, please use method 2', 'exopite-combiner-minifier' ) . '</li>' .
+                        '<li>' . esc_html__( 'can generate only one file per type (Css/JS)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
                     'header'  => esc_html__( 'Method 1', 'exopite-combiner-minifier' ),
@@ -199,13 +192,13 @@ class Exopite_Combiner_Minifier_Admin {
                 array(
                     'type'    => 'card',
                     'content' => '<p>' .
-                        esc_html__( 'This method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple HTML DOM Parser and Output Buffering.', 'exopite-combiner-minifier' ) .'</p><p><b>' .
+                        esc_html__( 'This method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP native DOMDocument and Output Buffering.', 'exopite-combiner-minifier' ) .'</p><p><b>' .
                         esc_html__( 'Pros: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments pros">' .
                         '<li>' . esc_html__( 'easy to the user', 'exopite-combiner-minifier' ) . '</li>' .
                         '<li>' . esc_html__( 'no dependency issues', 'exopite-combiner-minifier' ) . '</li>' .
+                        '<li>' . esc_html__( 'can create a separate Css/JS file for each page', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul></p><p><b>' .
                         esc_html__( 'Cons: ', 'exopite-combiner-minifier' ) . '</b><ul class="list-arguments cons">' .
-                        '<li>' . esc_html__( 'create a separate Css/JS file for each page', 'exopite-combiner-minifier' ) . '</li>' .
                         '<li>' . esc_html__( 'checking is slower (~0.1s)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
@@ -260,6 +253,14 @@ class Exopite_Combiner_Minifier_Admin {
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
+                array(
+                    'id'      => 'create_separate_css_files',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                ),
+
             ),
         );
 
@@ -306,6 +307,14 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Combine only (scripts)', 'exopite-combiner-minifier' ),
                     'default' => 'no',
+                ),
+
+                array(
+                    'id'      => 'create_separate_js_files',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
+                    'default' => 'yes',
+                    'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
             ),
