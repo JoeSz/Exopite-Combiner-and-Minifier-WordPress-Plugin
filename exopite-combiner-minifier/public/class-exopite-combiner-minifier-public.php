@@ -1746,7 +1746,12 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_html( $content ) {
 
-        if ( is_admin() || $this->is_login_page() || is_robots() ) return $content;
+        if ( is_admin() || ( ! is_singular() && ! is_archive() && ! is_404() ) ) {
+            return $content;
+        }
+
+        // if ( is_admin() || $this->is_login_page() || is_robots() ) return $content;
+        // if( ( isset( $_SERVER["REQUEST_URI"] ) && substr( $_SERVER["REQUEST_URI"], -4 ) === '.xml' ) ) return $content;
 
         $this->options = get_option( $this->plugin_name );
         $this->options_lists = get_option( $this->plugin_name . '_lists' );
