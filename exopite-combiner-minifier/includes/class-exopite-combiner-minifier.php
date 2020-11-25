@@ -275,6 +275,7 @@ class Exopite_Combiner_Minifier {
                     $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
                     $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
 
+                    if ( $process_scripts == 'yes' || $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $this->public, 'scripts_handler_infos', 999998 );
                     if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $this->public, 'scripts_handler', 999999 );
                     if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $this->public, 'styles_handler', 999999 );
 

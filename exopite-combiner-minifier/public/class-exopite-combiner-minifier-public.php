@@ -540,6 +540,11 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function scripts_handler_infos() {
+        echo '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->';
+        echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->';
+    }
+
     public function styles_handler() {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
@@ -1633,15 +1638,21 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts_styles( $content ) {
 
+        if ( $this->showinfo ) $remove_script_templates = 'NaN ';
+        if ( $this->showinfo ) $remove_script_templates_back = 'NaN ';
+        if ( $this->showinfo ) $time_scripts = 'NaN ';
+        if ( $this->showinfo ) $time_styles = 'NaN ';
+        if ( $this->showinfo ) $time_html = 'NaN ';
+
         /**
          * DomDocument sometimes remove some elements from <script type="text/template">
          * Remove all template content and add back after processing JSs and CSSs.
          */
+        if ( $this->showinfo ) $start_time = microtime(true);
+
         $content = $this->remove_script_templates( $content );
 
-        if ( $this->showinfo ) $time_scripts = 'NaN ';
-        if ( $this->showinfo ) $time_styles = 'NaN ';
-        if ( $this->showinfo ) $time_html = 'NaN ';
+        if ( $this->showinfo ) $remove_script_templates = number_format( ( microtime(true) - $start_time ), 4 );
 
         $process_scripts = ( isset( $this->options['process_scripts'] ) ) ? $this->options['process_scripts'] : 'no';
         $process_styles = ( isset( $this->options['process_styles'] ) ) ? $this->options['process_styles'] : 'no';
@@ -1719,27 +1730,42 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( $this->showinfo && ( $process_scripts == 'yes' || $process_styles == 'yes' || $process_html == 'yes' ) ) {
 
-            $times = PHP_EOL;
-
             if ( $process_scripts == 'yes' ) {
-                $times .= ( $process_scripts == 'yes' && $combine_only_scripts == 'no' ) ?  '<!-- Exopite Combiner Minifier - JavaScript: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine JavaScript: '. $time_scripts . 's. -->';
-                $times .= PHP_EOL;
+                $this->debug_infos .= ( $process_scripts == 'yes' && $combine_only_scripts == 'no' ) ?  '<!-- Exopite Combiner Minifier - JavaScript: '. $time_scripts . 's. -->' : '<!-- Exopite Combiner Minifier - Combine JavaScript: '. $time_scripts . 's. -->';
+                $this->debug_infos .= PHP_EOL;
             }
 
             if ( $process_styles == 'yes' ) {
-                $times .= ( $process_styles == 'yes' && $combine_only_styles == 'no' ) ?  '<!-- Exopite Combiner Minifier - CSS: '. $time_styles . 's. -->' : '<!-- Exopite Combiner Minifier - Combine styles: '. $time_styles . 's. -->';
-                $times .= PHP_EOL;
+                $this->debug_infos .= ( $process_styles == 'yes' && $combine_only_styles == 'no' ) ?  '<!-- Exopite Combiner Minifier - CSS: '. $time_styles . 's. -->' : '<!-- Exopite Combiner Minifier - Combine styles: '. $time_styles . 's. -->';
+                $this->debug_infos .= PHP_EOL;
             }
 
             if ( $process_html == 'yes' ) {
-                $times .= '<!-- Exopite Combiner Minifier - Minify inline HTML: '. $time_html . 's. -->' . PHP_EOL;
+                $this->debug_infos .= '<!-- Exopite Combiner Minifier - Minify inline HTML: '. $time_html . 's. -->' . PHP_EOL;
             }
 
-            $content .= $times;
+            // $content .= $times;
         }
 
         if ( ! empty( $this->js_templates ) ) {
+
+            if ( $this->showinfo ) $start_time = microtime(true);
+
             $content = $this->add_script_templates_back( $content );
+
+            if ( $this->showinfo ) $remove_script_templates_back = number_format( ( microtime(true) - $start_time ), 4 );
+
+        }
+
+        if( $this->showinfo ) {
+
+            $this->debug_infos .= '<!-- Exopite Combiner Minifier - Templates amount: ' . count( $this->js_templates ) . ' -->' . PHP_EOL;
+
+            if ( ! empty( $this->js_templates ) ) {
+                $this->debug_infos .= '<!-- Exopite Combiner Minifier - Remove script templates: '. $remove_script_templates . 's. -->' . PHP_EOL;
+                $this->debug_infos .= '<!-- Exopite Combiner Minifier - Put script templates back '. $remove_script_templates_back . 's. -->' . PHP_EOL;
+            }
+
         }
 
         return $content;
@@ -1753,11 +1779,22 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public $debug_infos = PHP_EOL;
+
     public function process_html( $content ) {
 
         if ( is_admin() || ( ! is_singular() && ! is_archive() && ! is_404() ) ) {
             return $content;
         }
+
+        $already_rant = apply_filters( 'exopite_combiner_minifier_rant', false );
+        if ( $already_rant == true ) {
+            if ( $this->showinfo ) $content .= PHP_EOL . '<!-- Exopite Combiner Minifier - already rant! -->';
+            return $content;
+        }
+
+        if ( $this->showinfo ) $this->debug_infos = '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
+        if ( $this->showinfo ) $this->debug_infos .= '<!-- Exopite Combiner Minifier - Selected methode: 2 - Time: ' . date( 'Y-m-d H:i:s').substr( fmod( microtime( true ), 1), 1 ) . ' -->' . PHP_EOL;
 
         // if ( is_admin() || $this->is_login_page() || is_robots() ) return $content;
         // if( ( isset( $_SERVER["REQUEST_URI"] ) && substr( $_SERVER["REQUEST_URI"], -4 ) === '.xml' ) ) return $content;
@@ -1768,6 +1805,8 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts-styles', true ) ) {
 
+            add_filter( 'exopite_combiner_minifier_rant', __return_true );
+
             $startTime = microtime(true);
 
             $content = $this->process_scripts_styles( $content );
@@ -1776,7 +1815,9 @@ class Exopite_Combiner_Minifier_Public {
 
         }
 
-        if ( $this->showinfo ) $content .= '<!-- Exopite Combiner Minifier - TOTAL: '. $time_scripts_styles . 's. -->';
+        if ( $this->showinfo ) $this->debug_infos .= '<!-- Exopite Combiner Minifier - TOTAL: '. $time_scripts_styles . 's. -->';
+
+        if ( $this->showinfo ) $content .= $this->debug_infos;
 
         return $content;
 
