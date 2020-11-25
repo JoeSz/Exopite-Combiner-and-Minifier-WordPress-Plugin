@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8 <br />
-Tested up to: 5.4.1 <br />
+Tested up to: 5.5.2 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20200531
+Version: 20201125
 
 ## Suggestions and feedback are welcome
 
@@ -112,6 +112,9 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20201125 = - 2020-11-25
+* Add filter to check, if content already processed.
 
 = 20200531 = - 2020-05-31
 * Added: can create a separate file for css and js method separatly

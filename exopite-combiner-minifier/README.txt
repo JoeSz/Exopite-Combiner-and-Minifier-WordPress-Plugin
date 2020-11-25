@@ -3,11 +3,11 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.8
-Tested up to: 5.4.1
+Tested up to: 5.5.3
 Stable tag: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20200531
+Version: 20201125
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -116,6 +116,9 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20201125 = - 2020-11-25
+* Add filter to check, if content already processed.
 
 = 20200531 = - 2020-05-31
 * Added: can create a separate file for css and js method separatly
