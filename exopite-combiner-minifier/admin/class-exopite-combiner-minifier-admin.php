@@ -40,6 +40,14 @@ class Exopite_Combiner_Minifier_Admin {
 	 */
 	private $version;
 
+    /**
+     * Store plugin main class to allow public access.
+     *
+     * @since    20180622
+     * @var object      The main class.
+     */
+    public $main;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -47,8 +55,9 @@ class Exopite_Combiner_Minifier_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, $version, $plugin_main ) {
 
+        $this->main = $plugin_main;
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 

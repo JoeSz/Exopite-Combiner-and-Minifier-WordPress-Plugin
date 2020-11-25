@@ -58,6 +58,31 @@ class Exopite_Combiner_Minifier {
 	protected $version;
 
 	/**
+	 * Store plugin main class to allow public access.
+	 *
+	 * @since    20180622
+	 * @var object      The main class.
+	 */
+	public $main;
+
+	/**
+	 * Store plugin admin class to allow public access.
+	 *
+	 * @since    20180622
+	 * @var object      The admin class.
+	 */
+	public $admin;
+
+
+	/**
+	 * Store plugin public class to allow public access.
+	 *
+	 * @since    20180622
+	 * @var object      The admin class.
+	 */
+	public $public;
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -73,6 +98,9 @@ class Exopite_Combiner_Minifier {
 			$this->version = '1.0.0';
 		}
 		$this->plugin_name = 'exopite-combiner-minifier';
+
+		// Save instance for the main class.
+		$this->main = $this;
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -187,13 +215,13 @@ class Exopite_Combiner_Minifier {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Exopite_Combiner_Minifier_Admin( $this->get_plugin_name(), $this->get_version() );
+		$this->admin = new Exopite_Combiner_Minifier_Admin( $this->get_plugin_name(), $this->get_version(), $this->main );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $this->admin, 'enqueue_styles' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $this->admin, 'enqueue_scripts' );
 
         // Save/Update our plugin options
-        $this->loader->add_action( 'init', $plugin_admin, 'create_menu' );
+        $this->loader->add_action( 'init', $this->admin, 'create_menu' );
 
 	}
 
@@ -233,11 +261,11 @@ class Exopite_Combiner_Minifier {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new Exopite_Combiner_Minifier_Public( $this->get_plugin_name(), $this->get_version() );
+		$this->public = new Exopite_Combiner_Minifier_Public( $this->get_plugin_name(), $this->get_version(), $this->main );
 
         if ( ! is_admin() && ! $this->is_rest() ) {
 
-            $options = get_option($this->plugin_name);
+            $options = get_option( $this->plugin_name );
             $method = ( isset( $options['method'] ) ) ? $options['method'] : 'method-2';
 
             switch ( $method ) {
@@ -247,8 +275,8 @@ class Exopite_Combiner_Minifier {
                     $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
                     $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
 
-                    if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $plugin_public, 'scripts_handler', 999999 );
-                    if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $plugin_public, 'styles_handler', 999999 );
+                    if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $this->public, 'scripts_handler', 999999 );
+                    if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $this->public, 'styles_handler', 999999 );
 
                     break;
 
@@ -270,12 +298,12 @@ class Exopite_Combiner_Minifier {
 
 						if ( apply_filters( 'exopite_ob_status', 'off' ) != 'on' ) {
 
-							$this->loader->add_filter( 'wp_loaded', $plugin_public, 'buffer_start', 12 );
-							$this->loader->add_filter( 'shutdown', $plugin_public, 'buffer_end', 12 );
+							$this->loader->add_filter( 'wp_loaded', $this->public, 'buffer_start', 12 );
+							$this->loader->add_filter( 'shutdown', $this->public, 'buffer_end', 12 );
 
 						}
 
-						$this->loader->add_filter( 'exopite_ob_content', $plugin_public, 'process_html', 12 );
+						$this->loader->add_filter( 'exopite_ob_content', $this->public, 'process_html', 12 );
 
                     }
 
@@ -287,7 +315,7 @@ class Exopite_Combiner_Minifier {
 
         // The wp_ajax_ is telling wordpress to use ajax and the prefix_ajax_first is the hook name to use in JavaScript.
         // The ajax_first is the callback function.
-        $this->loader->add_action('wp_ajax_exopite_cam_delete_cache', $plugin_public, 'delete_cache');
+        $this->loader->add_action('wp_ajax_exopite_cam_delete_cache', $this->public, 'delete_cache');
 
 	}
 

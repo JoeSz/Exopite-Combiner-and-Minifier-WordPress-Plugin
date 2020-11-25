@@ -150,19 +150,7 @@ if ( is_admin() ) {
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-exopite-combiner-minifier.php';
 
-/**
- * Begins execution of the plugin.
- *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since    1.0.0
- */
-function run_exopite_combiner_minifier() {
-
-	$plugin = new Exopite_Combiner_Minifier();
-	$plugin->run();
-
-}
-run_exopite_combiner_minifier();
+require_once( 'plugin_registry.php' );
+$registry = Plugin_Registry::get_instance();
+$registry->add( 'exopite-combiner-minifier', new Exopite_Combiner_Minifier() );
+$registry->get( 'exopite-combiner-minifier' )->run();
