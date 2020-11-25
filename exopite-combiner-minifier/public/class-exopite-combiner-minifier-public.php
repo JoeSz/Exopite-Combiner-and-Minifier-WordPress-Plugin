@@ -285,7 +285,9 @@ class Exopite_Combiner_Minifier_Public {
              */
             $path = $this->get_path( $src );
 
-            if ( $this->to_skip( $src, $path, $type, '' ) ) continue;
+            if ( $this->to_skip( $src, $path, $type, '' ) ) {
+                continue;
+            }
 
             /**
              * Get last modified item datetime stamp
@@ -541,8 +543,8 @@ class Exopite_Combiner_Minifier_Public {
     }
 
     public function scripts_handler_infos() {
-        echo '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->';
-        echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->';
+        echo PHP_EOL . '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
+        echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->' . PHP_EOL;
     }
 
     public function styles_handler() {
@@ -647,14 +649,18 @@ class Exopite_Combiner_Minifier_Public {
          */
         if ( str_replace( $this->dont_move, '', $src ) != $src ) return true;
 
+        $to_skip = array();
+
         switch ( $type ) {
 
+            case 'wp_scripts':
+                // no break
             case 'scripts':
-                $to_skip = array(
-                    'jquery.js',
-                    'jquery-migrate.min.js',
-                    'admin-bar.min.js',
-                );
+                // $to_skip = array(
+                //     'jquery.js',
+                //     'jquery-migrate.min.js',
+                //     'admin-bar.min.js',
+                // );
 
                 $plugin_options = get_option( $this->plugin_name );
                 if ( isset( $plugin_options['ignore_process_scripts'] ) ) {
@@ -666,13 +672,11 @@ class Exopite_Combiner_Minifier_Public {
 
                 break;
 
+            case 'wp_styles':
+                // no break
             case 'styles':
                 $allowed_media = array( 'all', 'screen', '' );
                 if ( ! in_array( $media, $allowed_media ) ) return true;
-                $to_skip = array(
-                    'admin-bar.min.css',
-                    'dashicons.min.css'
-                );
 
                 $plugin_options = get_option( $this->plugin_name );
                 if ( isset( $plugin_options['ignore_process_styles'] ) ) {
@@ -691,7 +695,7 @@ class Exopite_Combiner_Minifier_Public {
         $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, $to_skip );
 
         $ret = false;
-        if ( is_array( $to_skip ) && in_array( $pathinfo['basename'], $to_skip ) ) {
+        if ( is_array( $to_skip ) && in_array( $pathinfo['basename'], $to_skip ) || $to_skip == $pathinfo['basename'] ) {
             $ret = true;
 
         }
@@ -1018,7 +1022,9 @@ class Exopite_Combiner_Minifier_Public {
                     $path = $this->get_path( $src );
 
                     // Skip admin scripts, jQuery, ...
-                    if ( $this->to_skip( $src, $path, 'scripts' ) ) continue;
+                    if ( $this->to_skip( $src, $path, 'scripts' ) ) {
+                        continue;
+                    }
 
                     if ( ! file_exists( $path ) ) continue;
 
