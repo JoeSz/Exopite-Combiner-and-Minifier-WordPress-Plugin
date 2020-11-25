@@ -677,7 +677,7 @@ class Exopite_Combiner_Minifier_Public {
         $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, $to_skip );
 
         $ret = false;
-        if ( in_array( $pathinfo['basename'], $to_skip ) ) {
+        if ( is_array( $to_skip ) && in_array( $pathinfo['basename'], $to_skip ) ) {
             $ret = true;
 
         }
