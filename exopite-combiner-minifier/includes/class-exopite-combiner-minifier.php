@@ -82,6 +82,10 @@ class Exopite_Combiner_Minifier {
 	 */
 	public $public;
 
+	public $util;
+
+	public $compressor;
+
 	/**
 	 * Define the core functionality of the plugin.
 	 *
@@ -149,6 +153,10 @@ class Exopite_Combiner_Minifier {
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-exopite-combiner-minifier-public.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-exopite-combiner-minifier-utilities.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-exopite-combiner-minifier-compressor.php';
 
 		$this->loader = new Exopite_Combiner_Minifier_Loader();
 
@@ -226,33 +234,6 @@ class Exopite_Combiner_Minifier {
 	}
 
 	/**
-     * Checks if the current request is a WP REST API request.
-     *
-     * Case #1: After WP_REST_Request initialisation
-     * Case #2: Support "plain" permalink settings
-     * Case #3: URL Path begins with wp-json/ (your REST prefix)
-     *          Also supports WP installations in subfolders
-     *
-     * @returns boolean
-     * @author matzeeable
-	 * @link https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist/317041#317041
-	 * @link https://gist.github.com/matzeeable/dfd82239f48c2fedef25141e48c8dc30
-     */
-    function is_rest() {
-        $prefix = rest_get_url_prefix( );
-        if ( defined( 'REST_REQUEST' ) && REST_REQUEST // (#1)
-            || isset( $_GET['rest_route'] ) // (#2)
-            	&& strpos( trim( $_GET['rest_route'], '\\/' ), $prefix , 0 ) === 0) {
-				return true;
-			}
-
-        // (#3)
-        $rest_url = wp_parse_url( site_url( $prefix ) );
-        $current_url = wp_parse_url( add_query_arg( array( ) ) );
-        return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
-    }
-
-	/**
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
 	 *
@@ -261,9 +242,11 @@ class Exopite_Combiner_Minifier {
 	 */
 	private function define_public_hooks() {
 
+		$this->util = new Exopite_Combiner_Minifier_Utilities( $this->get_plugin_name() );
+		$this->compressor = new Exopite_Combiner_Minifier_Compressor( $this->get_plugin_name(), $this->main );
 		$this->public = new Exopite_Combiner_Minifier_Public( $this->get_plugin_name(), $this->get_version(), $this->main );
 
-        if ( ! is_admin() && ! $this->is_rest() ) {
+        if ( ! is_admin() && ! $this->util->is_rest() ) {
 
             $options = get_option( $this->plugin_name );
             $method = ( isset( $options['method'] ) ) ? $options['method'] : 'method-2';
@@ -275,7 +258,7 @@ class Exopite_Combiner_Minifier {
                     $process_scripts = ( isset( $options['process_scripts'] ) ) ? $options['process_scripts'] : 'yes';
                     $process_styles = ( isset( $options['process_styles'] ) ) ? $options['process_styles'] : 'yes';
 
-                    if ( $process_scripts == 'yes' || $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $this->public, 'scripts_handler_infos', 999998 );
+                    if ( $process_scripts == 'yes' || $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $this->public, 'scripts_handler_infos', 999998 );
                     if ( $process_scripts == 'yes' ) $this->loader->add_action( 'wp_print_scripts', $this->public, 'scripts_handler', 999999 );
                     if ( $process_styles == 'yes' ) $this->loader->add_action( 'wp_print_styles', $this->public, 'styles_handler', 999999 );
 

@@ -21,9 +21,6 @@
  * @author     Joe Szalai <joe@szalai.org>
  */
 
-// use MatthiasMullie\Minify;
-// use MatthiasMullie\PathConverter\Converter;
-
 class Exopite_Combiner_Minifier_Public {
 
 	/**
@@ -71,15 +68,6 @@ class Exopite_Combiner_Minifier_Public {
         "type=\'text/x-template\'",
     );
 
-    // from autoptimize
-    public $dont_move = array(
-        'document.write','html5.js','show_ads.js','google_ad','histats.com/js','statcounter.com/counter/counter.js',
-        'ws.amazon.com/widgets','media.fastclick.net','/ads/','comment-form-quicktags/quicktags.php','edToolbar',
-        'intensedebate.com','scripts.chitika.net/','_gaq.push','jotform.com/','admin-bar.min.js','GoogleAnalyticsObject',
-        'plupload.full.min.js','syntaxhighlighter','adsbygoogle','gist.github.com','_stq','nonce','post_id','data-noptimize'
-        ,'logHuman','dontmove'
-    );
-
     public $regex_js_template = '/<script(.*?)>([\s\S]*?)<\/script>/i';
 
 	/**
@@ -99,124 +87,6 @@ class Exopite_Combiner_Minifier_Public {
         // $this->showinfo = true;
 
 	}
-
-    /**
-     * [startsWith description]
-     * @param  [string] $haystack
-     * @param  [string] $needle
-     * @return [bool]
-     * @link https://stackoverflow.com/questions/834303/startswith-and-endswith-functions-in-php/834355#834355
-     */
-    public function starts_with( $haystack, $needle ) {
-        $length = strlen( $needle );
-        return ( substr( $haystack, 0, $length ) === $needle );
-    }
-
-    function ends_with( $haystack, $needle ) {
-        $length = strlen( $needle );
-        if ( $length == 0 ) return true;
-        return ( substr( $haystack, -$length ) === $needle );
-    }
-
-    /**
-     * Get path from url
-     * Only work with local urls.
-     */
-    public function get_path( $url = '' ) {
-
-        // Compatibility for local urls start with //
-        $site_url = site_url();
-        if ( $this->starts_with( $url, '//' ) ) {
-            $site_url = strstr( $site_url, '//' );
-        }
-
-        $path = str_replace(
-            $site_url,
-            wp_normalize_path( untrailingslashit( ABSPATH ) ),
-            $url
-        );
-
-        return $path;
-    }
-
-    public function get_file_last_modified_time( $path ) {
-
-        if ( file_exists( $path ) ) {
-            return filemtime( $path );
-        }
-
-        return false;
-
-    }
-
-    /**
-     * Converting Relative URLs to Absolute URLs in PHP
-     * @param  [string] $rel  relative item in css
-     * @param  [string] $base the css file url
-     * @return [string]       absolute url
-     *
-     * @link http://www.gambit.ph/converting-relative-urls-to-absolute-urls-in-php/
-     *
-     * Usage
-     *
-     * rel2abs( '../images/image.jpg', 'http://gambit.ph/css/style.css' );
-     * Outputs http://gambit.ph/images/image.jpg
-     */
-    public function rel2abs( $rel, $base ) {
-
-        if ( strpos( $rel, 'data:') === 0 ) {
-           return $rel;
-        }
-
-        // parse base URL  and convert to local variables: $scheme, $host,  $path
-        extract( parse_url( $base ) );
-
-        if ( strpos( $rel,"//" ) === 0 ) {
-            return $scheme . ':' . $rel;
-        }
-
-        // return if already absolute URL
-        if ( parse_url( $rel, PHP_URL_SCHEME ) != '' ) {
-            return $rel;
-        }
-
-        // queries and anchors
-        if ( $rel[0] == '#' || $rel[0] == '?' ) {
-            return $base . $rel;
-        }
-
-        // remove non-directory element from path
-        $path = preg_replace( '#/[^/]*$#', '', $path );
-
-        // destroy path if relative url points to root
-        if ( $rel[0] ==  '/' ) {
-            $path = '';
-        }
-
-        // dirty absolute URL
-        $abs = $host . $path . "/" . $rel;
-
-        // // replace '//' or  '/./' or '/foo/../' with '/'
-        // $abs = preg_replace( "/(\/\.?\/)/", "/", $abs );
-        // $abs = preg_replace( "/\/(?!\.\.)[^\/]+\/\.\.\//", "/", $abs );
-
-        /** replace '//' or '/./' or '/foo/../' with '/' */
-        $re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
-        for($n=1; $n>0; $abs=preg_replace($re, '/', $abs, -1, $n)) {}
-
-        // absolute URL is ready!
-        return $scheme . '://' . $abs;
-    }
-
-    public function check_last_modified_time( $filename, $timestamp ) {
-
-        $file_last_modified_time = $this->get_file_last_modified_time( $filename );
-
-        if ( ! $file_last_modified_time || $file_last_modified_time < $timestamp ) return true;
-
-        return false;
-
-    }
 
     /*************************************************************\
      *                                                           *
@@ -264,35 +134,38 @@ class Exopite_Combiner_Minifier_Public {
              * This can produce error, because some styles, scripts are enqueued
              * very late that we won’t able to catch it earlier and they may have a depency.
              */
-            if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-process-wp_includes', false ) ) {
-                $wp_content_url = str_replace( $site_url, '', includes_url() );
-                if ( $this->starts_with( $src, $wp_content_url ) ) {
-                    $src = $site_url . $src;
-                }
-            }
+            // if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-process-wp_includes', false ) ) {
+            //     $wp_content_url = str_replace( $site_url, '', includes_url() );
+            //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
+            //         $src = $site_url . $src;
+            //     }
+            // }
+
+            $wp_content_url = str_replace( $site_url, '', includes_url() );
+            $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, $type );
 
             /**
              * Skip external resources, plugin and theme author use CDN for a reason.
              */
             if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-ignore-external', true ) ) {
 
-                if ( ! $this->starts_with( $src, $site_url ) ) continue;
+                if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
 
             }
 
             /**
              * Get path from src
              */
-            $path = $this->get_path( $src );
+            $path = $this->main->util->get_path( $src );
 
-            if ( $this->to_skip( $src, $path, $type, '' ) ) {
+            if ( $this->main->util->to_skip( $src, $path, $type, '' ) ) {
                 continue;
             }
 
             /**
              * Get last modified item datetime stamp
              */
-            $file_last_modified_time = $this->get_file_last_modified_time( $path );
+            $file_last_modified_time = $this->main->util->get_file_last_modified_time( $path );
             if ( ! $script_last_modified || ( $file_last_modified_time && $file_last_modified_time > $script_last_modified ) ) {
                 $script_last_modified = $file_last_modified_time;
             }
@@ -361,13 +234,16 @@ class Exopite_Combiner_Minifier_Public {
                      */
                     $inline_css = ( isset( $item['data'] ) && ! empty( $item['data'] ) ) ? implode( ';', $item['data'] ) : '';
 
-                    $rel2abs = $this->fix_style_urls( file_get_contents( $item['path'] )  . $inline_css, $item['src'] );
+                    $rel2abs = $this->main->util->normalize_css( file_get_contents( $item['path'] ) . $inline_css, $item['src'] );
+                    // $rel2abs = $this->main->util->fix_style_urls( file_get_contents( $item['path'] ) . $inline_css, $item['src'] );
 
-                    if ( strpos( $rel2abs, '@import' ) ) {
+                    // if ( strpos( $rel2abs, '@import' ) ) {
 
-                        $rel2abs = $this->include_css_import( $rel2abs );
+                    //     $rel2abs = $this->main->util->include_css_import( $rel2abs );
 
-                    }
+                    // }
+                    // $rel2abs = $this->main->util->include_css_import( $rel2abs );
+
 
                     $result['content'] .= $rel2abs;
 
@@ -426,9 +302,12 @@ class Exopite_Combiner_Minifier_Public {
         $options = get_option( $this->plugin_name );
 
         if ( ! isset( $options['combine_only_styles'] ) || $options['combine_only_styles'] == 'no' ) {
-            $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
-            $css_compressor->removeImportantComments();
-            $contents['content'] = $css_compressor->run( $contents['content'] );
+            // $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
+            // $css_compressor->removeImportantComments();
+            // $contents['content'] = $css_compressor->run( $contents['content'] );
+
+            $contents['content'] = $this->main->compressor->css( $contents['content'] );
+
             // $contents['content'] = CssMin::minify( $contents['content'] );
             // $contents['content'] = ( new Minify\CSS( $contents['content'] ) )->minify();
 
@@ -448,7 +327,8 @@ class Exopite_Combiner_Minifier_Public {
         $options = get_option( $this->plugin_name );
 
         if ( ! isset( $options['combine_only_scripts'] ) || $options['combine_only_scripts'] == 'no' ) {
-            $contents['content'] = JSMin::minify( $contents['content'], array('flaggedComments' => false) );
+            $contents['content'] = $this->main->compressor->js( $contents['content'], true, false );
+            // $contents['content'] = JSMin::minify( $contents['content'], array('flaggedComments' => false) );
             // $contents['content'] = JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) );
             // $contents['content'] = ( new Minify\JS( $contents['content'] ) )->minify();
             echo "<!-- Exopite Combiner and Minifier - minify and write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
@@ -486,6 +366,13 @@ class Exopite_Combiner_Minifier_Public {
             $src_list[] = $value['src'];
         }
 
+        /**
+         * Set minified and combined file name
+         */
+        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
+        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-' . $type . '-file-path', $combined_mifinited_filename );
+        $combined_last_modified_times = $list['last-modified'];
+
         // Get saved list from plugin options
         $plugin_options = get_option( $this->plugin_name );
         $list_saved = $plugin_options['list-saved-' . $type];
@@ -501,13 +388,6 @@ class Exopite_Combiner_Minifier_Public {
         }
 
         /**
-         * Set minified and combined file name
-         */
-        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
-        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-' . $type . '-file-path', $combined_mifinited_filename );
-        $combined_last_modified_times = $list['last-modified'];
-
-        /**
          * Check if need to regenerate
          *
          * - if enqueued has been changed or
@@ -520,7 +400,7 @@ class Exopite_Combiner_Minifier_Public {
          * it is more convenient for the user, because it is automatic.
          */
         if ( $list_changed ||
-             $this->check_last_modified_time( $combined_mifinited_filename, $list['last-modified'] ) ||
+             $this->main->util->check_last_modified_time( $combined_mifinited_filename, $combined_last_modified_times ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
 
             $fn = 'minify_' . $type;
@@ -543,8 +423,12 @@ class Exopite_Combiner_Minifier_Public {
     }
 
     public function scripts_handler_infos() {
-        echo PHP_EOL . '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
-        echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->' . PHP_EOL;
+
+        if ( $this->showinfo ) {
+            echo PHP_EOL . '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
+            echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->' . PHP_EOL;
+        }
+
     }
 
     public function styles_handler() {
@@ -569,7 +453,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
 
-            echo '<!-- Exopite Combiner Minifier - Styles total time: '. $time_styles . 's. -->' . PHP_EOL;
+            if ( $this->showinfo ) echo '<!-- Exopite Combiner Minifier - Styles total time: '. $time_styles . 's. -->' . PHP_EOL;
 
         }
 
@@ -601,7 +485,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
 
-            echo '<!-- Exopite Combiner Minifier - Scripts total time: '. $time_scripts . 's. -->' . PHP_EOL;
+            if ( $this->showinfo ) echo '<!-- Exopite Combiner Minifier - Scripts total time: '. $time_scripts . 's. -->' . PHP_EOL;
 
         }
 
@@ -635,129 +519,6 @@ class Exopite_Combiner_Minifier_Public {
     }
 
     /**
-     * Check if file need to process.
-     */
-    public function to_skip( $src, $path, $type, $media = '' ) {
-
-        if ( ( $this->starts_with( $src, '//' ) && ! $this->starts_with( $src, strstr( $this->site_url, '//' ) ) ) && ! $this->starts_with( $src, $this->site_url ) ) return true;
-
-        /**
-         * Ignore some scripts, which should not be moved.
-         *
-         * str_replace is considerably faster compare to strpos with an array.
-         * @link https://stackoverflow.com/questions/6284553/using-an-array-as-needles-in-strpos/42311760#42311760
-         */
-        if ( str_replace( $this->dont_move, '', $src ) != $src ) return true;
-
-        $to_skip = array();
-
-        switch ( $type ) {
-
-            case 'wp_scripts':
-                // no break
-            case 'scripts':
-                // $to_skip = array(
-                //     'jquery.js',
-                //     'jquery-migrate.min.js',
-                //     'admin-bar.min.js',
-                // );
-
-                $plugin_options = get_option( $this->plugin_name );
-                if ( isset( $plugin_options['ignore_process_scripts'] ) ) {
-                    $to_skip_user = preg_split( '/\r\n|[\r\n]/', $plugin_options['ignore_process_scripts'] );
-                    $to_skip_user = array_map( 'esc_attr', $to_skip_user );
-                }
-
-                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
-
-                break;
-
-            case 'wp_styles':
-                // no break
-            case 'styles':
-                $allowed_media = array( 'all', 'screen', '' );
-                if ( ! in_array( $media, $allowed_media ) ) return true;
-
-                $plugin_options = get_option( $this->plugin_name );
-                if ( isset( $plugin_options['ignore_process_styles'] ) ) {
-                    $to_skip_user = preg_split( '/\r\n|[\r\n]/', $plugin_options['ignore_process_styles'] );
-                    $to_skip_user = array_map( 'esc_attr', $to_skip_user );
-                }
-
-                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
-
-                break;
-
-        }
-
-        $pathinfo = pathinfo( $path );
-
-        $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, $to_skip );
-
-        $ret = false;
-        if ( is_array( $to_skip ) && in_array( $pathinfo['basename'], $to_skip ) || $to_skip == $pathinfo['basename'] ) {
-            $ret = true;
-
-        }
-
-        return apply_filters( 'exopite-combiner-minifier-to-skip', $ret, $to_skip, $src, $path, $type, $media );
-
-    }
-
-    /**
-     * Relative urls to absoulte.
-     */
-    public function fix_style_urls( $data, $src ) {
-
-        return preg_replace_callback(
-            '/url\(\s*[\'"]?(\/?.+?)[\'"]?\s*\)/i',
-            function ( $matches ) use( $src ) {
-                if ( ! $this->starts_with( $matches[1], 'http' ) &&
-                        ! $this->starts_with( $matches[1], '//' ) &&
-                        ! $this->starts_with( $matches[1], 'data' )
-                    ) {
-                    return 'url(' . $this->rel2abs( $matches[1], $src ) . ')';
-                }
-                return $matches[0];
-            },
-            $data
-        );
-
-    }
-
-    /**
-     * Insert first level @import to file.
-     *
-     * Possivle variants:
-     * @link https://developer.mozilla.org/en-US/docs/Web/CSS/@import
-     *
-     * + url without ' and "
-     */
-    public function include_css_import( $data ) {
-
-        $regex = '/@import.*?(["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)|url\(([^"|^\'].+)\).*?(\r\n|\r|\n|;))/i';
-
-        return preg_replace_callback(
-            $regex,
-            function ( $matches ) {
-
-                $fn = '';
-                if ( isset( $matches[4] ) ) {
-                    $fn = $matches[4];
-                } elseif ( isset( $matches[2] ) && ! empty( isset( $matches[2] ) ) ) {
-                    $fn = $matches[2];
-                }
-                if ( ! empty( $fn ) ) {
-                    return $this->fix_style_urls( file_get_contents( $fn ), $fn );
-                }
-                return $matches[0];
-
-            },
-            $data
-        );
-    }
-
-    /**
      * Check if any source files changed before last combine.
      */
     public function get_last_modified( $items, $type ) {
@@ -786,14 +547,14 @@ class Exopite_Combiner_Minifier_Public {
                 /**
                  * Get path from src
                  */
-                $path = $this->get_path( $src );
+                $path = $this->main->util->get_path( $src );
 
-                if ( $this->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
+                if ( $this->main->util->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
 
                 /**
                  * Get last modified item datetime stamp
                  */
-                $file_last_modified_time = $this->get_file_last_modified_time( $path );
+                $file_last_modified_time = $this->main->util->get_file_last_modified_time( $path );
 
                 if ( ! $script_last_modified || ( $file_last_modified_time && $file_last_modified_time > $script_last_modified ) ) {
                     $script_last_modified = $file_last_modified_time;
@@ -882,10 +643,10 @@ class Exopite_Combiner_Minifier_Public {
                 /**
                  * Get path from src
                  */
-                $path = $this->get_path( $src );
+                $path = $this->main->util->get_path( $src );
                 $src = strtok( $src, '?' );
 
-                if ( $this->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
+                if ( $this->main->util->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
 
                 $list[] = $src;
 
@@ -929,7 +690,7 @@ class Exopite_Combiner_Minifier_Public {
             (
                 // $this->check_list( $items, $type )
                 $this->check_list( $items, $type ) ||
-                $this->check_last_modified_time( $fn, $last_modified )
+                $this->main->util->check_last_modified_time( $fn, $last_modified )
             ) &&
             ! in_array( $id, $array_to_skip )
         ) {
@@ -1003,26 +764,28 @@ class Exopite_Combiner_Minifier_Public {
                      * This can produce error, because some styles, scripts are enqueued
                      * very late that we won’t able to catch it earlier and they may have a depency.
                      */
-                    if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
-                        if ( $this->starts_with( $src, $wp_content_url ) ) {
-                            $src = $site_url . $src;
-                        }
-                    }
+                    // if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
+                    //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
+                    //         $src = $site_url . $src;
+                    //     }
+                    // }
+                    $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'scripts' );
+
 
                     /**
                      * Skip external resources, plugin and theme author use CDN for a reason.
                      */
                     if ( apply_filters( 'exopite-combiner-minifier-scripts-ignore-external', true ) ) {
 
-                        if ( ! $this->starts_with( $src, $site_url ) ) continue;
+                        if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
 
                     }
 
                     // Get path from url
-                    $path = $this->get_path( $src );
+                    $path = $this->main->util->get_path( $src );
 
                     // Skip admin scripts, jQuery, ...
-                    if ( $this->to_skip( $src, $path, 'scripts' ) ) {
+                    if ( $this->main->util->to_skip( $src, $path, 'scripts' ) ) {
                         continue;
                     }
 
@@ -1034,6 +797,7 @@ class Exopite_Combiner_Minifier_Public {
 
             }
 
+            if ( empty( $items ) ) return $content;
 
             $last_modified = $this->get_last_modified( $items, 'scripts' );
 
@@ -1081,14 +845,15 @@ class Exopite_Combiner_Minifier_Public {
                      * This can produce error, because some styles, scripts are enqueued
                      * very late that we won’t able to catch it earlier and they may have a depency.
                      */
-                    if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
-                        if ( $this->starts_with( $src, $wp_content_url ) ) {
-                            $src = $site_url . $src;
-                        }
-                    }
+                    // if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
+                    //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
+                    //         $src = $site_url . $src;
+                    //     }
+                    // }
+                    $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'scripts' );
 
                     // Get path from url
-                    $path = $this->get_path( $src );
+                    $path = $this->main->util->get_path( $src );
 
                     /**
                      * Minify file induvidually, because some large file cause problems.
@@ -1109,14 +874,15 @@ class Exopite_Combiner_Minifier_Public {
                          *
                          * @link https://stackoverflow.com/questions/36629224/how-to-improve-regex-for-removing-source-map-urls-in-js-files-to-avoid-catastrop
                          */
-                        $regex_source_mapping = '~//[#@]\s(source(?:Mapping)?URL)=\s*(\S+)~';
-                        if ( preg_match( $regex_source_mapping , $js_file_content ) ) {
-                            $js_file_content = preg_replace( $regex_source_mapping, '', $js_file_content );
-                        }
+                        // $regex_source_mapping = '~//[#@]\s(source(?:Mapping)?URL)=\s*(\S+)~';
+                        // if ( preg_match( $regex_source_mapping , $js_file_content ) ) {
+                        //     $js_file_content = preg_replace( $regex_source_mapping, '', $js_file_content );
+                        // }
 
                         if ( $combine_only_scripts == 'no' && false === ( strpos( $path, 'min.js' ) ) ) {
 
-                            $js_file_content = JSMin::minify( $js_file_content );
+                            $js_file_content = $this->main->compressor->js( $js_file_content, true, true );
+                            // $js_file_content = JSMin::minify( $js_file_content );
                             // $js_file_content = ( new Minify\JS( $js_file_content ) )->minify();
 
                         }
@@ -1146,7 +912,8 @@ class Exopite_Combiner_Minifier_Public {
                      */
                     if ( $process ) {
 
-                        $item->nodeValue = JSMin::minify( $item->textContent );
+                        $item->nodeValue = $this->main->compressor->js( $item->textContent, false, true );
+                        // $item->nodeValue = JSMin::minify( $item->textContent );
                         // $item->nodeValue = ( new Minify\JS( $item->textContent ) )->minify();
 
                     }
@@ -1187,7 +954,7 @@ class Exopite_Combiner_Minifier_Public {
 
             $head = $html->getElementsByTagName('head')->item(0);
 
-                $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_scripts_mifinited_filename );
+                $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
             /**
              * Preload
              *
@@ -1309,32 +1076,35 @@ class Exopite_Combiner_Minifier_Public {
                  * This can produce error, because some styles, scripts are enqueued
                  * very late that we won’t able to catch it earlier and they may have a depency.
                  */
-                if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
-                    if ( $this->starts_with( $src, $wp_content_url ) ) {
-                        $src = $site_url . $src;
-                    }
-                }
+                // if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
+                //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
+                //         $src = $site_url . $src;
+                //     }
+                // }
+                $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'styles' );
 
                 /**
                  * Skip external resources, plugin and theme author use CDN for a reason.
                  */
                 if ( apply_filters( 'exopite-combiner-minifier-styles-ignore-external', true ) ) {
 
-                    if ( ! $this->starts_with( $src, $site_url ) ) continue;
+                    if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
 
                 }
 
                 // Get path from url
-                $path = $this->get_path( $src );
+                $path = $this->main->util->get_path( $src );
 
                 $media = $item->getAttribute("media");
 
                 // Skip admin styles
-                if ( $this->to_skip( $src, $path, 'styles', $media ) )  continue;
+                if ( $this->main->util->to_skip( $src, $path, 'styles', $media ) )  continue;
 
                 $items[] = $item;
 
             }
+
+            if ( empty( $items ) ) return $content;
 
             /**
              * first need to filter
@@ -1346,10 +1116,8 @@ class Exopite_Combiner_Minifier_Public {
                 $this->check_create_file( $id, 'styles', $combined_styles_mifinited_filename, $items, $last_modified )
             );
 
-            if ( is_null( $items ) ) return $content;
-
-            $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
-            $css_compressor->removeImportantComments();
+            // $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
+            // $css_compressor->removeImportantComments();
 
             // Loop items
             foreach( $items as $item ) {
@@ -1364,15 +1132,15 @@ class Exopite_Combiner_Minifier_Public {
                  * This can produce error, because some styles, scripts are enqueued
                  * very late that we won’t able to catch it earlier and they may have a depency.
                  */
-                if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
-                    if ( $this->starts_with( $src, $wp_content_url ) ) {
-                        $src = $site_url . $src;
-                    }
-                }
-
+                // if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
+                //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
+                //         $src = $site_url . $src;
+                //     }
+                // }
+                $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'styles' );
 
                 // Get path from url
-                $path = $this->get_path( $src );
+                $path = $this->main->util->get_path( $src );
 
                 if ( $generate_head_styles == 'yes' || $create_file ) {
 
@@ -1384,7 +1152,8 @@ class Exopite_Combiner_Minifier_Public {
                          * Ignore already absoulte urls, start with "http" and "//",
                          * also ignore "data".
                          */
-                        $converted_css = $this->fix_style_urls( file_get_contents( $path ), $src );
+                        $converted_css = $this->main->util->normalize_css( file_get_contents( $path ), $src );
+                        // $converted_css = $this->main->util->fix_style_urls( file_get_contents( $path ), $src );
 
                         /**
                          * Need to check import and if any then insert.
@@ -1400,16 +1169,18 @@ class Exopite_Combiner_Minifier_Public {
                          * '/(@import.*?["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)|@import.*?url\(([^"|^'].+)\).*?(\r\n|\r|\n|;))/i'
                          * @import.*?(["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)|url\(([^"|^'].+)\).*?(\r\n|\r|\n|;))
                          */
-                        if ( strpos( $converted_css, '@import' ) ) {
+                        // if ( strpos( $converted_css, '@import' ) ) {
 
-                            $converted_css = $this->include_css_import( $converted_css );
+                        //     $converted_css = $this->main->util->include_css_import( $converted_css );
 
-                        }
+                        // }
+                        // $converted_css = $this->main->util->include_css_import( $converted_css );
+
 
                         if ( $combine_only_styles == 'no' && false === ( strpos( $path, 'min.css' ) ) ) {
 
-                            // $to_write .= ( new Minify\CSS( $converted_css ) )->minify();
-                            $to_write .= $css_compressor->run( $converted_css );
+                            $to_write .= $this->main->compressor->css( $converted_css );
+                            // $to_write .= $css_compressor->run( $converted_css );
 
                         } else {
                             $to_write .= $converted_css;
@@ -1470,7 +1241,8 @@ class Exopite_Combiner_Minifier_Public {
 
                 if ( $combine_only_styles == 'no' ) {
                     // Minify inline style element
-                    $item->textContent = $css_compressor->run( $item->textContent );
+                    $item->textContent = $this->main->compressor->css( $item->textContent );
+                    // $item->textContent = $css_compressor->run( $item->textContent );
                     // $item->innertext = ( new Minify\CSS( $item->textContent ) )->minify();
                 }
 
@@ -1526,13 +1298,13 @@ class Exopite_Combiner_Minifier_Public {
 
                 }
 
-                $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->get_file_last_modified_time( $combined_styles_mifinited_filename );
+                $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename );
 
                 $head = $html->getElementsByTagName('head')->item(0);
 
                 $link = $html->createElement('link');
                 $link->setAttribute( 'href', $style_url );
-                // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
+                // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
                 $link->setAttribute( 'rel', 'stylesheet' );
                 $link->setAttribute( 'type', 'text/css' );
                 $link->setAttribute( 'media', 'all' );
@@ -1727,8 +1499,9 @@ class Exopite_Combiner_Minifier_Public {
             if ( $this->showinfo ) $startTime = microtime(true);
 
             // Preparing options for Minify_HTML.
-            $options = array();
-            $content = Minify_HTML::minify( $content, $options );
+            // $options = array();
+            // $content = Minify_HTML::minify( $content, $options );
+            $content = $this->main->compressor->html( $content, array() );
 
             if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
 
@@ -1811,7 +1584,7 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts-styles', true ) ) {
 
-            add_filter( 'exopite_combiner_minifier_rant', __return_true );
+            add_filter( 'exopite_combiner_minifier_rant', '__return_true' );
 
             $startTime = microtime(true);
 

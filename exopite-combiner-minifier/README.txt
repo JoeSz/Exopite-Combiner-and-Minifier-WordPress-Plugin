@@ -203,8 +203,8 @@ LICENSE DETAILS
 
 The GPL license of Exopite Multifilter grants you the right to use, study, share (copy), modify and (re)distribute the software, as long as these license terms are retained.
 
-SUPPORT/UPDATES/CONTRIBUTIONS
------------------------------
+SUPPORT/UPDATES
+---------------
 
 If you use my program(s), I would **greatly appreciate it if you kindly give me some suggestions/feedback**. If you solve some issue or fix some bugs or add a new feature, please share with me or mke a pull request. (But I don't have to agree with you or necessarily follow your advice.)<br/>
 **Before open an issue** please read the readme (if any :) ), use google and your brain to try to solve the issue by yourself. After all, Github is for developers.<br/>
