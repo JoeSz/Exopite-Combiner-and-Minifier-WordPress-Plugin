@@ -49,26 +49,15 @@ class Exopite_Combiner_Minifier_Public {
      */
     public $main;
 
-    private $site_url;
+    public $site_url;
 
     public $debug;
     public $showinfo;
     public $options;
     public $options_lists;
 
-    public $js_templates = array();
-
     public $create_separate_js_files = 'yes';
     public $create_separate_css_files = 'no';
-
-    public $searched_script_types = array(
-        'type="text/template"',
-        "type=\'text/template\'",
-        'type="text/x-template"',
-        "type=\'text/x-template\'",
-    );
-
-    public $regex_js_template = '/<script(.*?)>([\s\S]*?)<\/script>/i';
 
 	/**
 	 * Initialize the class and set its properties.
@@ -97,7 +86,7 @@ class Exopite_Combiner_Minifier_Public {
     public function get_enqueued( $list, $type = 'wp_scripts' ) {
 
         global ${$type};
-        $site_url = get_site_url();
+        $this->site_url = get_site_url();
         $script_last_modified = false;
         $result = [];
 
@@ -128,28 +117,15 @@ class Exopite_Combiner_Minifier_Public {
              */
             $src = strtok( ${$type}->registered[$handle]->src, '?' );
 
-            /**
-             * To "fix" styles, scripts start with /wp-includes, like jQuery
-             * If you activate this, ALL not external will be processed.
-             * This can produce error, because some styles, scripts are enqueued
-             * very late that we won’t able to catch it earlier and they may have a depency.
-             */
-            // if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-process-wp_includes', false ) ) {
-            //     $wp_content_url = str_replace( $site_url, '', includes_url() );
-            //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
-            //         $src = $site_url . $src;
-            //     }
-            // }
-
-            $wp_content_url = str_replace( $site_url, '', includes_url() );
-            $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, $type );
+            $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, $type );
 
             /**
              * Skip external resources, plugin and theme author use CDN for a reason.
              */
             if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-ignore-external', true ) ) {
 
-                if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
+                if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
 
             }
 
@@ -158,7 +134,7 @@ class Exopite_Combiner_Minifier_Public {
              */
             $path = $this->main->util->get_path( $src );
 
-            if ( $this->main->util->to_skip( $src, $path, $type, '' ) ) {
+            if ( $this->main->helper->to_skip( $src, $path, $type, '' ) ) {
                 continue;
             }
 
@@ -306,14 +282,16 @@ class Exopite_Combiner_Minifier_Public {
             // $css_compressor->removeImportantComments();
             // $contents['content'] = $css_compressor->run( $contents['content'] );
 
+            // $contents['content'] = $this->main->compressor->css_remove_charset( $contents['content'] );
+
             $contents['content'] = $this->main->compressor->css( $contents['content'] );
 
             // $contents['content'] = CssMin::minify( $contents['content'] );
             // $contents['content'] = ( new Minify\CSS( $contents['content'] ) )->minify();
 
-            echo "<!-- Exopite Combiner and Minifier - minify and write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - minify and write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         } else {
-            echo "<!-- Exopite Combiner and Minifier - write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         }
 
         file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $contents['content'] ) );
@@ -327,13 +305,13 @@ class Exopite_Combiner_Minifier_Public {
         $options = get_option( $this->plugin_name );
 
         if ( ! isset( $options['combine_only_scripts'] ) || $options['combine_only_scripts'] == 'no' ) {
-            $contents['content'] = $this->main->compressor->js( $contents['content'], true, false );
+            $contents['content'] = $this->main->compressor->js( $contents['content'], false );
             // $contents['content'] = JSMin::minify( $contents['content'], array('flaggedComments' => false) );
             // $contents['content'] = JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) );
             // $contents['content'] = ( new Minify\JS( $contents['content'] ) )->minify();
-            echo "<!-- Exopite Combiner and Minifier - minify and write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - minify and write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         } else {
-            echo "<!-- Exopite Combiner and Minifier - write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         }
 
         file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $contents['data'] . $contents['content'] ) );
@@ -497,529 +475,422 @@ class Exopite_Combiner_Minifier_Public {
      *                                                           *
     \*************************************************************/
 
-    public function buffer_start() {
+    public function process_scripts_simpledom( $content, $html ) {
 
-        // Start output buffering with a callback function
-        add_filter( 'exopite_ob_status', 'on' );
-        ob_start( array( $this, 'process_buffer' ) );
+        $id = $this->main->helper->get_id();
+        if ( ! $id ) return $content;
 
-    }
+        // DUPLICATE CODE!
+        $to_write = '';
 
-    public function process_buffer( $content ) {
-
-        return apply_filters( 'exopite_ob_content', $content );
-
-    }
-
-    public function buffer_end() {
-
-        // Display buffer
-        if ( ob_get_length() ) ob_end_flush();
-
-    }
-
-    /**
-     * Check if any source files changed before last combine.
-     */
-    public function get_last_modified( $items, $type ) {
-
-        $file_last_modified_time = '';
-        $script_last_modified = false;
-
-        foreach( $items as $item ) {
-
-            switch ( $type ) {
-
-                case 'scripts':
-                    $src = $item->getAttribute("src");
-                    break;
-
-                case 'styles':
-                    $src = $item->getAttribute("href");
-                    break;
-
-            }
-
-            if ( isset( $src ) ) {
-
-                $src = strtok( $src, '?' );
-
-                /**
-                 * Get path from src
-                 */
-                $path = $this->main->util->get_path( $src );
-
-                if ( $this->main->util->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
-
-                /**
-                 * Get last modified item datetime stamp
-                 */
-                $file_last_modified_time = $this->main->util->get_file_last_modified_time( $path );
-
-                if ( ! $script_last_modified || ( $file_last_modified_time && $file_last_modified_time > $script_last_modified ) ) {
-                    $script_last_modified = $file_last_modified_time;
-                }
-
-            }
-
-        }
-
-        return $script_last_modified;
-
-    }
-
-    /**
-     * - if single file, need to save to options, not in post meta.
-     * - this could do for archives too?
-     * - save in separate option? -> ( $this->plugin_name . '_lists' )['styles'] -> 'styles', 'scripts', 'generated'
-     *   ( '404', 'archive', search' ) <- those have always the same list? I think yes.
-     */
-    public function is_single_file_to_save( $type ) {
-
-        if (
-            ( is_singular() && $type == 'styles' && $this->create_separate_css_files == 'no' ) ||
-            ( is_singular() && $type == 'scripts' && $this->create_separate_js_files == 'no' ) ||
-            is_404() ||
-            ! is_singular()
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function get_single_file_type( $type ) {
-
-        return $type;
-
-        // if ( is_singular() ) {
-        //     return $type;
-        // } elseif ( is_404() ) {
-        //     return '404_' . $type;
-        // } else {
-        //     return 'not_singluar_' . $type;
-        // }
-
-    }
-
-    /**
-     * Check if any source file added or removed since last combine.
-     */
-    public function check_list( $items, $type ) {
-
-        if ( is_search() ) {
-            return false;
-        }
-
-        $list_type = false;
-        if ( $this->is_single_file_to_save( $type ) ) {
-
-            $list_type = $this->get_single_file_type( $type );
-            $list_saved_options = get_option( $this->plugin_name . '_lists' );
-            $list_saved = $list_saved_options['_' . $list_type];
-
-        } else {
-            $list_saved = get_post_meta( get_the_ID(), $this->plugin_name . '-' . $type, true );
-        }
-
-        $list = array();
-
-        foreach( $items as $item ) {
-
-            switch ( $type ) {
-
-                case 'scripts':
-                    $src = $item->getAttribute("src");
-                    break;
-
-                case 'styles':
-                    $src = $item->getAttribute("href");
-                    break;
-
-            }
-
-            if ( isset( $src ) && $src ) {
-
-                /**
-                 * Get path from src
-                 */
-                $path = $this->main->util->get_path( $src );
-                $src = strtok( $src, '?' );
-
-                if ( $this->main->util->to_skip( $src, $path, $type, $item->getAttribute("media") ) ) continue;
-
-                $list[] = $src;
-
-            }
-
-        }
-
-        /**
-         * Sometimes it is empty (if blog or category), in this case should not be emptied.
-         * It make no sence.
-         */
-        if ( $list_saved != $list && ! empty( $list ) ) {
-
-            if ( $list_type !== false ) {
-
-                $list_saved_options['_' . $list_type] = $list;
-                $debug_fn = '/logs/exopite-combiner-minifier-test-' . date('Y-m-d') . '.log';
-                update_option( $this->plugin_name . '_lists', $list_saved_options );
-
-            } else {
-                update_post_meta( get_the_ID(), $this->plugin_name . '-' . $type, $list );
-            }
-
-            return true;
-
-        }
-
-        return false;
-
-    }
-
-    public function check_create_file( $id, $type, $fn, $items, $last_modified ) {
-
-        // If combined and minified files are different then the enqueued files or
-        // the last modified time is different or
-        // override it via filter
-        // then need to regenerate file.
-        // $array_to_skip = array( '-archives', '-search', '-404' );
-        $array_to_skip = array();
-        if (
-            (
-                // $this->check_list( $items, $type )
-                $this->check_list( $items, $type ) ||
-                $this->main->util->check_last_modified_time( $fn, $last_modified )
-            ) &&
-            ! in_array( $id, $array_to_skip )
-        ) {
-
-            return true;
-
-        }
-
-        return false;
-
-    }
-
-    public function process_scripts( $content, $html, $xpath ) {
-
-        $process_scripts = ( isset( $this->options['process_scripts'] ) ) ? $this->options['process_scripts'] : 'no';
         $process_inline_scripts = ( isset( $this->options['process_inline_scripts'] ) ) ? $this->options['process_inline_scripts'] : 'no';
+        $process_inline_scripts = apply_filters( 'exopite-combiner-minifier-process-inline-scripts', $process_inline_scripts );
+
         $combine_only_scripts = ( isset( $this->options['combine_only_scripts'] ) ) ? $this->options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $this->options['scripts_try_catch'] ) ) ? $this->options['scripts_try_catch'] : 'yes';
         $this->create_separate_js_files = ( isset( $this->options['create_separate_js_files'] ) ) ? $this->options['create_separate_js_files'] : 'yes';
         $this->create_separate_js_files = apply_filters( 'exopite-combiner-minifier-scripts-create-separate-files', $this->create_separate_js_files );
 
-        $process_scripts = apply_filters( 'exopite-combiner-minifier-process-scripts', $process_scripts );
-        $process_inline_scripts = apply_filters( 'exopite-combiner-minifier-process-inline-scripts', $process_inline_scripts );
+        if ( $this->debug ) $start_time = microtime(true);
 
-        if ( $process_scripts == 'yes' && apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
+        /**
+         * Set script file name
+         */
 
-            if ( $this->debug ) $start_time = microtime(true);
+        $combined_scripts_file_name = 'scripts-combined' . $id . '.js';
+        $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
+        $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
 
-            do_action( 'exopite-combiner-minifier-scripts-before-process' );
+        $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
+        $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
 
-            $to_write = '';
+        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        // END DUPLICATE CODE!
 
-            /**
-             * Set script file name
-             */
-            $id = '';
-            if ( $this->is_single_file_to_save( 'scripts' ) === false ) {
-                    $id = $this->get_type_name();
+        $items_all = $html->find( 'script' );
 
-                    if ( empty( $id ) ) {
-                        return $content;
-                    }
-            }
+        foreach( $items_all as $item ) {
 
-            $combined_scripts_file_name = 'scripts-combined' . $id . '.js';
-            $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
-            $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
+            // Get item src.
+            $src = $item->src;
 
-            $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
-            $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
+            if ( ! empty( $src ) ) {
 
-            $site_url = get_site_url();
-            $wp_content_url = str_replace( $site_url, '', includes_url() );
+                // Remove src attributes.
+                $src = strtok( $src, '?' );
 
-            $items_all = $xpath->query("*/script");
-            $items = array();
-
-            foreach( $items_all as $item ) {
-
-                // Get item src.
-                $src = $item->getAttribute( 'src' );
-
-                if ( ! empty( $src ) ) {
-
-                    // Remove src attributes.
-                    $src = strtok( $src, '?' );
-
-                    /**
-                     * To "fix" styles, scripts start with /wp-includes, like jQuery
-                     * If you activate this, ALL not external will be processed.
-                     * This can produce error, because some styles, scripts are enqueued
-                     * very late that we won’t able to catch it earlier and they may have a depency.
-                     */
-                    // if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
-                    //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
-                    //         $src = $site_url . $src;
-                    //     }
-                    // }
-                    $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'scripts' );
-
-
-                    /**
-                     * Skip external resources, plugin and theme author use CDN for a reason.
-                     */
-                    if ( apply_filters( 'exopite-combiner-minifier-scripts-ignore-external', true ) ) {
-
-                        if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
-
-                    }
-
-                    // Get path from url
-                    $path = $this->main->util->get_path( $src );
-
-                    // Skip admin scripts, jQuery, ...
-                    if ( $this->main->util->to_skip( $src, $path, 'scripts' ) ) {
-                        continue;
-                    }
-
-                    if ( ! file_exists( $path ) ) continue;
-
-                }
-
-                $items[] = $item;
-
-            }
-
-            if ( empty( $items ) ) return $content;
-
-            $last_modified = $this->get_last_modified( $items, 'scripts' );
-
-            $create_file = apply_filters(
-                'exopite-combiner-minifier-force-generate-scripts',
-                $this->check_create_file( $id, 'scripts', $combined_scripts_mifinited_filename, $items, $last_modified )
-            );
-
-            /**
-             * Some JavaScript files are broken and cause problems.
-             * Better to have a little extra code to prevent this then break JavaScripts.
-             * Still small enough.
-             */
-            $debug_variable = '(e)';
-            $debug_function = ( $this->debug ) ? 'console.log(e)' : '';
-
-            if ( $scripts_try_catch == 'yes' ) {
-                $before = 'try{';
-                $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
-            } else {
-                $before = $after = '';
-            }
-
-            if ( is_null( $items ) ) return $content;
-
-            foreach( $items as $item ) {
-
-                $process = true;
-
-                // Get item src.
-                $src = $item->getAttribute( 'src' );
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
 
                 /**
-                 * If item has src then get file content
-                 * if not, get inline scripts
+                 * Skip external resources, plugin and theme author use CDN for a reason.
                  */
-                if ( ! empty( $src ) ) {
+                if ( apply_filters( 'exopite-combiner-minifier-scripts-ignore-external', true ) ) {
 
-                    // Remove src attributes.
-                    $src = strtok( $src, '?' );
-
-                    /**
-                     * To "fix" styles, scripts start with /wp-includes, like jQuery
-                     * If you activate this, ALL not external will be processed.
-                     * This can produce error, because some styles, scripts are enqueued
-                     * very late that we won’t able to catch it earlier and they may have a depency.
-                     */
-                    // if ( apply_filters( 'exopite-combiner-minifier-scripts-process-wp_includes', false ) ) {
-                    //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
-                    //         $src = $site_url . $src;
-                    //     }
-                    // }
-                    $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'scripts' );
-
-                    // Get path from url
-                    $path = $this->main->util->get_path( $src );
-
-                    /**
-                     * Minify file induvidually, because some large file cause problems.
-                     * Still fast enough.
-                     */
-                    if ( $create_file ) {
-
-                        $js_file_content = file_get_contents( $path );
-
-                        // Append a semicolon at the end of js files if it's missing.
-                        // $last_char = substr( $js_file_content, -1, 1 );
-                        // if ( ';' !== $last_char && '}' !== $last_char ) {
-                        //     $js_file_content .= ';';
-                        // }
-
-                        /**
-                         * Removing source map URLs in js files to avoid catastrophic breaking.
-                         *
-                         * @link https://stackoverflow.com/questions/36629224/how-to-improve-regex-for-removing-source-map-urls-in-js-files-to-avoid-catastrop
-                         */
-                        // $regex_source_mapping = '~//[#@]\s(source(?:Mapping)?URL)=\s*(\S+)~';
-                        // if ( preg_match( $regex_source_mapping , $js_file_content ) ) {
-                        //     $js_file_content = preg_replace( $regex_source_mapping, '', $js_file_content );
-                        // }
-
-                        if ( $combine_only_scripts == 'no' && false === ( strpos( $path, 'min.js' ) ) ) {
-
-                            $js_file_content = $this->main->compressor->js( $js_file_content, true, true );
-                            // $js_file_content = JSMin::minify( $js_file_content );
-                            // $js_file_content = ( new Minify\JS( $js_file_content ) )->minify();
-
-                        }
-
-                        $to_write .= $before . $js_file_content . $after;
-
-                    }
-
-                } elseif ( $process_inline_scripts == 'yes' ) {
-
-                    $type = $item->getAttribute( 'type' );
-
-                    /**
-                     * Do not process inline JavaScript if contain "<![CDATA["
-                     * Process inline script without type or 'text/javascript' type
-                     */
-                    $process = (
-                        ( strpos( $item->textContent, "woocommerce" ) === false ) &&
-                        ( strpos( $item->textContent, "<![CDATA[" ) === false ) &&
-                        ( ! isset( $type ) || empty( $type ) || $type == 'text/javascript' )
-                    );
-
-                    /**
-                     * In place minification.
-                     * This will leave script in place, only minify them.
-                     * Still dangerous!
-                     */
-                    if ( $process ) {
-
-                        $item->nodeValue = $this->main->compressor->js( $item->textContent, false, true );
-                        // $item->nodeValue = JSMin::minify( $item->textContent );
-                        // $item->nodeValue = ( new Minify\JS( $item->textContent ) )->minify();
-
-                    }
-
-                    /**
-                     * This will insert inline <script> element values to combined file and remove them.
-                     */
-                    // if ( $create_file && $process ) {
-
-                    //     if ( $combine_only_scripts == 'no' ) {
-                    //         $to_write .= $before . JSMin::minify( $item->textContent ) . $after;
-                    //         // $to_write .= $before . ( new Minify\JS( $item->textContent ) )->minify() . $after;
-                    //     } else {
-                    //         $to_write .= $before . $item->textContent . $after;
-                    //     }
-                    // }
-
-                    // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/scripts.log', PHP_EOL, FILE_APPEND );
+                    if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
 
                 }
 
-                if ( ! empty( $src ) ) {
-                /**
-                 *  this will remove inline <script> elements too.
-                 */
-                // if ( ! empty( $src ) || ( empty( $src ) && $process_inline_scripts == 'yes' ) ) {
+                // Get path from url
+                $path = $this->main->util->get_path( $src );
 
-                    // Remove processed
-                    $item->parentNode->removeChild( $item );
-
+                // Skip admin scripts, jQuery, ...
+                if ( $this->main->helper->to_skip( $src, $path, 'scripts' ) ) {
+                    continue;
                 }
 
+                if ( ! file_exists( $path ) ) continue;
+
             }
 
-            if ( $create_file ) {
-                file_put_contents( $combined_scripts_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $to_write ) );
-            }
-
-            $head = $html->getElementsByTagName('head')->item(0);
-
-                $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
-            /**
-             * Preload
-             *
-             * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
-             */
-            $preload = $html->createElement('link');
-            $preload->setAttribute( 'rel', 'preload' );
-            // $preload->setAttribute( 'crossorigin', 'anonymous' );
-            $preload->setAttribute( 'href', $script_url );
-            $preload->setAttribute( 'as', 'script' );
-            if ( ! is_null( $head ) ) $head->appendChild( $preload );
-
-            /**
-             * Add generated file to the end of the body.
-             * I'm not sure, defer is relevant here, it is relevant only if scripts is in the header.
-             * I can not insert ot header, because of the inline scripts in the page, which are inserted
-             * by other pugins.
-             */
-            $body = $html->getElementsByTagName('body')->item(0);
-            $script = $html->createElement('script');
-            $script->setAttribute( 'type', 'text/javascript' );
-            $script->setAttribute( 'src', $script_url );
-            // $script->setAttribute( 'defer', 'defer' );
-            if ( ! is_null( $body ) ) $body->appendChild( $script );
-
-            $content = $html->saveHTML();
-
-            do_action( 'exopite-combiner-minifier-scripts-after-process' );
+            $items[] = $item;
 
         }
+
+        // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/temp.log', var_export( $items, true ) . PHP_EOL, FILE_APPEND );
+
+        // DUPLICATE CODE!
+        if ( empty( $items ) ) return $content;
+
+        $last_modified = $this->main->helper->get_last_modified( $items, 'scripts' );
+
+        $create_file = apply_filters(
+            'exopite-combiner-minifier-force-generate-scripts',
+            $this->main->helper->check_create_file( $id, 'scripts', $combined_scripts_mifinited_filename, $items, $last_modified )
+        );
+
+        /**
+         * Some JavaScript files are broken and cause problems.
+         * Better to have a little extra code to prevent this then break JavaScripts.
+         * Still small enough.
+         */
+        $debug_variable = '(e)';
+        $debug_function = ( $this->debug ) ? 'console.log(e)' : '';
+
+        if ( $scripts_try_catch == 'yes' ) {
+            $before = 'try{';
+            $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+        } else {
+            $before = $after = '';
+        }
+        // END DUPLICATE CODE!
+
+        foreach( $items as $item ) {
+
+            $process = true;
+
+            // Get item src.
+            $src = $item->src;
+
+            /**
+             * If item has src then get file content
+             * if not, get inline scripts
+             */
+            if ( ! empty( $src ) ) {
+
+                // Remove src attributes.
+                $src = strtok( $src, '?' );
+
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
+
+                // Get path from url
+                $path = $this->main->util->get_path( $src );
+
+                /**
+                 * Minify file induvidually, because some large file cause problems.
+                 * Still fast enough.
+                 */
+                if ( $create_file ) {
+
+                    $js_file_content = file_get_contents( $path );
+
+                    $js_file_content = $this->main->compressor->remove_source_mapping( $js_file_content );
+
+                    if ( $combine_only_scripts == 'no' && false === ( strpos( $path, 'min.js' ) ) ) {
+
+                        $js_file_content = $this->main->compressor->js( $js_file_content, true );
+
+                    }
+
+                    $to_write .= $before . $js_file_content . $after;
+                }
+
+            } elseif ( $process_inline_scripts == 'yes' ) {
+
+                $type = $item->getAttribute( 'type' );
+
+                /**
+                 * Do not process inline JavaScript if contain "<![CDATA["
+                 * Process inline script without type or 'text/javascript' type
+                 */
+                $process = $this->main->helper->to_skip_inline( $item->innertext, $type );
+
+                /**
+                 * In place minification.
+                 * This will leave script in place, only minify them.
+                 * Still dangerous!
+                 */
+                if ( $process ) {
+
+                    $item->innertext = $this->main->compressor->js( $item->innertext, true );
+
+                }
+
+                /**
+                 * This will insert inline <script> element values to combined file and remove them.
+                 */
+                // if ( $create_file && $process ) {
+
+                //     if ( $combine_only_scripts == 'no' ) {
+                //         $to_write .= $before . $this->main->compressor->js( $item->innertext, true ) . $after;
+                //     } else {
+                //         $to_write .= $before . $item->innertext . $after;
+                //     }
+                // }
+
+            }
+
+            if ( ! empty( $src ) ) {
+            /**
+             *  this will remove inline <script> elements too.
+             */
+            // if ( ! empty( $src ) || ( empty( $src ) && $process_inline_scripts == 'yes' ) ) {
+
+                // Remove processed
+                $item->outertext = '';
+
+            }
+
+        }
+
+        if ( $create_file ) {
+            file_put_contents( $combined_scripts_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $to_write ) );
+        }
+
+        $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
+        $script_html = '<script type="text/javascript" src="' . $script_url . '"></script>';
+        // $style_html
+
+        /**
+         * Preload
+         *
+         * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
+         */
+        $html->find( 'head', 0)->innertext .= '<link rel="preload" href="' . $script_url . '" as="script" />';
+        $html->find( 'body', 0)->innertext .= $script_html;
+
+        $content = $html->save();
+
+         return $content;
+    }
+
+    public function process_scripts( $content, $html, $xpath ) {
+
+        $id = $this->main->helper->get_id();
+        if ( ! $id ) return $content;
+
+        $to_write = '';
+
+        $process_inline_scripts = ( isset( $this->options['process_inline_scripts'] ) ) ? $this->options['process_inline_scripts'] : 'no';
+        $process_inline_scripts = apply_filters( 'exopite-combiner-minifier-process-inline-scripts', $process_inline_scripts );
+
+        $combine_only_scripts = ( isset( $this->options['combine_only_scripts'] ) ) ? $this->options['combine_only_scripts'] : 'no';
+        $scripts_try_catch = ( isset( $this->options['scripts_try_catch'] ) ) ? $this->options['scripts_try_catch'] : 'yes';
+        $this->create_separate_js_files = ( isset( $this->options['create_separate_js_files'] ) ) ? $this->options['create_separate_js_files'] : 'yes';
+        $this->create_separate_js_files = apply_filters( 'exopite-combiner-minifier-scripts-create-separate-files', $this->create_separate_js_files );
+
+        if ( $this->debug ) $start_time = microtime(true);
+
+        /**
+         * Set script file name
+         */
+
+        $combined_scripts_file_name = 'scripts-combined' . $id . '.js';
+        $combined_scripts_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_scripts_file_name;
+        $combined_scripts_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-scripts-file-url', $combined_scripts_mifinited_file_url );
+
+        $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
+        $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
+
+        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+
+        $items_all = $xpath->query("*/script");
+        $items = array();
+
+        foreach( $items_all as $item ) {
+
+            // Get item src.
+            $src = $item->getAttribute( 'src' );
+
+            if ( ! empty( $src ) ) {
+
+                // Remove src attributes.
+                $src = strtok( $src, '?' );
+
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
+
+
+                /**
+                 * Skip external resources, plugin and theme author use CDN for a reason.
+                 */
+                if ( apply_filters( 'exopite-combiner-minifier-scripts-ignore-external', true ) ) {
+
+                    if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
+
+                }
+
+                // Get path from url
+                $path = $this->main->util->get_path( $src );
+
+                // Skip admin scripts, jQuery, ...
+                if ( $this->main->helper->to_skip( $src, $path, 'scripts' ) ) {
+                    continue;
+                }
+
+                if ( ! file_exists( $path ) ) continue;
+
+            }
+
+            $items[] = $item;
+
+        }
+
+        if ( empty( $items ) ) return $content;
+
+        $last_modified = $this->main->helper->get_last_modified( $items, 'scripts' );
+
+        $create_file = apply_filters(
+            'exopite-combiner-minifier-force-generate-scripts',
+            $this->main->helper->check_create_file( $id, 'scripts', $combined_scripts_mifinited_filename, $items, $last_modified )
+        );
+
+        /**
+         * Some JavaScript files are broken and cause problems.
+         * Better to have a little extra code to prevent this then break JavaScripts.
+         * Still small enough.
+         */
+        $debug_variable = '(e)';
+        $debug_function = ( $this->debug ) ? 'console.log(e)' : '';
+
+        if ( $scripts_try_catch == 'yes' ) {
+            $before = 'try{';
+            $after = '}catch' . $debug_variable . '{' . $debug_function . '};';
+        } else {
+            $before = $after = '';
+        }
+
+        foreach( $items as $item ) {
+
+            $process = true;
+
+            // Get item src.
+            $src = $item->getAttribute( 'src' );
+
+            /**
+             * If item has src then get file content
+             * if not, get inline scripts
+             */
+            if ( ! empty( $src ) ) {
+
+                // Remove src attributes.
+                $src = strtok( $src, '?' );
+
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
+
+                // Get path from url
+                $path = $this->main->util->get_path( $src );
+
+                /**
+                 * Minify file induvidually, because some large file cause problems.
+                 * Still fast enough.
+                 */
+                if ( $create_file ) {
+
+                    $js_file_content = file_get_contents( $path );
+
+                    $js_file_content = $this->main->compressor->remove_source_mapping( $js_file_content );
+
+                    if ( $combine_only_scripts == 'no' && false === ( strpos( $path, 'min.js' ) ) ) {
+
+                        $js_file_content = $this->main->compressor->js( $js_file_content, true );
+
+                    }
+
+                    $to_write .= $before . $js_file_content . $after;
+
+                }
+
+            } elseif ( $process_inline_scripts == 'yes' ) {
+
+                $type = $item->getAttribute( 'type' );
+                $process = $this->main->helper->to_skip_inline( $item->textContent, $type );
+
+                /**
+                 * In place minification.
+                 * This will leave script in place, only minify them.
+                 * Still dangerous!
+                 */
+                if ( $process ) {
+
+                    $item->nodeValue = $this->main->compressor->js( $item->textContent, true );
+
+                }
+
+            }
+
+            if ( ! empty( $src ) ) {
+
+                // Remove processed
+                $item->parentNode->removeChild( $item );
+
+            }
+
+        }
+
+        if ( $create_file ) {
+            file_put_contents( $combined_scripts_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $to_write ) );
+        }
+
+        $head = $html->getElementsByTagName('head')->item(0);
+
+            $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
+        /**
+         * Preload
+         *
+         * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
+         */
+        $preload = $html->createElement('link');
+        $preload->setAttribute( 'rel', 'preload' );
+        // $preload->setAttribute( 'crossorigin', 'anonymous' );
+        $preload->setAttribute( 'href', $script_url );
+        $preload->setAttribute( 'as', 'script' );
+        if ( ! is_null( $head ) ) $head->appendChild( $preload );
+
+        /**
+         * Add generated file to the end of the body.
+         * I'm not sure, defer is relevant here, it is relevant only if scripts is in the header.
+         * I can not insert ot header, because of the inline scripts in the page, which are inserted
+         * by other pugins.
+         */
+        $body = $html->getElementsByTagName('body')->item(0);
+        $script = $html->createElement('script');
+        $script->setAttribute( 'type', 'text/javascript' );
+        $script->setAttribute( 'src', $script_url );
+        // $script->setAttribute( 'defer', 'defer' );
+        if ( ! is_null( $body ) ) $body->appendChild( $script );
+
+        $content = $html->saveHTML();
 
         return $content;
 
     }
 
-    public function get_type_name() {
+    public function process_styles_simpledom( $content, $html ) {
 
-        if ( is_home() ) {
-            return '-blog';
-        } elseif ( is_archive() ) {
+        $id = $this->main->helper->get_id();
+        if ( ! $id ) return $content;
 
-            $post_type_slug = get_queried_object()->name;
-
-            if ( ! empty( $post_type_slug ) ) {
-                $post_type_slug = '-' . $post_type_slug;
-                return $post_type_slug . '-archive';
-            } else {
-                return '-archives';
-            }
-
-        } elseif ( is_search() ) {
-            return '-search';
-        } elseif ( is_404() ) {
-            return '-404';
-        } elseif ( is_singular() ) {
-            return '-' . get_the_ID();
-        }
-
-    }
-
-    public function process_styles( $content, $html, $xpath ) {
-
-        $process_styles = ( isset( $this->options['process_styles'] ) ) ? $this->options['process_styles'] : 'no';
-
-        $process_styles = apply_filters( 'exopite-combiner-minifier-process-styles', $process_styles );
+        // DUPLICATE CODE!
+        $to_write = '';
 
         $generate_head_styles = ( isset( $this->options['generate_head_styles'] ) ) ? $this->options['generate_head_styles'] : 'no';
         $combine_only_styles = ( isset( $this->options['combine_only_styles'] ) ) ? $this->options['combine_only_styles'] : 'no';
@@ -1027,470 +898,557 @@ class Exopite_Combiner_Minifier_Public {
         $this->create_separate_css_files = ( isset( $this->options['create_separate_css_files'] ) ) ? $this->options['create_separate_css_files'] : 'yes';
         $this->create_separate_css_files = apply_filters( 'exopite-combiner-minifier-styles-create-separate-files', $this->create_separate_css_files );
 
-        if ( $process_styles == 'yes' && apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
+        do_action( 'exopite-combiner-minifier-styles-before-process' );
 
-            do_action( 'exopite-combiner-minifier-styles-before-process' );
+        /**
+         * Set styles file name
+         */
 
-            $to_write = '';
+        $combined_styles_file_name = 'styles-combined' . $id . '.css';
+        $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
+        $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-styles-file-url', $combined_styles_mifinited_file_url );
+        $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
+        $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
+
+        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        // END DUPLICATE CODE!
+
+        $items_all = $html->find( 'link[rel=stylesheet]' );
+
+        // remove external, and to ignore
+        foreach( $items_all as $item ) {
+
+            // Get item url and remove attributes.
+            $src = $item->href;
+            $src = strtok( $src, '?' );
+
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
 
             /**
-             * Set styles file name
+             * Skip external resources, plugin and theme author use CDN for a reason.
              */
-            $id = '';
-            if ( $this->is_single_file_to_save( 'styles' ) === false ) {
-                $id = $this->get_type_name();
+            if ( apply_filters( 'exopite-combiner-minifier-styles-ignore-external', true ) ) {
 
-                if ( empty( $id ) ) {
-                    return $content;
-                }
-            }
-
-            $combined_styles_file_name = 'styles-combined' . $id . '.css';
-            $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
-            $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-styles-file-url', $combined_styles_mifinited_file_url );
-            $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
-            $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
-
-            $site_url = get_site_url();
-            $wp_content_url = str_replace( $site_url, '', includes_url() );
-
-            /**
-             * Preprocess, make sure check_create_file() has the list to work on.
-             * If we do not do this, then some js/css files like "admin-bar.css", etc... make css/js always recreate.
-             * (different list if logged in and not logged in)
-             * This made some check run twice, not ideal, maybe possible somehow to refactor?
-             */
-            $items_all = $xpath->query("*/link[@rel='stylesheet']");
-            $items = array();
-            foreach( $items_all as $item ) {
-
-                // remove external, and to ignore
-
-                // Get item url and remove attributes.
-                $src = $item->getAttribute("href");
-                $src = strtok( $src, '?' );
-
-                /**
-                 * To "fix" styles, scripts start with /wp-includes, like jQuery
-                 * If you activate this, ALL not external will be processed.
-                 * This can produce error, because some styles, scripts are enqueued
-                 * very late that we won’t able to catch it earlier and they may have a depency.
-                 */
-                // if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
-                //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
-                //         $src = $site_url . $src;
-                //     }
-                // }
-                $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'styles' );
-
-                /**
-                 * Skip external resources, plugin and theme author use CDN for a reason.
-                 */
-                if ( apply_filters( 'exopite-combiner-minifier-styles-ignore-external', true ) ) {
-
-                    if ( ! $this->main->util->starts_with( $src, $site_url ) ) continue;
-
-                }
-
-                // Get path from url
-                $path = $this->main->util->get_path( $src );
-
-                $media = $item->getAttribute("media");
-
-                // Skip admin styles
-                if ( $this->main->util->to_skip( $src, $path, 'styles', $media ) )  continue;
-
-                $items[] = $item;
+                if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
 
             }
 
-            if ( empty( $items ) ) return $content;
+            // Get path from url
+            $path = $this->main->util->get_path( $src );
+
+            $media = $item->media;
+
+            // Skip admin styles
+            if ( $this->main->helper->to_skip( $src, $path, 'styles', $media ) )  continue;
+
+            $items[] = $item;
+
+        }
+
+        if ( empty( $items ) ) return $content;
+
+        /**
+         * first need to filter
+         */
+        $last_modified = $this->main->helper->get_last_modified( $items, 'styles' );
+
+        $create_file = apply_filters(
+            'exopite-combiner-minifier-force-generate-styles',
+            $this->main->helper->check_create_file( $id, 'styles', $combined_styles_mifinited_filename, $items, $last_modified )
+        );
+
+        // Loop items
+        foreach( $items as $item ) {
+
+            // Get item url and remove attributes.
+            $src = $item->href;
+            $src = strtok( $src, '?' );
+
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
+
+            // Get path from url
+            $path = $this->main->util->get_path( $src );
+
+            if ( $generate_head_styles == 'yes' || $create_file ) {
+
+                if ( file_exists( $path ) ) {
+
+                    $converted_css = $this->main->util->normalize_css( file_get_contents( $path ), $src );
+
+                    // $converted_css = $this->main->compressor->css_preprocessor( $converted_css );
+                    // $to_write .= $this->main->compressor->css( $converted_css );
+                    // $converted_css = $this->main->compressor->css_remove_charset( $converted_css );
+
+                    // DEBUG
+                    $to_write .= PHP_EOL . '/** ' . $src . ' */' . PHP_EOL;
+
+                    if ( $combine_only_styles == 'no' && false === ( strpos( $path, 'min.css' ) ) ) {
+
+                        $to_write .= $this->main->compressor->css( $converted_css );
+
+                    } else {
+
+                        // $converted_css = $this->main->compressor->css_remove_important_comments( $converted_css );
+                        $to_write .= $converted_css;
+
+                    }
+
+                    // DEBUG
+                    $to_write .= PHP_EOL . PHP_EOL;
+
+                }
+
+            }
 
             /**
-             * first need to filter
+             * Remove processed element from DOM
              */
-            $last_modified = $this->get_last_modified( $items, 'styles' );
+            $item->outertext = '';
 
-            $create_file = apply_filters(
-                'exopite-combiner-minifier-force-generate-styles',
-                $this->check_create_file( $id, 'styles', $combined_styles_mifinited_filename, $items, $last_modified )
-            );
+        }
 
-            // $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
-            // $css_compressor->removeImportantComments();
+        /**
+         * Process inline <styles> elements.
+         */
+        $items = $html->find( 'style' );
 
-            // Loop items
-            foreach( $items as $item ) {
+        /**
+         * If remove and include in combined file.
+         */
+        // Process only styles assigend for all media or screens
+        // $allowed_media = array( 'all', 'screen' );
 
-                // Get item url and remove attributes.
-                $src = $item->getAttribute("href");
-                $src = strtok( $src, '?' );
+        foreach( $items as $item ) {
 
-                /**
-                 * To "fix" styles, scripts start with /wp-includes, like jQuery
-                 * If you activate this, ALL not external will be processed.
-                 * This can produce error, because some styles, scripts are enqueued
-                 * very late that we won’t able to catch it earlier and they may have a depency.
-                 */
-                // if ( apply_filters( 'exopite-combiner-minifier-styles-process-wp_includes', false ) ) {
-                //     if ( $this->main->util->starts_with( $src, $wp_content_url ) ) {
-                //         $src = $site_url . $src;
-                //     }
-                // }
-                $src = $this->main->util->normalize_url( $src, $site_url, $wp_content_url, 'styles' );
+            // if ( ! in_array( $item->media, $allowed_media ) ) continue;
 
-                // Get path from url
-                $path = $this->main->util->get_path( $src );
+            if ( $combine_only_styles == 'no' ) {
+                // Minify inline style element
+                $item->innertext = $this->main->compressor->css( $item->innertext );
 
-                if ( $generate_head_styles == 'yes' || $create_file ) {
+            }
 
-                    if ( file_exists( $path ) ) {
+            // Remove empty
+            if ( empty( $item->innertext ) ) {
+                $item->outertext = '';
+            }
 
-                        /**
-                         * Replace all relative url() to absoulte
-                         * Need to do this, because our combined css has a different path.
-                         * Ignore already absoulte urls, start with "http" and "//",
-                         * also ignore "data".
-                         */
-                        $converted_css = $this->main->util->normalize_css( file_get_contents( $path ), $src );
-                        // $converted_css = $this->main->util->fix_style_urls( file_get_contents( $path ), $src );
+        }
 
-                        /**
-                         * Need to check import and if any then insert.
-                         *
-                         * Possible variants:
-                         * @link https://developer.mozilla.org/en-US/docs/Web/CSS/@import
-                         * Also in url without ' or ".
-                         */
-                        /**
-                         * '/@import.*?["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)/i'
-                         * '/@import.*?url\(([^"|^'].+)\).*?(\r\n|\r|\n|;)/i'
-                         *
-                         * '/(@import.*?["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)|@import.*?url\(([^"|^'].+)\).*?(\r\n|\r|\n|;))/i'
-                         * @import.*?(["\']([^"\']+)["\'].*?(\r\n|\r|\n|;)|url\(([^"|^'].+)\).*?(\r\n|\r|\n|;))
-                         */
-                        // if ( strpos( $converted_css, '@import' ) ) {
+        if ( $generate_head_styles == 'yes' ) {
 
-                        //     $converted_css = $this->main->util->include_css_import( $converted_css );
+            $html->find( 'head', 0)->innertext .= '<style type="text/css" media="all">' . $to_write .  '</style>';
 
-                        // }
-                        // $converted_css = $this->main->util->include_css_import( $converted_css );
+        } else {
+
+            if ( $create_file ) {
+
+                file_put_contents( $combined_styles_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $to_write ) );
+
+            }
+
+            $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename );
+            $style_html = '<link rel="stylesheet" href="' . $style_url . '" type="text/css" media="all" />';
 
 
-                        if ( $combine_only_styles == 'no' && false === ( strpos( $path, 'min.css' ) ) ) {
+            if ( $enqueue_head_styles === 'yes' ) {
 
-                            $to_write .= $this->main->compressor->css( $converted_css );
-                            // $to_write .= $css_compressor->run( $converted_css );
+                $html->find( 'head', 0)->innertext .= $style_html;
 
-                        } else {
-                            $to_write .= $converted_css;
-                        }
+            } else {
+
+                $html->find( 'head', 0)->innertext .= '<link rel="preload" href="' . $combined_styles_mifinited_file_url . '" as="style" />';
+                $html->find( 'body', 0)->innertext .= $style_html;
+
+            }
+
+        }
+
+        $content = $html->save();
+
+        do_action( 'exopite-combiner-minifier-styles-after-process' );
+
+        return $content;
+    }
+
+    public function process_styles( $content, $html, $xpath ) {
+
+        $id = $this->main->helper->get_id();
+        if ( ! $id ) return $content;
+
+        $to_write = '';
+
+        $generate_head_styles = ( isset( $this->options['generate_head_styles'] ) ) ? $this->options['generate_head_styles'] : 'no';
+        $combine_only_styles = ( isset( $this->options['combine_only_styles'] ) ) ? $this->options['combine_only_styles'] : 'no';
+        $enqueue_head_styles = ( isset( $this->options['enqueue_head_styles'] ) ) ? $this->options['enqueue_head_styles'] : 'no';
+        $this->create_separate_css_files = ( isset( $this->options['create_separate_css_files'] ) ) ? $this->options['create_separate_css_files'] : 'yes';
+        $this->create_separate_css_files = apply_filters( 'exopite-combiner-minifier-styles-create-separate-files', $this->create_separate_css_files );
+
+        do_action( 'exopite-combiner-minifier-styles-before-process' );
+
+        /**
+         * Set styles file name
+         */
+
+        $combined_styles_file_name = 'styles-combined' . $id . '.css';
+        $combined_styles_mifinited_file_url = EXOPITE_COMBINER_MINIFIER_PLUGIN_URL . 'combined/' . $combined_styles_file_name;
+        $combined_styles_mifinited_file_url = apply_filters( 'exopite-combiner-minifier-styles-file-url', $combined_styles_mifinited_file_url );
+        $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
+        $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
+
+        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+
+        /**
+         * Preprocess, make sure check_create_file() has the list to work on.
+         * If we do not do this, then some js/css files like "admin-bar.css", etc... make css/js always recreate.
+         * (different list if logged in and not logged in)
+         * This made some check run twice, not ideal, maybe possible somehow to refactor?
+         */
+        $items_all = $xpath->query("*/link[@rel='stylesheet']");
+        $items = array();
+        foreach( $items_all as $item ) {
+
+            // remove external, and to ignore
+
+            // Get item url and remove attributes.
+            $src = $item->getAttribute("href");
+            $src = strtok( $src, '?' );
+
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
+
+            /**
+             * Skip external resources, plugin and theme author use CDN for a reason.
+             */
+            if ( apply_filters( 'exopite-combiner-minifier-styles-ignore-external', true ) ) {
+
+                if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
+
+            }
+
+            // Get path from url
+            $path = $this->main->util->get_path( $src );
+
+            $media = $item->getAttribute("media");
+
+            // Skip admin styles
+            if ( $this->main->helper->to_skip( $src, $path, 'styles', $media ) )  continue;
+
+            $items[] = $item;
+
+        }
+
+        if ( empty( $items ) ) return $content;
+
+        /**
+         * first need to filter
+         */
+        $last_modified = $this->main->helper->get_last_modified( $items, 'styles' );
+
+        $create_file = apply_filters(
+            'exopite-combiner-minifier-force-generate-styles',
+            $this->main->helper->check_create_file( $id, 'styles', $combined_styles_mifinited_filename, $items, $last_modified )
+        );
+
+        // Loop items
+        foreach( $items as $item ) {
+
+            // Get item url and remove attributes.
+            $src = $item->getAttribute("href");
+            $src = strtok( $src, '?' );
+
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
+
+            // Get path from url
+            $path = $this->main->util->get_path( $src );
+
+            if ( $generate_head_styles == 'yes' || $create_file ) {
+
+                if ( file_exists( $path ) ) {
+
+                    $converted_css = $this->main->util->normalize_css( file_get_contents( $path ), $src );
+
+                    // $converted_css = $this->main->compressor->css_remove_charset( $converted_css );
+
+                    if ( $combine_only_styles == 'no' && false === ( strpos( $path, 'min.css' ) ) ) {
+
+                        $to_write .= $this->main->compressor->css( $converted_css );
+
+                    } else {
+
+                        // $converted_css = $this->main->compressor->css_remove_important_comments( $converted_css );
+                        $to_write .= $converted_css;
 
                     }
 
                 }
 
-                /**
-                 * Remove processed element from DOM
-                 *
-                 * https://stackoverflow.com/questions/15272726/how-to-delete-element-with-domdocument
-                 */
-                $item->parentNode->removeChild( $item );
-
             }
 
             /**
-             * Process inline <styles> elements.
+             * Remove processed element from DOM
+             *
+             * https://stackoverflow.com/questions/15272726/how-to-delete-element-with-domdocument
              */
-            // $items = $html->getElementsByTagName('style');
-            $items = $xpath->query("*/style");
+            $item->parentNode->removeChild( $item );
+
+        }
+
+        /**
+         * Process inline <styles> elements.
+         */
+        $items = $xpath->query("*/style");
+
+        /**
+         * If remove and include in combined file.
+         */
+        // Process only styles assigend for all media or screens
+        // $allowed_media = array( 'all', 'screen' );
+
+        foreach( $items as $item ) {
+
+            /**
+             * If remove it and include in the combined file.
+             */
+            // $media = $item->getAttribute("media");
+            // if ( empty( $media ) || in_array( $media, $allowed_media ) ) {
+
+            //     $inner_text = $item->textContent;
+
+            //     if ( $combine_only_styles == 'no' ) {
+            //         // Minify inline style element
+
+            //         /**
+            //          * If remove and include in combined file.
+            //          */
+            //         $inner_text .= $css_compressor->run( $item->textContent );
+            //         // $inner_text .= ( new Minify\CSS( $item->textContent ) )->minify();
+            //     }
+
+            //     // Remove empty
+            //     if ( empty( $item->textContent ) ) {
+            //         $item->parentNode->removeChild( $item );
+            //     }
+
+            //     continue;
+            // }
+
+            if ( $combine_only_styles == 'no' ) {
+                $item->textContent = $this->main->compressor->css( $item->textContent );
+            }
+
+            // Remove empty
+            if ( empty( $item->textContent ) ) {
+                $item->parentNode->removeChild( $item );
+            }
 
             /**
              * If remove and include in combined file.
              */
-            // Process only styles assigend for all media or screens
-            // $allowed_media = array( 'all', 'screen' );
+            // // Skip admin inline style
+            // if ( strpos( $item->textContent, 'margin-top: 32px !important;' ) ) continue;
 
-            foreach( $items as $item ) {
+            // // Add to processing if need to generate file
+            // if ( $create_file ) $to_write .= $inner_text;
 
-                /**
-                 * If remove and include in combined file.
-                 */
-                // $media = $item->getAttribute("media");
-                // if ( empty( $media ) || in_array( $media, $allowed_media ) ) {
-
-                //     $inner_text = $item->textContent;
-
-                //     if ( $combine_only_styles == 'no' ) {
-                //         // Minify inline style element
-
-                //         /**
-                //          * If remove and include in combined file.
-                //          */
-                //         $inner_text .= $css_compressor->run( $item->textContent );
-                //         // $inner_text .= ( new Minify\CSS( $item->textContent ) )->minify();
-                //     }
-
-                //     // Remove empty
-                //     if ( empty( $item->textContent ) ) {
-                //         $item->parentNode->removeChild( $item );
-                //     }
-
-                //     continue;
-                // }
-
-                if ( $combine_only_styles == 'no' ) {
-                    // Minify inline style element
-                    $item->textContent = $this->main->compressor->css( $item->textContent );
-                    // $item->textContent = $css_compressor->run( $item->textContent );
-                    // $item->innertext = ( new Minify\CSS( $item->textContent ) )->minify();
-                }
-
-                // Remove empty
-                if ( empty( $item->textContent ) ) {
-                    $item->parentNode->removeChild( $item );
-                }
-
-                continue;
-
-                /**
-                 * If remove and include in combined file.
-                 */
-                // Skip admin inline style
-                // if ( strpos( $item->textContent, 'margin-top: 32px !important;' ) ) continue;
-
-                // Add to processing if need to generate file
-                // if ( $create_file ) $to_write .= $inner_text;
-
-                // Remove them
-                // $item->parentNode->removeChild( $item );
-                // $item->outertext = '';
-
-            }
-
-            if ( $generate_head_styles == 'yes' ) {
-
-                // $html->find( 'head', 0)->innertext .= '<style type="text/css" media="all">' . $to_write .  '</style>';
-
-                $head = $html->getElementsByTagName('head')->item(0);
-                $style = $html->createElement('style');
-                $style->setAttribute( 'type', 'text/css' );
-                $style->setAttribute( 'media', 'all' );
-                $style->textContent = $to_write;
-                $head->appendChild( $style );
-
-            } else {
-                /**
-                 * ToDos:
-                 * - file.css?ver=34535234
-                 * - file-hash.css
-                 * - put in cache dir?
-                 * - add .htaccess to cache folder for gzip?
-                 */
-                /**
-                 * Minify combined css
-                 * Write it out
-                 */
-                if ( $create_file ) {
-
-                    // file_put_contents( $combined_styles_mifinited_filename, gzencode( $to_write, 9, FORCE_GZIP ) );
-                    file_put_contents( $combined_styles_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $to_write ) );
-
-                }
-
-                $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename );
-
-                $head = $html->getElementsByTagName('head')->item(0);
-
-                $link = $html->createElement('link');
-                $link->setAttribute( 'href', $style_url );
-                // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
-                $link->setAttribute( 'rel', 'stylesheet' );
-                $link->setAttribute( 'type', 'text/css' );
-                $link->setAttribute( 'media', 'all' );
-
-                if ( $enqueue_head_styles === 'yes' ) {
-
-                    $head->appendChild( $link );
-
-                } else {
-
-                    $preload = $html->createElement('link');
-                    $preload->setAttribute( 'rel', 'preload' );
-                    // $preload->setAttribute( 'crossorigin', 'anonymous' );
-                    $preload->setAttribute( 'href', $style_url );
-                    $preload->setAttribute( 'as', 'style' );
-                    if ( ! is_null( $head ) ) $head->appendChild( $preload );
-
-                    $body = $html->getElementsByTagName('body')->item(0);
-                    if ( ! is_null( $body ) ) $body->appendChild( $link );
-
-                }
-
-
-
-            }
-
-            $content = $html->saveHTML();
-
-            do_action( 'exopite-combiner-minifier-styles-after-process' );
-
-            if ( $this->debug ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+            // // Remove them
+            // $item->parentNode->removeChild( $item );
+            // $item->outertext = '';
 
         }
+
+        if ( $generate_head_styles == 'yes' ) {
+
+            $head = $html->getElementsByTagName('head')->item(0);
+            $style = $html->createElement('style');
+            $style->setAttribute( 'type', 'text/css' );
+            $style->setAttribute( 'media', 'all' );
+            $style->textContent = $to_write;
+            $head->appendChild( $style );
+
+        } else {
+
+            /**
+             * Minify combined css
+             * Write it out
+             */
+            if ( $create_file ) {
+
+                // file_put_contents( $combined_styles_mifinited_filename, gzencode( $to_write, 9, FORCE_GZIP ) );
+                file_put_contents( $combined_styles_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $to_write ) );
+
+            }
+
+            $style_url = $combined_styles_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename );
+
+            $head = $html->getElementsByTagName('head')->item(0);
+
+            $link = $html->createElement('link');
+            $link->setAttribute( 'href', $style_url );
+            // $link->setAttribute( 'href', $combined_styles_mifinited_file_url . '?ver=' . hash('md5', $this->main->util->get_file_last_modified_time( $combined_styles_mifinited_filename ) ) );
+            $link->setAttribute( 'rel', 'stylesheet' );
+            $link->setAttribute( 'type', 'text/css' );
+            $link->setAttribute( 'media', 'all' );
+
+            if ( $enqueue_head_styles === 'yes' ) {
+
+                $head->appendChild( $link );
+
+            } else {
+
+                $preload = $html->createElement('link');
+                $preload->setAttribute( 'rel', 'preload' );
+                // $preload->setAttribute( 'crossorigin', 'anonymous' );
+                $preload->setAttribute( 'href', $style_url );
+                $preload->setAttribute( 'as', 'style' );
+                if ( ! is_null( $head ) ) $head->appendChild( $preload );
+
+                $body = $html->getElementsByTagName('body')->item(0);
+                if ( ! is_null( $body ) ) $body->appendChild( $link );
+
+            }
+
+        }
+
+        $content = $html->saveHTML();
+
+        do_action( 'exopite-combiner-minifier-styles-after-process' );
 
         return $content;
 
     }
 
-    public function remove_script_templates( $content ) {
-
-        /**
-         * get script with type text/template and text/x-template with regex
-         * save tags content in an array
-         * remove tags content
-         *
-         * https://stackoverflow.com/questions/43495620/php-how-to-match-all-script-tags-except-with-specific-type
-         */
-
-        return preg_replace_callback(
-            $this->regex_js_template,
-            function ( $matches ) use ( &$index ) {
-
-                if ( $this->strpos_array( $matches[1], $this->searched_script_types ) ) {
-
-                    if ( isset( $matches[2] ) ) {
-                        $this->js_templates[] = $matches[2];
-                    }
-                    $script_item = '<script' . $matches[1] . '>TEMPLATE</script>';
-                    return $script_item;
-
-                } else {
-                    return $matches[0];
-                }
-
-            },
-            $content
-        );
-
-    }
-
-    public function add_script_templates_back( $content ) {
-
-        $index = 0;
-
-        return preg_replace_callback(
-            $this->regex_js_template,
-            function ( $matches ) use ( &$index ) {
-
-                if ( $this->strpos_array( $matches[1], $this->searched_script_types ) ) {
-
-                    $retval = '<script' . $matches[1] . '>' . $this->js_templates[$index] . '</script>';
-                    $index++;
-                    return $retval;
-
-                } else {
-                    return $matches[0];
-                }
-
-            },
-            $content
-        );
-
-    }
-
-    public function strpos_array( $haystack, $needle ) {
-        if ( ! is_array( $needle ) ) {
-            $needle = array( $needle );
-        }
-
-        foreach ( $needle as $what ) {
-            if ( ( $pos = strpos( $haystack, $what ) ) !== false ) {
-                return $pos;
-            }
-
-        }
-        return false;
-    }
-
-
     public function process_scripts_styles( $content ) {
 
-        if ( $this->showinfo ) $remove_script_templates = 'NaN ';
-        if ( $this->showinfo ) $remove_script_templates_back = 'NaN ';
         if ( $this->showinfo ) $time_scripts = 'NaN ';
         if ( $this->showinfo ) $time_styles = 'NaN ';
         if ( $this->showinfo ) $time_html = 'NaN ';
 
-        /**
-         * DomDocument sometimes remove some elements from <script type="text/template">
-         * Remove all template content and add back after processing JSs and CSSs.
-         */
-        if ( $this->showinfo ) $start_time = microtime(true);
-
-        $content = $this->remove_script_templates( $content );
-
-        if ( $this->showinfo ) $remove_script_templates = number_format( ( microtime(true) - $start_time ), 4 );
-
+        $method = ( isset( $this->options['method'] ) ) ? $this->options['method'] : 'method-2';
         $process_scripts = ( isset( $this->options['process_scripts'] ) ) ? $this->options['process_scripts'] : 'no';
         $process_styles = ( isset( $this->options['process_styles'] ) ) ? $this->options['process_styles'] : 'no';
         $combine_only_scripts = ( isset( $this->options['combine_only_scripts'] ) ) ? $this->options['combine_only_scripts'] : 'no';
         $combine_only_styles = ( isset( $this->options['combine_only_styles'] ) ) ? $this->options['combine_only_styles'] : 'no';
         $process_html = ( isset( $this->options['process_html'] ) ) ? $this->options['process_html'] : 'no';
 
+        // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/test.log', date( 'Y-m-d H:i:s' ) . ' options' . PHP_EOL . var_export( $this->options, true ) . PHP_EOL, FILE_APPEND | LOCK_EX);
+
         if ( $process_scripts == 'yes' || $process_styles == 'yes' ) {
 
-            /**
-             * Swich to DomDocument for performance gain.
-             *
-             * Other parsers:
-             * @link https://stackoverflow.com/questions/3577641/how-do-you-parse-and-process-html-xml-in-php/3577662#3577662
-             */
-            $html = new DOMDocument();
+            switch ( $method ) {
+                case 'method-2':
 
-            /**
-             * Convert all the non-ascii characters to html entities before loading the html.
-             *
-             * @link https://stackoverflow.com/questions/2236889/why-does-dom-change-encoding/2238149#2238149
-             */
-            if ( mb_detect_encoding( $content, 'UTF-8' ) !== 'UTF-8' ) {
-                $content = mb_convert_encoding( $content, 'HTML-ENTITIES', "UTF-8" );
+                    $content = $this->main->helper->remove_script_templates( $content );
+
+                    /**
+                     * Swich to DomDocument for performance gain.
+                     *
+                     * Other parsers:
+                     * @link https://stackoverflow.com/questions/3577641/how-do-you-parse-and-process-html-xml-in-php/3577662#3577662
+                     */
+                    $html = new DOMDocument();
+
+                    /**
+                     * Convert all the non-ascii characters to html entities before loading the html.
+                     *
+                     * @link https://stackoverflow.com/questions/2236889/why-does-dom-change-encoding/2238149#2238149
+                     */
+                    if ( mb_detect_encoding( $content, 'UTF-8' ) !== 'UTF-8' ) {
+                        $content = mb_convert_encoding( $content, 'HTML-ENTITIES', "UTF-8" );
+                    }
+
+                    @$html->loadHTML( $content );
+                    // $html->formatOutput = true;
+                    // $html->preserveWhiteSpace = false;
+
+                    // This not allow remove element.
+                    // $items = $html->getElementsByTagName( 'script' );
+                    $xpath = new DOMXpath( $html );
+
+                    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                    *                          Styles                         *
+                    \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+                    if ( $this->showinfo ) $start_time = microtime(true);
+
+                    /**
+                     * Filter to disable process styles. Eg.: on certain pages.
+                     */
+                    if ( apply_filters( 'exopite-combiner-minifier-process-styles', $process_styles ) == 'yes' ) {
+                        $content = $this->process_styles( $content, $html, $xpath );
+                    }
+
+                    if ( $this->showinfo ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+
+                    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                    *                          Scripts                        *
+                    \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+                    if ( $this->showinfo ) $start_time = microtime(true);
+
+                    if ( apply_filters( 'exopite-combiner-minifier-process-scripts', $process_scripts ) == 'yes' ) {
+
+                        do_action( 'exopite-combiner-minifier-scripts-before-process' );
+
+                        $content = $this->process_scripts( $content, $html, $xpath );
+
+                        do_action( 'exopite-combiner-minifier-scripts-after-process' );
+                    }
+
+                    if ( $this->showinfo ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
+
+                    unset($html);
+
+                    $content = $this->main->helper->add_script_templates_back( $content );
+
+                    break;
+
+                case 'method-3':
+
+                    $html = new simple_html_dom();
+
+                    // Load HTML from a string/variable
+                    $html->load( $content, $lowercase = true, $stripRN = false, $defaultBRText = DEFAULT_BR_TEXT );
+
+                    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                     *                          Scripts                        *
+                    \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+                    if ( $this->showinfo ) $start_time = microtime(true);
+
+                    /**
+                     * Filter to disable process styles. Eg.: on certain pages.
+                     */
+                    if ( apply_filters( 'exopite-combiner-minifier-process-styles', $process_styles ) == 'yes' ) {
+                        $content = $this->process_styles_simpledom( $content, $html );
+                    }
+
+                    if ( $this->showinfo ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
+
+                    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+                    *                          Scripts                        *
+                    \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+                    if ( $this->showinfo ) $start_time = microtime(true);
+
+                    if ( apply_filters( 'exopite-combiner-minifier-process-scripts', $process_scripts ) == 'yes' ) {
+
+                        do_action( 'exopite-combiner-minifier-scripts-before-process' );
+
+                        $content = $this->process_scripts_simpledom( $content, $html );
+
+                        do_action( 'exopite-combiner-minifier-scripts-after-process' );
+
+                    }
+
+                    if ( $this->showinfo ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
+
+                    $html->clear();
+                    unset($html);
+
+                    break;
+
             }
 
-            @$html->loadHTML( $content );
-            // $html->formatOutput = true;
-            // $html->preserveWhiteSpace = false;
-
-            // This not allow remove element.
-            // $items = $html->getElementsByTagName( 'script' );
-            $xpath = new DOMXpath( $html );
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
-             *                          Styles                         *
-            \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            if ( $this->showinfo ) $start_time = microtime(true);
-
-            /**
-             * Filter to disable process styles. Eg.: on certain pages.
-             */
-            if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
-                $content = $this->process_styles( $content, $html, $xpath );
-            }
-
-            if ( $this->showinfo ) $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
-
-            /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
-             *                          Scripts                        *
-            \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-            if ( $this->showinfo ) $start_time = microtime(true);
-
-            if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
-                $content = $this->process_scripts( $content, $html, $xpath );
-            }
-
-            if ( $this->showinfo ) $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
@@ -1498,9 +1456,6 @@ class Exopite_Combiner_Minifier_Public {
 
             if ( $this->showinfo ) $startTime = microtime(true);
 
-            // Preparing options for Minify_HTML.
-            // $options = array();
-            // $content = Minify_HTML::minify( $content, $options );
             $content = $this->main->compressor->html( $content, array() );
 
             if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
@@ -1523,38 +1478,9 @@ class Exopite_Combiner_Minifier_Public {
                 $this->debug_infos .= '<!-- Exopite Combiner Minifier - Minify inline HTML: '. $time_html . 's. -->' . PHP_EOL;
             }
 
-            // $content .= $times;
-        }
-
-        if ( ! empty( $this->js_templates ) ) {
-
-            if ( $this->showinfo ) $start_time = microtime(true);
-
-            $content = $this->add_script_templates_back( $content );
-
-            if ( $this->showinfo ) $remove_script_templates_back = number_format( ( microtime(true) - $start_time ), 4 );
-
-        }
-
-        if( $this->showinfo ) {
-
-            $this->debug_infos .= '<!-- Exopite Combiner Minifier - Templates amount: ' . count( $this->js_templates ) . ' -->' . PHP_EOL;
-
-            if ( ! empty( $this->js_templates ) ) {
-                $this->debug_infos .= '<!-- Exopite Combiner Minifier - Remove script templates: '. $remove_script_templates . 's. -->' . PHP_EOL;
-                $this->debug_infos .= '<!-- Exopite Combiner Minifier - Put script templates back '. $remove_script_templates_back . 's. -->' . PHP_EOL;
-            }
-
         }
 
         return $content;
-
-    }
-
-    //https://stackoverflow.com/questions/5266945/wordpress-how-detect-if-current-page-is-the-login-page/5892694#5892694
-    public function is_login_page() {
-
-        return in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) );
 
     }
 
@@ -1566,21 +1492,27 @@ class Exopite_Combiner_Minifier_Public {
             return $content;
         }
 
+        /**
+         * Alternative, we could check login page, robots, xml file request (e.g.: sitemap)
+         */
+        // if ( is_admin() || $this->main->util->is_login_page() || is_robots() ) return $content;
+        // if( ( isset( $_SERVER["REQUEST_URI"] ) && substr( $_SERVER["REQUEST_URI"], -4 ) === '.xml' ) ) return $content;
+
+        /**
+        * Because we my plugins can use the same output buffering hook, need to chekck this function already ran.
+        */
         $already_rant = apply_filters( 'exopite_combiner_minifier_rant', false );
         if ( $already_rant == true ) {
             if ( $this->showinfo ) $content .= PHP_EOL . '<!-- Exopite Combiner Minifier - already rant! -->';
             return $content;
         }
 
-        if ( $this->showinfo ) $this->debug_infos = '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
-        if ( $this->showinfo ) $this->debug_infos .= '<!-- Exopite Combiner Minifier - Selected methode: 2 - Time: ' . date( 'Y-m-d H:i:s').substr( fmod( microtime( true ), 1), 1 ) . ' -->' . PHP_EOL;
-
-        // if ( is_admin() || $this->is_login_page() || is_robots() ) return $content;
-        // if( ( isset( $_SERVER["REQUEST_URI"] ) && substr( $_SERVER["REQUEST_URI"], -4 ) === '.xml' ) ) return $content;
-
         $this->options = get_option( $this->plugin_name );
         $this->options_lists = get_option( $this->plugin_name . '_lists' );
         $this->site_url = get_site_url();
+
+        if ( $this->showinfo ) $this->debug_infos = '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
+        if ( $this->showinfo ) $this->debug_infos .= '<!-- Exopite Combiner Minifier - Selected methode: ' . $this->options['method'] . ' - Time: ' . date( 'Y-m-d H:i:s').substr( fmod( microtime( true ), 1), 1 ) . ' -->' . PHP_EOL;
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts-styles', true ) ) {
 
@@ -1635,9 +1567,9 @@ class Exopite_Combiner_Minifier_Public {
 /**
  * Filters:
  *
- * exopite-combiner-minifier-process-styles                         true
- * exopite-combiner-minifier-process-scripts                        true
- * exopite-combiner-minifier-process-inline-scripts
+ * exopite-combiner-minifier-process-styles                         yes or no
+ * exopite-combiner-minifier-process-scripts                        yes or no
+ * exopite-combiner-minifier-process-inline-scripts                 yes or no
  * exopite-combiner-minifier-skip-wp_scripts                        array( 'jquery' )
  * exopite-combiner-minifier-skip-wp_styles                         array()
  * exopite-combiner-minifier-wp_scripts-process-wp_includes         false
