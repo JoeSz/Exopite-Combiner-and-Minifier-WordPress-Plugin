@@ -3,11 +3,11 @@ Contributors: (this should be a list of wordpress.org userid's)
 Donate link: https://joe.szalai.org
 Tags: comments, spam
 Requires at least: 4.8
-Tested up to: 5.5.3
+Tested up to: 5.6
 Stable tag: 4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 20201125
+Version: 20201215
 
 Combine and minify enqueued CSS and JavaScript files.
 
@@ -116,6 +116,10 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20201215 = - 2020-12-15
+* Added: PHP Simple HTML DOM Parser as method-3
+* reorganize code
 
 = 20201125 = - 2020-11-25
 * Add filter to check, if content already processed.

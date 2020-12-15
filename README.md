@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8 <br />
-Tested up to: 5.5.2 <br />
+Tested up to: 5.6 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20201125
+Version: 20201215
 
 ## Suggestions and feedback are welcome
 
@@ -112,6 +112,10 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20201215 = - 2020-12-15
+* Added: PHP Simple HTML DOM Parser as method-3
+* reorganize code
 
 = 20201125 = - 2020-11-25
 * Add filter to check, if content already processed.
