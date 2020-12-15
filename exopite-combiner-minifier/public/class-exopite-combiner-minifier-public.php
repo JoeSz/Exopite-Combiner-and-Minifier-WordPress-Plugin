@@ -1499,7 +1499,7 @@ class Exopite_Combiner_Minifier_Public {
         // if( ( isset( $_SERVER["REQUEST_URI"] ) && substr( $_SERVER["REQUEST_URI"], -4 ) === '.xml' ) ) return $content;
 
         /**
-        * Because we my plugins can use the same output buffering hook, need to chekck this function already ran.
+        * Because my plugins can use the same output buffering hook, we need to chekck this function already ran.
         */
         $already_rant = apply_filters( 'exopite_combiner_minifier_rant', false );
         if ( $already_rant == true ) {
