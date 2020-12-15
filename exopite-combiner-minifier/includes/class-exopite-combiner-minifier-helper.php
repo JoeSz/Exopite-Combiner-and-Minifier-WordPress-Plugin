@@ -451,10 +451,10 @@ class Exopite_Combiner_Minifier_Helper {
 
     }
 
-	public function get_id() {
+	public function get_id( $type ) {
 
         $id = '';
-        if ( $this->is_single_file_to_save( 'scripts' ) === false ) {
+        if ( $this->is_single_file_to_save( $type ) === false ) {
                 $id = $this->get_type_name();
 
                 if ( empty( $id ) ) {

@@ -477,7 +477,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts_simpledom( $content, $html ) {
 
-        $id = $this->main->helper->get_id();
+        $id = $this->main->helper->get_id( 'scripts' );
         if ( ! $id ) return $content;
 
         // DUPLICATE CODE!
@@ -685,7 +685,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts( $content, $html, $xpath ) {
 
-        $id = $this->main->helper->get_id();
+        $id = $this->main->helper->get_id( 'scripts' );
         if ( ! $id ) return $content;
 
         $to_write = '';
@@ -886,7 +886,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles_simpledom( $content, $html ) {
 
-        $id = $this->main->helper->get_id();
+        $id = $this->main->helper->get_id( 'styles' );
         if ( ! $id ) return $content;
 
         // DUPLICATE CODE!
@@ -1073,7 +1073,7 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles( $content, $html, $xpath ) {
 
-        $id = $this->main->helper->get_id();
+        $id = $this->main->helper->get_id( 'styles' );
         if ( ! $id ) return $content;
 
         $to_write = '';
