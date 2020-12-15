@@ -84,6 +84,8 @@ class Exopite_Combiner_Minifier {
 
 	public $util;
 
+	public $helper;
+
 	public $compressor;
 
 	/**
@@ -155,6 +157,8 @@ class Exopite_Combiner_Minifier {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-exopite-combiner-minifier-public.php';
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-exopite-combiner-minifier-utilities.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-exopite-combiner-minifier-helper.php';
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-exopite-combiner-minifier-compressor.php';
 
@@ -243,6 +247,7 @@ class Exopite_Combiner_Minifier {
 	private function define_public_hooks() {
 
 		$this->util = new Exopite_Combiner_Minifier_Utilities( $this->get_plugin_name() );
+		$this->helper = new Exopite_Combiner_Minifier_Helper( $this->get_plugin_name(), $this->main );
 		$this->compressor = new Exopite_Combiner_Minifier_Compressor( $this->get_plugin_name(), $this->main );
 		$this->public = new Exopite_Combiner_Minifier_Public( $this->get_plugin_name(), $this->get_version(), $this->main );
 
@@ -264,7 +269,8 @@ class Exopite_Combiner_Minifier {
 
                     break;
 
-                case 'method-2':
+				case 'method-2':
+				case 'method-3':
 
                     /**
                      * Start buffering when wp_loaded hook called
@@ -275,23 +281,25 @@ class Exopite_Combiner_Minifier {
                      * LazyLoad in unnecessarily.
                      *
                      */
-                    if ( ! ( ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
-                             ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
-                             ( defined( 'DOING_AJAX' ) && DOING_AJAX )
-                        ) ) {
+                    if ( ! $this->util->is_api_request() ) {
 
 						if ( apply_filters( 'exopite_ob_status', 'off' ) != 'on' ) {
 
-							$this->loader->add_filter( 'wp_loaded', $this->public, 'buffer_start', 12 );
-							$this->loader->add_filter( 'shutdown', $this->public, 'buffer_end', 12 );
+							$this->loader->add_filter( 'wp_loaded', $this, 'buffer_start', 12 );
+							$this->loader->add_filter( 'shutdown', $this, 'buffer_end', 12 );
 
+						}
+
+						if ( $method == 'method-3' ) {
+							require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/simplehtmldom/simple_html_dom.php';
 						}
 
 						$this->loader->add_filter( 'exopite_ob_content', $this->public, 'process_html', 12 );
 
                     }
 
-                    break;
+					break;
+
 
             }
 
@@ -302,6 +310,27 @@ class Exopite_Combiner_Minifier {
         $this->loader->add_action('wp_ajax_exopite_cam_delete_cache', $this->public, 'delete_cache');
 
 	}
+
+    public function buffer_start() {
+
+        // Start output buffering with a callback function
+        add_filter( 'exopite_ob_status', 'on' );
+        ob_start( array( $this, 'process_buffer' ) );
+
+    }
+
+    public function process_buffer( $content ) {
+
+        return apply_filters( 'exopite_ob_content', $content );
+
+    }
+
+    public function buffer_end() {
+
+        // Display buffer
+        if ( ob_get_length() ) ob_end_flush();
+
+    }
 
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.
