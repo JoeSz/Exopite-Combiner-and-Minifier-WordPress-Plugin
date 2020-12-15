@@ -176,6 +176,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'options' => array(
                         'method-1'   => 'Method 1',
                         'method-2'   => 'Method 2',
+                        'method-3'   => 'Method 3',
                     ),
                     'default' => 'method-2',
                 ),
@@ -215,6 +216,15 @@ class Exopite_Combiner_Minifier_Admin {
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
+                array(
+                    'type'    => 'card',
+                    'content' => '<p>' .
+                        esc_html__( 'This method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple DOM Parser and Output Buffering.', 'exopite-combiner-minifier' ) .'</p><p><b>' .
+                        '</p>',
+                    'header'  => esc_html__( 'Method 3', 'exopite-combiner-minifier' ),
+                    'dependency' => array( 'method_method-3', '==', 'true' ),
+                ),
+
             ),
         );
 
@@ -235,9 +245,9 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'ignore_process_styles',
                     'type'    => 'textarea',
                     'title'   => esc_html__( 'Ignore styles', 'exopite-combiner-minifier' ),
-                    'default' => 'dashicons.css' . PHP_EOL . 'admin-bar.css' . PHP_EOL . 'admin-menu.min.css',
+                    'default' => 'dashicons.css' . PHP_EOL . 'admin-bar.css' . PHP_EOL . 'admin-menu.min.css' . PHP_EOL . 'dashicons.min.css' . PHP_EOL . 'admin-bar.min.css',
                     'after'   => esc_html__( 'Only style name with extension. One per line.', 'exopite-combiner-minifier' ),
-                    // 'dependency' => array( 'method_method-2', '==', 'true' ),
+                    // 'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
                 array(
@@ -259,7 +269,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'       => 'switcher',
                     'title'      => esc_html__( 'Inject styles as inline to head', 'exopite-combiner-minifier' ),
                     'default'    => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
                 array(
@@ -267,7 +277,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
             ),
@@ -292,7 +302,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
                     'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
                     'after'   => esc_html__( 'Only script name with extension. One per line.', 'exopite-combiner-minifier' ),
-                    // 'dependency' => array( 'method_method-2', '==', 'true' ),
+                    // 'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
                 array(
@@ -300,7 +310,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'       => 'switcher',
                     'title'      => esc_html__( 'Process inline scripts', 'exopite-combiner-minifier' ),
                     'default'    => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
                 array(
@@ -323,7 +333,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
             ),
@@ -333,7 +343,7 @@ class Exopite_Combiner_Minifier_Admin {
             'title'  => esc_html__( 'HTML', 'exopite-combiner-minifier' ),
             'icon'   => 'fa fa-html5',
             'name'   => 'html',
-            'dependency' => array( 'method_method-2', '==', 'true' ),
+            'dependency' => array( 'method_method-1', '==', 'false' ),
             'fields' => array(
 
                 array(
@@ -341,7 +351,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Minify HTML output', 'exopite-combiner-minifier' ),
                     'default' => 'no',
-                    'dependency' => array( 'method_method-2', '==', 'true' ),
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
             ),
