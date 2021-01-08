@@ -268,6 +268,24 @@ class Exopite_Combiner_Minifier_Utilities {
 
     }
 
+    /**
+     * This is complex to achieve, for reasons that would be very lengthy to explain.
+     * Long story short, WooCommerce does it like this, and it's a good solution:
+     *
+     * @link https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist/356946#356946
+     */
+    public function is_rest_api_request() {
+        if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+            // Probably a CLI request
+            return false;
+        }
+
+        $rest_prefix         = trailingslashit( rest_get_url_prefix() );
+        $is_rest_api_request = strpos( $_SERVER['REQUEST_URI'], $rest_prefix ) !== false;
+
+        return $is_rest_api_request;
+    }
+
 	/**
      * Checks if the current request is a WP REST API request.
      *
@@ -292,6 +310,11 @@ class Exopite_Combiner_Minifier_Utilities {
         // (#3)
         $rest_url = wp_parse_url( site_url( $prefix ) );
         $current_url = wp_parse_url( add_query_arg( array( ) ) );
+
+        if ( ! isset( $current_url['path'] ) ) {
+            return false;
+        }
+
         return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
     }
 
