@@ -30,9 +30,18 @@ class Exopite_Combiner_Minifier_Utilities {
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
-    private $plugin_name;
+	private $plugin_name;
 
-    /**
+    // from autoptimize
+    public $dont_move = array(
+        'document.write','html5.js','show_ads.js','google_ad','histats.com/js','statcounter.com/counter/counter.js',
+        'ws.amazon.com/widgets','media.fastclick.net','/ads/','comment-form-quicktags/quicktags.php','edToolbar',
+        'intensedebate.com','scripts.chitika.net/','_gaq.push','jotform.com/','admin-bar.min.js','GoogleAnalyticsObject',
+        'plupload.full.min.js','syntaxhighlighter','adsbygoogle','gist.github.com','_stq','nonce','post_id','data-noptimize'
+        ,'logHuman','dontmove'
+    );
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -164,6 +173,77 @@ class Exopite_Combiner_Minifier_Utilities {
 
     }
 
+
+    /**
+     * Check if file need to process.
+     */
+    public function to_skip( $src, $path, $type, $media = '' ) {
+
+        if ( ( $this->starts_with( $src, '//' ) && ! $this->starts_with( $src, strstr( $this->site_url, '//' ) ) ) && ! $this->starts_with( $src, $this->site_url ) ) return true;
+
+        /**
+         * Ignore some scripts, which should not be moved.
+         *
+         * str_replace is considerably faster compare to strpos with an array.
+         * @link https://stackoverflow.com/questions/6284553/using-an-array-as-needles-in-strpos/42311760#42311760
+         */
+        if ( str_replace( $this->dont_move, '', $src ) != $src ) return true;
+
+        $to_skip = array();
+
+        switch ( $type ) {
+
+            case 'wp_scripts':
+                // no break
+            case 'scripts':
+                // $to_skip = array(
+                //     'jquery.js',
+                //     'jquery-migrate.min.js',
+                //     'admin-bar.min.js',
+                // );
+
+                $plugin_options = get_option( $this->plugin_name );
+                if ( isset( $plugin_options['ignore_process_scripts'] ) ) {
+                    $to_skip_user = preg_split( '/\r\n|[\r\n]/', $plugin_options['ignore_process_scripts'] );
+                    $to_skip_user = array_map( 'esc_attr', $to_skip_user );
+                }
+
+                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
+
+                break;
+
+            case 'wp_styles':
+                // no break
+            case 'styles':
+                $allowed_media = array( 'all', 'screen', '' );
+                if ( ! in_array( $media, $allowed_media ) ) return true;
+
+                $plugin_options = get_option( $this->plugin_name );
+                if ( isset( $plugin_options['ignore_process_styles'] ) ) {
+                    $to_skip_user = preg_split( '/\r\n|[\r\n]/', $plugin_options['ignore_process_styles'] );
+                    $to_skip_user = array_map( 'esc_attr', $to_skip_user );
+                }
+
+                $to_skip = array_filter( array_merge( $to_skip, $to_skip_user ) );
+
+                break;
+
+        }
+
+        $pathinfo = pathinfo( $path );
+
+        $to_skip = apply_filters( 'exopite-combiner-minifier-skip-wp_' . $type, $to_skip );
+
+        $ret = false;
+        if ( is_array( $to_skip ) && in_array( $pathinfo['basename'], $to_skip ) || $to_skip == $pathinfo['basename'] ) {
+            $ret = true;
+
+        }
+
+        return apply_filters( 'exopite-combiner-minifier-to-skip', $ret, $to_skip, $src, $path, $type, $media );
+
+    }
+
     public function normalize_css(  $data, $src ) {
 
         $data = $this->fix_style_urls( $data, $src );
@@ -176,13 +256,7 @@ class Exopite_Combiner_Minifier_Utilities {
     /**
      * Relative urls to absoulte.
      */
-    /**
-     * Replace all relative url() to absoulte
-     * Need to do this, because our combined css has a different path.
-     * Ignore already absoulte urls, start with "http" and "//",
-     * also ignore "data".
-     */
-     public function fix_style_urls( $data, $src ) {
+    public function fix_style_urls( $data, $src ) {
 
         return preg_replace_callback(
             '/url\(\s*[\'"]?(\/?.+?)[\'"]?\s*\)/i',
@@ -191,7 +265,7 @@ class Exopite_Combiner_Minifier_Utilities {
                         ! $this->starts_with( $matches[1], '//' ) &&
                         ! $this->starts_with( $matches[1], 'data' )
                     ) {
-                    return 'url("' . $this->rel2abs( $matches[1], $src ) . '")';
+                    return 'url(' . $this->rel2abs( $matches[1], $src ) . ')';
                 }
                 return $matches[0];
             },
@@ -268,24 +342,6 @@ class Exopite_Combiner_Minifier_Utilities {
 
     }
 
-    /**
-     * This is complex to achieve, for reasons that would be very lengthy to explain.
-     * Long story short, WooCommerce does it like this, and it's a good solution:
-     *
-     * @link https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist/356946#356946
-     */
-    public function is_rest_api_request() {
-        if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-            // Probably a CLI request
-            return false;
-        }
-
-        $rest_prefix         = trailingslashit( rest_get_url_prefix() );
-        $is_rest_api_request = strpos( $_SERVER['REQUEST_URI'], $rest_prefix ) !== false;
-
-        return $is_rest_api_request;
-    }
-
 	/**
      * Checks if the current request is a WP REST API request.
      *
@@ -311,42 +367,10 @@ class Exopite_Combiner_Minifier_Utilities {
         $rest_url = wp_parse_url( site_url( $prefix ) );
         $current_url = wp_parse_url( add_query_arg( array( ) ) );
 
-        if ( ! isset( $current_url['path'] ) ) {
-            return false;
-        }
+        // added to avoid PHP Notice:  Undefined index: path
+		if ( ! isset( $current_url['path'] ) || ! isset( $rest_url['path'] ) ) return false;
 
         return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
-    }
-
-    public function is_api_request() {
-
-        return (
-            ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
-            ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
-            ( defined( 'DOING_AJAX' ) && DOING_AJAX )
-        );
-
-    }
-
-    public function strpos_array( $haystack, $needle ) {
-        if ( ! is_array( $needle ) ) {
-            $needle = array( $needle );
-        }
-
-        foreach ( $needle as $what ) {
-            if ( ( $pos = strpos( $haystack, $what ) ) !== false ) {
-                return $pos;
-            }
-
-        }
-        return false;
-    }
-
-    //https://stackoverflow.com/questions/5266945/wordpress-how-detect-if-current-page-is-the-login-page/5892694#5892694
-    public function is_login_page() {
-
-        return in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) );
-
     }
 
 }
