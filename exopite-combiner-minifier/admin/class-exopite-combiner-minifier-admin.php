@@ -278,6 +278,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'no',
                     'dependency' => array( 'method_method-1', '==', 'false' ),
+                    'after' => '<i style="font-size:0.9em;font-weight:normal;">Note: If you disable this, make sure, that your theme and plugin do not enqueue different CSS files on different pages. If so, the plugin always generates a new combined file.</i>',
                 ),
 
             ),
@@ -318,7 +319,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
-                    'after'   => esc_html__( 'To avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
+                    'after'   => esc_html__( 'To try to avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
                 ),
 
                 array(
@@ -334,6 +335,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
                     'dependency' => array( 'method_method-1', '==', 'false' ),
+                    'after' => '<i style="font-size:0.9em;font-weight:normal;">Note: If you disable this, make sure, that your theme and plugin do not enqueue different JavaScript files on different pages. If so, the plugin always generates a new combined file.</i>',
                 ),
 
             ),
