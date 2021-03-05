@@ -174,9 +174,9 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'button_bar',
                     'title'   => esc_html__( 'Method', 'exopite-combiner-minifier' ),
                     'options' => array(
-                        'method-1'   => 'Method 1',
-                        'method-2'   => 'Method 2',
-                        'method-3'   => 'Method 3',
+                        'method-1'   => 'WordPress Scripts/Styles Queue',
+                        'method-2'   => 'PHP DOMDocument',
+                        'method-3'   => 'PHP Simple HTML DOM Parser',
                     ),
                     'default' => 'method-2',
                 ),
@@ -195,7 +195,7 @@ class Exopite_Combiner_Minifier_Admin {
                         '<li>' . esc_html__( 'can generate only one file per type (Css/JS)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
-                    'header'  => esc_html__( 'Method 1', 'exopite-combiner-minifier' ),
+                    'header'  => esc_html__( 'WordPress Scripts/Styles Queue', 'exopite-combiner-minifier' ),
                     'dependency' => array( 'method_method-1', '==', 'true' ),
                 ),
 
@@ -212,7 +212,7 @@ class Exopite_Combiner_Minifier_Admin {
                         '<li>' . esc_html__( 'checking is slower (~0.1s)', 'exopite-combiner-minifier' ) . '</li>' .
                         '</ul>' .
                         '</p>',
-                    'header'  => esc_html__( 'Method 2', 'exopite-combiner-minifier' ),
+                    'header'  => esc_html__( 'PHP DOMDocument', 'exopite-combiner-minifier' ),
                     'dependency' => array( 'method_method-2', '==', 'true' ),
                 ),
 
@@ -221,7 +221,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'content' => '<p>' .
                         esc_html__( 'This method process the HTML source after WordPress render them and before sent to browser. It will create a separate Css/JS file for each page, make sure, all "in the footer" enqueued scripts are correctly processed. This method uses PHP Simple DOM Parser and Output Buffering.', 'exopite-combiner-minifier' ) .'</p><p><b>' .
                         '</p>',
-                    'header'  => esc_html__( 'Method 3', 'exopite-combiner-minifier' ),
+                    'header'  => esc_html__( 'PHP Simple HTML DOM Parser', 'exopite-combiner-minifier' ),
                     'dependency' => array( 'method_method-3', '==', 'true' ),
                 ),
 
@@ -301,7 +301,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'textarea',
                     'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
                     'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
-                    'after'   => esc_html__( 'Only script name with extension. One per line.', 'exopite-combiner-minifier' ),
+                    'after'   => esc_html__( 'Only script name with extension. One per line.', 'exopite-combiner-minifier' ) . '<br>' . esc_html__( 'If not working check dependencies!', 'exopite-combiner-minifier' ),
                     // 'dependency' => array( 'method_method-1', '==', 'false' ),
                 ),
 
