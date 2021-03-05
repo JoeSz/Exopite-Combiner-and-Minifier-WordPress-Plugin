@@ -318,6 +318,29 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    public function check_list_change( $plugin_options, $type, $src_list ) {
+
+        // Get saved list from plugin options
+        // $plugin_options = get_option( $this->plugin_name );
+        $list_saved = $plugin_options['list-saved-' . $type];
+
+        $list_changed = ( $list_saved != $src_list );
+
+        return $list_changed;
+    }
+
+    /**
+     * ToDos:
+     * - only save if
+     *   - not exists in options (then save current)
+     *   - it is the start page
+     */
+    public function update_list( $plugin_options, $type, $src_list ) {
+        // if list has been changed, update plugin options
+        $plugin_options['list-saved-' . $type] = $src_list;
+        update_option( $this->plugin_name, $plugin_options );
+    }
+
     /**
      * @param  [string] $type scripts, styles
      */
@@ -353,17 +376,23 @@ class Exopite_Combiner_Minifier_Public {
 
         // Get saved list from plugin options
         $plugin_options = get_option( $this->plugin_name );
-        $list_saved = $plugin_options['list-saved-' . $type];
 
-        $list_changed = ( $list_saved != $src_list );
+        /**
+         * ToDos:
+         * - save list only if not exists (then current) or changed and it is the start page
+         * - need to ignore the differenc of saved and current list items
+         */
 
-        if ( $list_changed ) {
+        $list_changed = $this->check_list_change( $plugin_options, $type, $src_list );
+        // $list_saved = $plugin_options['list-saved-' . $type];
+        // $list_changed = ( $list_saved != $src_list );
 
-            // if list has been changed, update plugin options
-            $plugin_options['list-saved-' . $type] = $src_list;
-            update_option( $this->plugin_name, $plugin_options );
-
-        }
+        if ( $list_changed ) $this->update_list( $plugin_options, $type, $src_list );
+        // if ( $list_changed ) {
+        //     // if list has been changed, update plugin options
+        //     $plugin_options['list-saved-' . $type] = $src_list;
+        //     update_option( $this->plugin_name, $plugin_options );
+        // }
 
         /**
          * Check if need to regenerate
@@ -390,6 +419,10 @@ class Exopite_Combiner_Minifier_Public {
             $combined_last_modified_times = time();
 
         }
+
+        // unset( $list['jquery-easing'] );
+
+        file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/logs/lists-main-' . $wp_type . '.log', $wp_type . ' value:' . PHP_EOL . var_export( $list, true ) . PHP_EOL, FILE_APPEND );
 
         /**
          * Remove/denqeue styles which are already processed
