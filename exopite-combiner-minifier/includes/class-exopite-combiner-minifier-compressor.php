@@ -116,13 +116,12 @@ class Exopite_Combiner_Minifier_Compressor {
 			$this->css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
 			$this->css_compressor->removeImportantComments();
 
-        	// $css_compressor_tubalmartin = new Autoptimize\tubalmartin\CssMin\Minifier;
-        	// $css_compressor_tubalmartin->removeImportantComments();
-
 		}
 
-		// $to_write .= ( new Minify\CSS( $converted_css ) )->minify();
-		// $to_write .= $css_compressor_tubalmartin->run( $converted_css );
+		$css = $this->css_remove_charset( $css );
+
+        // return = CssMin::minify( $css );
+		// return ( new Minify\CSS( $css ) )->minify();
 
 		return $this->css_compressor->run( $css );
 	}
@@ -150,16 +149,13 @@ class Exopite_Combiner_Minifier_Compressor {
 		//     $js_file_content .= ';';
 		// }
 
-		// $contents['content'] = JSMin::minify( $js, array('flaggedComments' => false) );
-		// $contents['content'] = JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) );
-		// $contents['content'] = ( new Minify\JS( $contents['content'] ) )->minify();
+		// return JSMinPlus::minify( $js_file_content, array('flaggedComments' => false) );
+		// return ( new Minify\JS( $js_file_content ) )->minify();
 
 		return JSMin::minify( $js_file_content, array( 'flaggedComments' => $flagged_comments ) );
 	}
 
 	public function html( $content, $options ) {
-
-    	// $content = Minify_HTML::minify( $content, array() );
 
 		return Minify_HTML::minify( $content, $options );
 	}
