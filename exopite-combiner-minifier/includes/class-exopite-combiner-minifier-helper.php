@@ -443,6 +443,9 @@ class Exopite_Combiner_Minifier_Helper {
 
     }
 
+    /**
+     * Only Method 2 and 3
+     */
     public function check_create_file( $id, $type, $fn, $items, $last_modified ) {
 
         // If combined and minified files are different then the enqueued files or
@@ -467,6 +470,9 @@ class Exopite_Combiner_Minifier_Helper {
 
     }
 
+    /**
+     * Only Method 2 and 3
+     */
 	public function get_id( $type ) {
 
         $id = '';
