@@ -256,12 +256,10 @@ class Exopite_Combiner_Minifier_Utilities {
      * This can produce error, because some styles, scripts are enqueued
      * very late that we won’t able to catch it earlier and they may have a depency.
      */
-    public function normalize_url( $url, $site_url, $wp_content_url, $type ) {
+    public function normalize_url( $url, $site_url, $wp_url, $type ) {
 
-        if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-process-wp_includes', false ) ) {
-            if ( $this->starts_with( $url, $wp_content_url ) ) {
-                $url = $site_url . $url;
-            }
+        if ( $this->starts_with( $url, $wp_url ) ) {
+            $url = $site_url . $url;
         }
 
         return $url;
