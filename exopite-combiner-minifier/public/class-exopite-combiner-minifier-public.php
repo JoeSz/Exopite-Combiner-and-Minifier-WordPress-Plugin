@@ -57,7 +57,7 @@ class Exopite_Combiner_Minifier_Public {
     public $options_lists;
 
     public $create_separate_js_files = 'yes';
-    public $create_separate_css_files = 'no';
+    public $create_separate_css_files = 'yes';
 
 	/**
 	 * Initialize the class and set its properties.
