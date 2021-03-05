@@ -118,7 +118,20 @@ class Exopite_Combiner_Minifier_Helper {
 			return false;
 		}
 
-        if ( ( $this->main->util->starts_with( $src, '//' ) && ! $this->main->util->starts_with( $src, strstr( $this->main->public->site_url, '//' ) ) ) && ! $this->main->util->starts_with( $src, $this->main->public->site_url ) ) return true;
+        // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/logs/src.log', 'src' . PHP_EOL . var_export( $src, true ) . PHP_EOL, FILE_APPEND );
+
+        /**
+         * Skip external urls (and maybe /wp-includes/ too)
+         */
+        if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-ignore-external', true ) ) {
+
+            if (
+                ! $this->main->util->starts_with( $src, $this->main->public->site_url ) &&
+                ! $this->main->util->starts_with( $src, strstr( $this->main->public->site_url, '//' ) )
+            ) {
+                return true;
+            }
+        }
 
         /**
          * Ignore some scripts, which should not be moved.
@@ -128,6 +141,9 @@ class Exopite_Combiner_Minifier_Helper {
          */
         if ( str_replace( $this->dont_move, '', $src ) != $src ) return true;
 
+        /**
+         * Ignore styles/scripts from options
+         */
         $to_skip = array();
 
         switch ( $type ) {
@@ -454,12 +470,14 @@ class Exopite_Combiner_Minifier_Helper {
 	public function get_id( $type ) {
 
         $id = '';
-        if ( $this->is_single_file_to_save( $type ) === false ) {
-                $id = $this->get_type_name();
 
-                if ( empty( $id ) ) {
-                    return false;
-                }
+        if ( $this->is_single_file_to_save( $type ) === false ) {
+
+            $id = $this->get_type_name();
+
+            if ( empty( $id ) ) {
+                return false;
+            }
 		}
 
 		return $id;
