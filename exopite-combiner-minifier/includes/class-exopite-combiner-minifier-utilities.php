@@ -316,7 +316,7 @@ class Exopite_Combiner_Minifier_Utilities {
         return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
     }
 
-    public function is_api_request() {
+    public function is_wp_api_request() {
 
         return (
             ( defined( 'JSON_REQUEST' ) && JSON_REQUEST ) ||
@@ -324,6 +324,64 @@ class Exopite_Combiner_Minifier_Utilities {
             ( defined( 'DOING_AJAX' ) && DOING_AJAX )
         );
 
+    }
+
+    public function is_api_request() {
+        return ( $this->is_rest_api_request() && $this->is_rest() && $this->is_wp_api_request() );
+    }
+
+    public function is_frontend_editor() {
+
+        /**
+         * @link https://developer.wordpress.org/reference/functions/is_preview/
+         */
+        if ( is_preview() ) {
+            return true;
+        }
+
+        $known_gets = array( 'elementor-preview', 'fl_builder' );
+        if ( count( array_diff( $_GET, $known_gets ) ) > 0) {
+            return true;
+        }
+
+        if ( class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active() ) {
+            return true;
+        }
+
+        /**
+         * Elementor
+         * @link https://code.elementor.com/methods/elementor-preview-is_preview_mode/
+         * @link https://ralphjsmit.com/elementor-check-active/
+         * @link https://github.com/elementor/elementor/issues/5509
+         */
+        // Alternative
+        // if ( isset( $_GET['elementor-preview'] ) ) return;
+        if ( class_exists( '\Elementor\Plugin' ) ) {
+
+            if ( \Elementor\Plugin::$instance->preview->is_preview_mode() || \Elementor\Plugin::$instance->editor->is_edit_mode() ) {
+                return true;
+            }
+
+        }
+
+        /**
+         * SiteOrigin Page Builder
+         * @link https://github.com/siteorigin/siteorigin-panels/issues/667
+         */
+        if ( class_exists( 'SiteOrigin_Panels' ) && SiteOrigin_Panels::is_live_editor() ) {
+            return true;
+        }
+
+        /**
+         * WPBakery Visual Composer
+         * @link https://wordpress.org/support/topic/correct-method-to-determine-if-using-frontend-editor/
+         * @link https://wordpress.stackexchange.com/questions/326856/detect-if-youre-in-the-frontend-editor-mode-in-visual-composer-wordpress
+         */
+        if ( function_exists( 'vc_is_inline' ) && vc_is_inline() ) {
+            return true;
+        }
+
+        return false;
     }
 
     public function strpos_array( $haystack, $needle ) {
