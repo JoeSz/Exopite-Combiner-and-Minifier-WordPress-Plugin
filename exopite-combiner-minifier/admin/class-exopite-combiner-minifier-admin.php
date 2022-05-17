@@ -301,9 +301,12 @@ class Exopite_Combiner_Minifier_Admin {
                     'id'      => 'ignore_process_scripts',
                     'type'    => 'textarea',
                     'title'   => esc_html__( 'Ignore scripts', 'exopite-combiner-minifier' ),
-                    'default' => 'jquery.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js',
+                    'default' => 'jquery.js' . PHP_EOL . 'jquery.min.js' . PHP_EOL . 'jquery-migrate.min.js' . PHP_EOL . 'admin-bar.min.js' . PHP_EOL . 'lodash.min.js',
                     'after'   => esc_html__( 'Only script name with extension. One per line.', 'exopite-combiner-minifier' ) . '<br>' . esc_html__( 'If not working check dependencies!', 'exopite-combiner-minifier' ),
                     // 'dependency' => array( 'method_method-1', '==', 'false' ),
+                    'attributes'    => array(
+                        'style'        => 'height: 400px;',
+                    ),
                 ),
 
                 array(
@@ -312,6 +315,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'title'      => esc_html__( 'Process inline scripts', 'exopite-combiner-minifier' ),
                     'default'    => 'no',
                     'dependency' => array( 'method_method-1', '==', 'false' ),
+                    'after'   => esc_html__( 'This will minify inline JavaScripts in place.', 'exopite-combiner-minifier' ),
                 ),
 
                 array(
@@ -319,7 +323,7 @@ class Exopite_Combiner_Minifier_Admin {
                     'type'    => 'switcher',
                     'title'   => esc_html__( 'Add try catch', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
-                    'after'   => esc_html__( 'To try to avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ),
+                    'after'   => esc_html__( 'To try to avoid crashes on falsy JavaScripts.', 'exopite-combiner-minifier' ) . ' ' . esc_html__( '(Recommended)', 'exopite-combiner-minifier' ),
                 ),
 
                 array(
@@ -335,7 +339,24 @@ class Exopite_Combiner_Minifier_Admin {
                     'title'   => esc_html__( 'Separate files for each page.', 'exopite-combiner-minifier' ),
                     'default' => 'yes',
                     'dependency' => array( 'method_method-1', '==', 'false' ),
-                    'after' => '<i style="font-size:0.9em;font-weight:normal;">Note: If you disable this, make sure, that your theme and plugin do not enqueue different JavaScript files on different pages. If so, the plugin always generates a new combined file.</i>',
+                    'after' => '<i style="font-size:0.9em;font-weight:normal;">' . esc_html__( 'Note: If you disable this, make sure, that your theme and plugin do not enqueue different JavaScript files on different pages. If so, the plugin always generates a new combined file.', 'exopite-combiner-minifier' ) . '</i>',
+                ),
+
+                array(
+                    'id'      => 'js_file_in_head',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Include in head.', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                    'dependency' => array( 'method_method-1', '==', 'false' ),
+                ),
+
+                array(
+                    'id'      => 'js_file_in_footer_bottom',
+                    'type'    => 'switcher',
+                    'title'   => esc_html__( 'Include in footer bottom.', 'exopite-combiner-minifier' ),
+                    'default' => 'no',
+                    'dependency' => array( 'method_method-1|js_file_in_head', '==|==', 'false|false' ),
+                    'after' => '<i style="font-size:0.9em;font-weight:normal;">' . esc_html__( 'Include combined and minified JavaScript bottom of the footer, before all enqueued inline and other JavaScript files. WordPress 5.7 compatibility.', 'exopite-combiner-minifier' ) . ' ' . esc_html__( '(Recommended)', 'exopite-combiner-minifier' ) . '</i>',
                 ),
 
             ),
