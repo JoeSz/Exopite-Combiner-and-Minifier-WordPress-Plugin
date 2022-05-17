@@ -21,6 +21,11 @@
  * @author     Joe Szalai <joe@szalai.org>
  */
 
+/**
+ * ToDos:
+ * - defer CSS? (https://wordpress.org/plugins/autoptimize/#but%20i%E2%80%99m%20on%20http%2F2%2C%20so%20i%20don%E2%80%99t%20need%20autoptimize%3F)
+ */
+
 class Exopite_Combiner_Minifier_Public {
 
 	/**
@@ -83,6 +88,15 @@ class Exopite_Combiner_Minifier_Public {
      *                                                           *
     \*************************************************************/
 
+    /**
+     * Process list
+     * Add src, path, data (inline)
+     * Remove externals
+     * Remove jQuery from further processing
+     * Remove "exlude" items from options
+     * Remove some "must ignore" items (see helper to_skip)
+     * Check the last modified (get the filemtime from the last modified item)
+     */
     public function get_enqueued( $list, $type = 'wp_scripts' ) {
 
         global ${$type};
@@ -91,6 +105,10 @@ class Exopite_Combiner_Minifier_Public {
         $result = [];
 
         foreach( $list as $handle ) {
+
+            // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/logs/registered_' . $type . '.log', 'list' . PHP_EOL . var_export( ${$type}->registered[$handle], true ) . PHP_EOL, FILE_APPEND );
+
+            // ${$type}->registered[$handle]->deps = array();
 
             /**
              * exopite-combiner-minifier-skip-wp_scripts
@@ -122,11 +140,15 @@ class Exopite_Combiner_Minifier_Public {
 
             /**
              * Skip external resources, plugin and theme author use CDN for a reason.
+             *
+             * If you do not want to do this, you need to include those scripts and styles locally.
              */
             if ( apply_filters( 'exopite-combiner-minifier-' . $type . '-ignore-external', true ) ) {
 
                 if ( ! $this->main->util->starts_with( $src, $this->site_url ) ) continue;
 
+            } else {
+                // for debug
             }
 
             /**
@@ -195,7 +217,11 @@ class Exopite_Combiner_Minifier_Public {
             $before = $after = '';
         }
 
-        foreach ( $list as $item ) {
+        foreach ( $list as $key => $item ) {
+
+            if ( $key == 'last-modified' ) {
+                continue;
+            }
 
             // Process css files
             if ( ! $data_only && substr( $item['path'], strrpos( $item['path'], '.' ) + 1 ) == 'css' ) {
@@ -235,8 +261,11 @@ class Exopite_Combiner_Minifier_Public {
                 }
 
                 if ( ! $data_only && file_exists( $item['path'] ) ) {
-                    $file_content = $before . file_get_contents( $item['path'] ) . $after;
-                    $result['content'] .= $file_content;
+
+                    $file_content = file_get_contents( $item['path'] );
+                    $file_content = $this->main->compressor->remove_source_mapping( $file_content );
+                    $result['content'] .= $before . $file_content . $after;
+
                 }
 
             }
@@ -249,7 +278,11 @@ class Exopite_Combiner_Minifier_Public {
 
     public function denqueue( $list, $type = 'scripts' ) {
 
-        foreach ( $list as $item ) {
+        foreach ( $list as $key => $item ) {
+
+            if ( $key == 'last-modified' ) {
+                continue;
+            }
 
             switch ( $type ) {
 
@@ -273,25 +306,18 @@ class Exopite_Combiner_Minifier_Public {
 
     public function minify_styles( $combined_mifinited_filename, $contents ) {
 
-        $startTime = microtime(true);
+        $start_time = microtime(true);
 
         $options = get_option( $this->plugin_name );
 
         if ( ! isset( $options['combine_only_styles'] ) || $options['combine_only_styles'] == 'no' ) {
-            // $css_compressor = new Autoptimize\tubalmartin\CssMin\Minifier;
-            // $css_compressor->removeImportantComments();
-            // $contents['content'] = $css_compressor->run( $contents['content'] );
-
-            // $contents['content'] = $this->main->compressor->css_remove_charset( $contents['content'] );
 
             $contents['content'] = $this->main->compressor->css( $contents['content'] );
 
-            // $contents['content'] = CssMin::minify( $contents['content'] );
-            // $contents['content'] = ( new Minify\CSS( $contents['content'] ) )->minify();
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner Minifier - minify and write CSS:  " . number_format(( microtime(true) - $start_time), 4) . "s. -->\n";
 
-            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - minify and write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
         } else {
-            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - write CSS:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner Minifier - write CSS:  " . number_format(( microtime(true) - $start_time), 4) . "s. -->\n";
         }
 
         file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_styles_before_write_to_file', $contents['content'] ) );
@@ -300,45 +326,142 @@ class Exopite_Combiner_Minifier_Public {
 
     public function minify_scripts( $combined_mifinited_filename, $contents ) {
 
-        $startTime = microtime(true);
+        $start_time = microtime(true);
 
         $options = get_option( $this->plugin_name );
 
         if ( ! isset( $options['combine_only_scripts'] ) || $options['combine_only_scripts'] == 'no' ) {
+
             $contents['content'] = $this->main->compressor->js( $contents['content'], false );
-            // $contents['content'] = JSMin::minify( $contents['content'], array('flaggedComments' => false) );
-            // $contents['content'] = JSMinPlus::minify( $contents['content'], array('flaggedComments' => false) );
-            // $contents['content'] = ( new Minify\JS( $contents['content'] ) )->minify();
-            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - minify and write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner Minifier - minify and write JavaScript:  " . number_format(( microtime(true) - $start_time), 4) . "s. -->\n";
+
         } else {
-            if ( $this->showinfo ) echo "<!-- Exopite Combiner and Minifier - write JavaScript:  " . number_format(( microtime(true) - $startTime), 4) . "s. -->\n";
+            if ( $this->showinfo ) echo "<!-- Exopite Combiner Minifier - write JavaScript:  " . number_format(( microtime(true) - $start_time), 4) . "s. -->\n";
         }
 
         file_put_contents( $combined_mifinited_filename, apply_filters( 'exopite_combiner_minifier_scripts_before_write_to_file', $contents['data'] . $contents['content'] ) );
 
     }
 
-    public function check_list_change( $plugin_options, $type, $src_list ) {
+    /**
+     * Checks if the items in the list have changed.
+     */
+    public function check_list_change( $plugin_options, $type, $list ) {
+
+        if ( ! isset( $plugin_options['list-saved-' . $type] ) || empty( $plugin_options['list-saved-' . $type] ) ) {
+            return true;
+        }
 
         // Get saved list from plugin options
         // $plugin_options = get_option( $this->plugin_name );
         $list_saved = $plugin_options['list-saved-' . $type];
 
-        $list_changed = ( $list_saved != $src_list );
+        $list_changed = ( $list_saved != $list );
 
         return $list_changed;
     }
 
     /**
-     * ToDos:
+     * Save the list in the options if have changed.
+     * Only save if it is the reference page (start page) or the list not yet exists.
+     *
      * - only save if
      *   - not exists in options (then save current)
      *   - it is the start page
      */
-    public function update_list( $plugin_options, $type, $src_list ) {
+    public function update_list( $plugin_options, $type, $list ) {
+
         // if list has been changed, update plugin options
-        $plugin_options['list-saved-' . $type] = $src_list;
-        update_option( $this->plugin_name, $plugin_options );
+        $list_saved_exists = ( isset( $plugin_options['list-saved-' . $type] ) && ! empty( $plugin_options['list-saved-' . $type] ) );
+
+        if ( is_front_page() || ! $list_saved_exists ) {
+
+            $plugin_options['list-saved-' . $type] = $list;
+            update_option( $this->plugin_name, $plugin_options );
+
+        } else {
+            // for debug
+        }
+
+    }
+
+    /**
+     * Not yet implemented
+     *
+     * If it is the start page (reference page) or we have no saved list in options the return current list
+     * if it is not the start page and we have saved list in options, then return the saved list
+     *
+     * Need a reference page, because it is possbile, different pages has a different items
+     * (eg. Contact Form 7 scripts only enqueued in the page, where the shortcode exists)
+     * and this would make to always re-create the list.
+     * Instead, we simply ignore any items (scripts and styles) that were not on the reference page.
+     * This is faster than always re-creating the list.
+     * Most of the websites has always the same items.
+     */
+    public function filter_list( $plugin_options, $type, $list ) {
+
+        /**
+         * - Need to cache list in front page
+         * - If cache not exists, then cache the current page
+         * - If cache exists and this is not the start page (reference page) then return the reference list
+         *   in this case, all item, which not in reference page exists will be ignored and leave it as it is
+         */
+
+        /**
+         * If start page || no list
+         * - leave it as it is
+         * If not start page
+         * - remove not matching with startpage
+         */
+
+        if ( ! isset( $plugin_options['list-saved-' . $type] ) || empty( $plugin_options['list-saved-' . $type] ) ) {
+            return $list;
+        }
+
+        $saved_list = $plugin_options['list-saved-' . $type];
+        $current_dateime = date( 'Y-m-d-H-i-s' );
+
+        // $new_list = array();
+
+        if ( ! is_front_page() ) {
+
+            // foreach ( $list as $list_item ) {
+
+            //     foreach ( $saved_list as $saved_item ) {
+
+            //         if ( $list_item == $saved_item ) {
+
+            //             $new_list[] = $list_item;
+            //             break;
+
+            //         }
+
+            //     }
+
+            // }
+
+            // $list = $new_list;
+
+            // MARK
+
+            /**
+             * Here need to update last-modified in options?
+             * if one or more file in the saved list has newer version, then? -> regenerate
+             * see update_list too
+             *      $plugin_options['list-saved-' . $type] = $list;
+             *      update_option( $this->plugin_name, $plugin_options );
+             */
+            // if ( $saved_list['last-modified'] != $list['last-modified'] ) {
+            //     $saved_list['last-modified'] = $list['last-modified'];
+            // }
+
+            return $saved_list;
+            // return $plugin_options['list-saved-' . $type];
+
+        }
+
+        return $list;
     }
 
     /**
@@ -356,43 +479,40 @@ class Exopite_Combiner_Minifier_Public {
          */
         ${$wp_type}->all_deps( ${$wp_type}->queue );
 
+        /**
+         * Get scripts/styles list
+         */
         $list = $this->get_enqueued( ${$wp_type}->to_do, $wp_type );
+
         $list = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-list', $list );
-
-        /**
-         * Check if enqueued list
-         */
-        $src_list = array();
-        foreach ( $list as $value ) {
-            $src_list[] = $value['src'];
-        }
-
-        /**
-         * Set minified and combined file name
-         */
-        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
-        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-' . $type . '-file-path', $combined_mifinited_filename );
-        $combined_last_modified_times = $list['last-modified'];
 
         // Get saved list from plugin options
         $plugin_options = get_option( $this->plugin_name );
+
+        $list = $this->filter_list( $plugin_options, $type, $list );
+
+        /**
+         * Get src from enqueued
+         */
+        $src_list = array();
+        foreach ( $list as $key => $value ) {
+            if ( $key == 'last-modified' ) {
+                continue;
+            }
+            $src_list[] = $value['src'];
+        }
 
         /**
          * ToDos:
          * - save list only if not exists (then current) or changed and it is the start page
          * - need to ignore the differenc of saved and current list items
          */
+        $list_changed = $this->check_list_change( $plugin_options, $type, $list );
 
-        $list_changed = $this->check_list_change( $plugin_options, $type, $src_list );
-        // $list_saved = $plugin_options['list-saved-' . $type];
-        // $list_changed = ( $list_saved != $src_list );
 
-        if ( $list_changed ) $this->update_list( $plugin_options, $type, $src_list );
-        // if ( $list_changed ) {
-        //     // if list has been changed, update plugin options
-        //     $plugin_options['list-saved-' . $type] = $src_list;
-        //     update_option( $this->plugin_name, $plugin_options );
-        // }
+        // DEBUG
+        // if ( $list_changed ) $this->update_list( $plugin_options, $type, $list );
+        $this->update_list( $plugin_options, $type, $list );
 
         /**
          * Check if need to regenerate
@@ -406,6 +526,13 @@ class Exopite_Combiner_Minifier_Public {
          * With this, we do not have to generate the file every time, only if some changes occurred,
          * it is more convenient for the user, because it is automatic.
          */
+        // Set minified and combined file name
+        $combined_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_file_name;
+        $combined_mifinited_filename = apply_filters( 'exopite-combiner-minifier-' . $type . '-file-path', $combined_mifinited_filename );
+        $combined_last_modified_times = $list['last-modified'];
+
+        // $debug_test = $this->main->util->check_last_modified_time( $combined_mifinited_filename, $combined_last_modified_times );
+
         if ( $list_changed ||
              $this->main->util->check_last_modified_time( $combined_mifinited_filename, $combined_last_modified_times ) ||
              apply_filters( 'exopite-combiner-minifier-force-generate-' . $type, false ) ) {
@@ -415,14 +542,13 @@ class Exopite_Combiner_Minifier_Public {
             $contents = $this->get_combined( $list );
             $contents = apply_filters( 'exopite-combiner-minifier-enqueued-' . $type . '-contents', $contents );
 
+            // Create file
             $this->{$fn}( $combined_mifinited_filename, $contents );
             $combined_last_modified_times = time();
 
         }
 
         // unset( $list['jquery-easing'] );
-
-        file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/logs/lists-main-' . $wp_type . '.log', $wp_type . ' value:' . PHP_EOL . var_export( $list, true ) . PHP_EOL, FILE_APPEND );
 
         /**
          * Remove/denqeue styles which are already processed
@@ -436,17 +562,21 @@ class Exopite_Combiner_Minifier_Public {
     public function scripts_handler_infos() {
 
         if ( $this->showinfo ) {
-            echo PHP_EOL . '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
-            echo '<!-- Exopite Combiner Minifier - Selected methode: 1 -->' . PHP_EOL;
+            echo PHP_EOL . '<!-- Exopite Combiner Minifier - You see this infos, beacuse the debug mode is true. -->' . PHP_EOL;
+            echo '<!-- Exopite Combiner Minifier - Selected methode: WordPress Scripts/Styles Queue -->' . PHP_EOL;
         }
 
     }
 
     public function styles_handler() {
 
+        if ( $this->main->util->is_frontend_editor() ) {
+            return;
+        }
+
         if ( apply_filters( 'exopite-combiner-minifier-process-styles', true ) ) {
 
-            $startTime = microtime(true);
+            $start_time = microtime(true);
 
             do_action( 'exopite-combiner-minifier-styles-before-process' );
 
@@ -462,7 +592,7 @@ class Exopite_Combiner_Minifier_Public {
 
             do_action( 'exopite-combiner-minifier-styles-after-process' );
 
-            $time_styles = number_format( ( microtime(true) - $startTime ), 4 );
+            $time_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
             if ( $this->showinfo ) echo '<!-- Exopite Combiner Minifier - Styles total time: '. $time_styles . 's. -->' . PHP_EOL;
 
@@ -470,11 +600,17 @@ class Exopite_Combiner_Minifier_Public {
 
     }
 
+    // public static $rant = false;
+
     public function scripts_handler() {
+
+        if ( $this->main->util->is_frontend_editor() ) {
+            return;
+        }
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts', true ) ) {
 
-            $startTime = microtime(true);
+            $start_time = microtime(true);
 
             do_action( 'exopite-combiner-minifier-scripts-before-process' );
 
@@ -490,11 +626,15 @@ class Exopite_Combiner_Minifier_Public {
 
                 wp_enqueue_script( 'scripts-combined', $combined_mifinited_file_url, array( 'jquery' ), $combined_last_modified_times, true );
 
-            });
+                // Enqueue in top
+                // wp_register_script( 'scripts-combined', $combined_mifinited_file_url, array( 'jquery' ), $combined_last_modified_times, true );
+                // array_unshift( wp_scripts()->queue, 'scripts-combined' );
+
+            }, 0);
 
             do_action( 'exopite-combiner-minifier-scripts-after-process' );
 
-            $time_scripts = number_format( ( microtime(true) - $startTime ), 4 );
+            $time_scripts = number_format( ( microtime(true) - $start_time ), 4 );
 
             if ( $this->showinfo ) echo '<!-- Exopite Combiner Minifier - Scripts total time: '. $time_scripts . 's. -->' . PHP_EOL;
 
@@ -510,8 +650,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts_simpledom( $content, $html ) {
 
-        $id = $this->main->helper->get_id( 'scripts' );
-        if ( ! $id ) return $content;
+        // $id = $this->main->helper->get_id( 'scripts' );
+        // if ( ! $id ) return $content;
 
         // DUPLICATE CODE!
         $to_write = '';
@@ -521,10 +661,15 @@ class Exopite_Combiner_Minifier_Public {
 
         $combine_only_scripts = ( isset( $this->options['combine_only_scripts'] ) ) ? $this->options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $this->options['scripts_try_catch'] ) ) ? $this->options['scripts_try_catch'] : 'yes';
+        $js_file_in_head = ( isset( $this->options['js_file_in_head'] ) ) ? $this->options['js_file_in_head'] : 'no';
+        $js_file_in_footer_bottom = ( isset( $this->options['js_file_in_footer_bottom'] ) ) ? $this->options['js_file_in_footer_bottom'] : 'no';
         $this->create_separate_js_files = ( isset( $this->options['create_separate_js_files'] ) ) ? $this->options['create_separate_js_files'] : 'yes';
         $this->create_separate_js_files = apply_filters( 'exopite-combiner-minifier-scripts-create-separate-files', $this->create_separate_js_files );
 
-        if ( $this->debug ) $start_time = microtime(true);
+        $id = $this->main->helper->get_id( 'scripts' );
+        if ( $this->main->public->create_separate_js_files == 'yes' && ! $id ) return $content;
+
+        if ( $this->showinfo ) $start_time = microtime(true);
 
         /**
          * Set script file name
@@ -578,8 +723,6 @@ class Exopite_Combiner_Minifier_Public {
             $items[] = $item;
 
         }
-
-        // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/temp.log', var_export( $items, true ) . PHP_EOL, FILE_APPEND );
 
         // DUPLICATE CODE!
         if ( empty( $items ) ) return $content;
@@ -703,13 +846,28 @@ class Exopite_Combiner_Minifier_Public {
         $script_html = '<script type="text/javascript" src="' . $script_url . '"></script>';
         // $style_html
 
-        /**
-         * Preload
-         *
-         * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
-         */
-        $html->find( 'head', 0)->innertext .= '<link rel="preload" href="' . $script_url . '" as="script" />';
-        $html->find( 'body', 0)->innertext .= $script_html;
+        if ( $js_file_in_head == 'no' ) {
+
+            /**
+             * Preload
+             *
+             * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
+             */
+            $html->find( 'head', 0)->innertext .= '<link rel="preload" href="' . $script_url . '" as="script" />';
+
+            if ( $js_file_in_footer_bottom == 'no' ) {
+
+                $html->find( 'body', 0 )->innertext .= $script_html;
+
+            } else {
+
+                $html->find( 'footer', -1 )->innertext .= $script_html;
+
+            }
+
+        } else {
+            $html->find( 'head', 0)->innertext .= $script_html;
+        }
 
         $content = $html->save();
 
@@ -718,8 +876,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_scripts( $content, $html, $xpath ) {
 
-        $id = $this->main->helper->get_id( 'scripts' );
-        if ( ! $id ) return $content;
+        // $id = $this->main->helper->get_id( 'scripts' );
+        // if ( ! $id ) return $content;
 
         $to_write = '';
 
@@ -728,10 +886,15 @@ class Exopite_Combiner_Minifier_Public {
 
         $combine_only_scripts = ( isset( $this->options['combine_only_scripts'] ) ) ? $this->options['combine_only_scripts'] : 'no';
         $scripts_try_catch = ( isset( $this->options['scripts_try_catch'] ) ) ? $this->options['scripts_try_catch'] : 'yes';
+        $js_file_in_head = ( isset( $this->options['js_file_in_head'] ) ) ? $this->options['js_file_in_head'] : 'no';
+        $js_file_in_footer_bottom = ( isset( $this->options['js_file_in_footer_bottom'] ) ) ? $this->options['js_file_in_footer_bottom'] : 'no';
         $this->create_separate_js_files = ( isset( $this->options['create_separate_js_files'] ) ) ? $this->options['create_separate_js_files'] : 'yes';
         $this->create_separate_js_files = apply_filters( 'exopite-combiner-minifier-scripts-create-separate-files', $this->create_separate_js_files );
 
-        if ( $this->debug ) $start_time = microtime(true);
+        $id = $this->main->helper->get_id( 'scripts' );
+        if ( $this->main->public->create_separate_js_files == 'yes' && ! $id ) return $content;
+
+        // if ( $this->showinfo ) $start_time = microtime(true);
 
         /**
          * Set script file name
@@ -885,18 +1048,23 @@ class Exopite_Combiner_Minifier_Public {
 
         $head = $html->getElementsByTagName('head')->item(0);
 
-            $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
-        /**
-         * Preload
-         *
-         * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
-         */
-        $preload = $html->createElement('link');
-        $preload->setAttribute( 'rel', 'preload' );
-        // $preload->setAttribute( 'crossorigin', 'anonymous' );
-        $preload->setAttribute( 'href', $script_url );
-        $preload->setAttribute( 'as', 'script' );
-        if ( ! is_null( $head ) ) $head->appendChild( $preload );
+        $script_url = $combined_scripts_mifinited_file_url . '?ver=' . $this->main->util->get_file_last_modified_time( $combined_scripts_mifinited_filename );
+
+        if ( $js_file_in_head == 'no' ) {
+
+            /**
+             * Preload
+             *
+             * @link https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
+             */
+            $preload = $html->createElement('link');
+            $preload->setAttribute( 'rel', 'preload' );
+            // $preload->setAttribute( 'crossorigin', 'anonymous' );
+            $preload->setAttribute( 'href', $script_url );
+            $preload->setAttribute( 'as', 'script' );
+            if ( ! is_null( $head ) ) $head->appendChild( $preload );
+
+        }
 
         /**
          * Add generated file to the end of the body.
@@ -904,12 +1072,31 @@ class Exopite_Combiner_Minifier_Public {
          * I can not insert ot header, because of the inline scripts in the page, which are inserted
          * by other pugins.
          */
-        $body = $html->getElementsByTagName('body')->item(0);
         $script = $html->createElement('script');
         $script->setAttribute( 'type', 'text/javascript' );
         $script->setAttribute( 'src', $script_url );
         // $script->setAttribute( 'defer', 'defer' );
-        if ( ! is_null( $body ) ) $body->appendChild( $script );
+
+        if ( $js_file_in_head == 'no' ) {
+
+            if ( $js_file_in_footer_bottom == 'no' ) {
+
+                $body = $html->getElementsByTagName('body')->item(0);
+                if ( ! is_null( $body ) ) $body->appendChild( $script );
+
+            } else {
+
+                $footers = $html->getElementsByTagName('footer');
+                $footers_count = $footers->length;
+                if ( $footers->length > 0 ) {
+                    $footers->item($footers_count -1)->appendChild( $script );
+                }
+
+            }
+
+        } else {
+            if ( ! is_null( $head ) ) $head->appendChild( $script );
+        }
 
         $content = $html->saveHTML();
 
@@ -919,8 +1106,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles_simpledom( $content, $html ) {
 
-        $id = $this->main->helper->get_id( 'styles' );
-        if ( ! $id ) return $content;
+        // $id = $this->main->helper->get_id( 'styles' );
+        // if ( ! $id ) return $content;
 
         // DUPLICATE CODE!
         $to_write = '';
@@ -930,6 +1117,9 @@ class Exopite_Combiner_Minifier_Public {
         $enqueue_head_styles = ( isset( $this->options['enqueue_head_styles'] ) ) ? $this->options['enqueue_head_styles'] : 'no';
         $this->create_separate_css_files = ( isset( $this->options['create_separate_css_files'] ) ) ? $this->options['create_separate_css_files'] : 'yes';
         $this->create_separate_css_files = apply_filters( 'exopite-combiner-minifier-styles-create-separate-files', $this->create_separate_css_files );
+
+        $id = $this->main->helper->get_id( 'styles' );
+        if ( $this->main->public->create_separate_css_files == 'yes' && ! $id ) return $content;
 
         do_action( 'exopite-combiner-minifier-styles-before-process' );
 
@@ -1106,8 +1296,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_styles( $content, $html, $xpath ) {
 
-        $id = $this->main->helper->get_id( 'styles' );
-        if ( ! $id ) return $content;
+        // $id = $this->main->helper->get_id( 'styles' );
+        // if ( ! $id ) return $content;
 
         $to_write = '';
 
@@ -1116,6 +1306,9 @@ class Exopite_Combiner_Minifier_Public {
         $enqueue_head_styles = ( isset( $this->options['enqueue_head_styles'] ) ) ? $this->options['enqueue_head_styles'] : 'no';
         $this->create_separate_css_files = ( isset( $this->options['create_separate_css_files'] ) ) ? $this->options['create_separate_css_files'] : 'yes';
         $this->create_separate_css_files = apply_filters( 'exopite-combiner-minifier-styles-create-separate-files', $this->create_separate_css_files );
+
+        $id = $this->main->helper->get_id( 'styles' );
+        if ( $this->main->public->create_separate_css_files == 'yes' && ! $id ) return $content;
 
         do_action( 'exopite-combiner-minifier-styles-before-process' );
 
@@ -1363,8 +1556,6 @@ class Exopite_Combiner_Minifier_Public {
         $combine_only_styles = ( isset( $this->options['combine_only_styles'] ) ) ? $this->options['combine_only_styles'] : 'no';
         $process_html = ( isset( $this->options['process_html'] ) ) ? $this->options['process_html'] : 'no';
 
-        // file_put_contents( EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . '/test.log', date( 'Y-m-d H:i:s' ) . ' options' . PHP_EOL . var_export( $this->options, true ) . PHP_EOL, FILE_APPEND | LOCK_EX);
-
         if ( $process_scripts == 'yes' || $process_styles == 'yes' ) {
 
             switch ( $method ) {
@@ -1487,11 +1678,11 @@ class Exopite_Combiner_Minifier_Public {
 
         if ( apply_filters( 'exopite-combiner-minifier-process-html', $process_html ) == 'yes' ) {
 
-            if ( $this->showinfo ) $startTime = microtime(true);
+            if ( $this->showinfo ) $start_time = microtime(true);
 
             $content = $this->main->compressor->html( $content, array() );
 
-            if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $startTime ), 4 );
+            if ( $this->showinfo ) $time_html = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
@@ -1521,7 +1712,8 @@ class Exopite_Combiner_Minifier_Public {
 
     public function process_html( $content ) {
 
-        if ( is_admin() || ( ! is_singular() && ! is_archive() && ! is_404() ) ) {
+        // if ( is_admin() || ( ! is_singular() && ! is_archive() && ! is_404() ) || isset( $_GET['elementor-preview'] ) ) {
+        if ( is_admin() || ( ! is_singular() && ! is_archive() && ! is_404() ) || $this->main->util->is_frontend_editor() ) {
             return $content;
         }
 
@@ -1544,18 +1736,34 @@ class Exopite_Combiner_Minifier_Public {
         $this->options_lists = get_option( $this->plugin_name . '_lists' );
         $this->site_url = get_site_url();
 
-        if ( $this->showinfo ) $this->debug_infos = '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
-        if ( $this->showinfo ) $this->debug_infos .= '<!-- Exopite Combiner Minifier - Selected methode: ' . $this->options['method'] . ' - Time: ' . date( 'Y-m-d H:i:s').substr( fmod( microtime( true ), 1), 1 ) . ' -->' . PHP_EOL;
+        if ( $this->showinfo ) {
+
+            $selected_method = $this->options['method'];
+            switch ( $selected_method ) {
+                case 'method-2':
+                    $selected_method = 'PHP DOMDocument';
+                    break;
+
+                case 'method-3':
+                    $selected_method = 'PHP Simple HTML DOM Parser';
+                    break;
+
+            }
+
+            $this->debug_infos = '<!-- Exopite Combiner Minifier - You see thin infos, beacuse the debug mode is true. -->' . PHP_EOL;
+
+            $this->debug_infos .= '<!-- Exopite Combiner Minifier - Selected methode: ' . $selected_method . ' - Time: ' . date( 'Y-m-d H:i:s').substr( fmod( microtime( true ), 1), 1 ) . ' -->' . PHP_EOL;
+        }
 
         if ( apply_filters( 'exopite-combiner-minifier-process-scripts-styles', true ) ) {
 
             add_filter( 'exopite_combiner_minifier_rant', '__return_true' );
 
-            $startTime = microtime(true);
+            $start_time = microtime(true);
 
             $content = $this->process_scripts_styles( $content );
 
-            $time_scripts_styles = number_format( ( microtime(true) - $startTime ), 4 );
+            $time_scripts_styles = number_format( ( microtime(true) - $start_time ), 4 );
 
         }
 
