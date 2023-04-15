@@ -135,7 +135,12 @@ class Exopite_Combiner_Minifier_Public {
              */
             $src = strtok( ${$type}->registered[$handle]->src, '?' );
 
-            $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+            // process relative styles/scripts start with /wp-includes/
+            $wp_includes_url = str_replace( $this->site_url, '', includes_url() );
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, $type );
+
+            // process relative styles/scripts start with /wp-content/
+            $wp_content_url = str_replace( $this->site_url, '', content_url() );
             $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, $type );
 
             /**
@@ -682,7 +687,8 @@ class Exopite_Combiner_Minifier_Public {
         $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
         $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
 
-        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_includes_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_content_url = str_replace( $this->site_url, '', content_url() );
         // END DUPLICATE CODE!
 
         $items_all = $html->find( 'script' );
@@ -697,7 +703,11 @@ class Exopite_Combiner_Minifier_Public {
                 // Remove src attributes.
                 $src = strtok( $src, '?' );
 
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'scripts' );
+
+                // process relative styles/scripts start with /wp-content/
                 $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
+
 
                 /**
                  * Skip external resources, plugin and theme author use CDN for a reason.
@@ -766,6 +776,9 @@ class Exopite_Combiner_Minifier_Public {
                 // Remove src attributes.
                 $src = strtok( $src, '?' );
 
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'scripts' );
+
+                // process relative styles/scripts start with /wp-content/
                 $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
 
                 // Get path from url
@@ -907,7 +920,8 @@ class Exopite_Combiner_Minifier_Public {
         $combined_scripts_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_scripts_file_name;
         $combined_scripts_mifinited_filename = apply_filters( 'exopite-combiner-minifier-scripts-file-path', $combined_scripts_mifinited_filename );
 
-        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_includes_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_content_url = str_replace( $this->site_url, '', content_url() );
 
         $items_all = $xpath->query("*/script");
         $items = array();
@@ -922,6 +936,9 @@ class Exopite_Combiner_Minifier_Public {
                 // Remove src attributes.
                 $src = strtok( $src, '?' );
 
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'scripts' );
+
+                // process relative styles/scripts start with /wp-content/
                 $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
 
 
@@ -990,6 +1007,9 @@ class Exopite_Combiner_Minifier_Public {
                 // Remove src attributes.
                 $src = strtok( $src, '?' );
 
+                $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'scripts' );
+
+                // process relative styles/scripts start with /wp-content/
                 $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'scripts' );
 
                 // Get path from url
@@ -1133,7 +1153,8 @@ class Exopite_Combiner_Minifier_Public {
         $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
         $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
 
-        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_includes_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_content_url = str_replace( $this->site_url, '', content_url() );
         // END DUPLICATE CODE!
 
         $items_all = $html->find( 'link[rel=stylesheet]' );
@@ -1145,6 +1166,9 @@ class Exopite_Combiner_Minifier_Public {
             $src = $item->href;
             $src = strtok( $src, '?' );
 
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'styles' );
+
+            // process relative styles/scripts start with /wp-content/
             $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
 
             /**
@@ -1187,6 +1211,9 @@ class Exopite_Combiner_Minifier_Public {
             $src = $item->href;
             $src = strtok( $src, '?' );
 
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'styles' );
+
+            // process relative styles/scripts start with /wp-content/
             $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
 
             // Get path from url
@@ -1322,7 +1349,8 @@ class Exopite_Combiner_Minifier_Public {
         $combined_styles_mifinited_filename = EXOPITE_COMBINER_MINIFIER_PLUGIN_DIR . 'combined' . DIRECTORY_SEPARATOR . $combined_styles_file_name;
         $combined_styles_mifinited_filename = apply_filters( 'exopite-combiner-minifier-styles-file-path', $combined_styles_mifinited_filename );
 
-        $wp_content_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_includes_url = str_replace( $this->site_url, '', includes_url() );
+        $wp_content_url = str_replace( $this->site_url, '', content_url() );
 
         /**
          * Preprocess, make sure check_create_file() has the list to work on.
@@ -1340,6 +1368,9 @@ class Exopite_Combiner_Minifier_Public {
             $src = $item->getAttribute("href");
             $src = strtok( $src, '?' );
 
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'styles' );
+
+            // process relative styles/scripts start with /wp-content/
             $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
 
             /**
@@ -1382,6 +1413,9 @@ class Exopite_Combiner_Minifier_Public {
             $src = $item->getAttribute("href");
             $src = strtok( $src, '?' );
 
+            $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_includes_url, 'styles' );
+
+            // process relative styles/scripts start with /wp-content/
             $src = $this->main->util->normalize_url( $src, $this->site_url, $wp_content_url, 'styles' );
 
             // Get path from url
