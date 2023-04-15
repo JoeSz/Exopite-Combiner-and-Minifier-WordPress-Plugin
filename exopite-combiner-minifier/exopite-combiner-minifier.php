@@ -16,7 +16,7 @@
  * Plugin Name:       Exopite Combiner and Minifier
  * Plugin URI:        https://www.joeszalai.org/exopite/exopite-combiner-minifier
  * Description:       Minify and Combine Javascripts and CSS resources for better SEO and page speed. jQuery and external resources will be ignored.
- * Version:           20201215
+ * Version:           20230415
  * Author:            Joe Szalai
  * Author URI:        https://www.joeszalai.org
  * License:           GPL-2.0+
@@ -87,7 +87,7 @@ define( 'EXOPITE_COMBINER_MINIFIER_PLUGIN_NAME', 'exopite-combiner-minifier' );
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20201215' );
+define( 'EXOPITE_COMBINER_MINIFIER_VERSION', '20230415' );
 
 /*
  * Update

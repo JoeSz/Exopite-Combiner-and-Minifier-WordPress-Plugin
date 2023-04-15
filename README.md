@@ -4,11 +4,11 @@
 Author link: http://www.joeszalai.org <br />
 Tags: combine, minify, enqueued CSS, enqueued JavaScript, SEO, search engline optimization <br />
 Requires at least: 4.8 <br />
-Tested up to: 5.6 <br />
+Tested up to: 6.2 <br />
 Stable tag: 4.8 <br />
 License: GPLv3 or later <br />
 License URI: http://www.gnu.org/licenses/gpl-3.0.html <br />
-Version: 20201215
+Version: 20230415
 
 ## Suggestions and feedback are welcome
 
@@ -112,6 +112,9 @@ INSTALLATION
 
 CHANGELOG
 ---------
+
+= 20230415 = - 2023-04-15
+* Added: Process relative scripts and styles from /wp-content/ too.
 
 = 20201215 = - 2020-12-15
 * Added: PHP Simple HTML DOM Parser as method-3
